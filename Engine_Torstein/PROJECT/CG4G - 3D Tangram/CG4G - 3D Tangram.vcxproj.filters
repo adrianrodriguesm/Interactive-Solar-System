@@ -76,19 +76,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Shaders\VertexShader_2D.vert">
+    <None Include="..\..\Shaders\fShader_basic.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\..\Shaders\VertexShader_3D.vert">
+    <None Include="..\..\Shaders\vShader_basic.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\..\Shaders\FragmentShader.frag">
+    <None Include="Displacement_Mapping_frag.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\..\Shaders\fShader_basic.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\Shaders\vShader_basic.vert">
+    <None Include="Displacement_Mapping_vert.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

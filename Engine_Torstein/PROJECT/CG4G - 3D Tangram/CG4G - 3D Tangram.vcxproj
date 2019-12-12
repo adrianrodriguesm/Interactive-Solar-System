@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -156,11 +156,10 @@
     <ClCompile Include="..\..\Source\Vectors.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Shaders\FragmentShader.frag" />
-    <None Include="..\..\Shaders\fShader_basic.frag" />
-    <None Include="..\..\Shaders\VertexShader_2D.vert" />
-    <None Include="..\..\Shaders\VertexShader_3D.vert" />
-    <None Include="..\..\Shaders\vShader_basic.vert" />
+    <None Include="..\..\Shaders\fShader_basic.glsl" />
+    <None Include="..\..\Shaders\vShader_basic.glsl" />
+    <None Include="Displacement_Mapping_frag.glsl" />
+    <None Include="Displacement_Mapping_vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
