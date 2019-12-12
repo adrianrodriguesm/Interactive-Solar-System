@@ -8,10 +8,11 @@ using namespace EngineSceneGraph;
 Shader* shader;
 
 ///Mesh
-Mesh* table;
+/*Mesh* table;
 Mesh* cube;
 Mesh* triangle;
-Mesh* parallelogram;
+Mesh* parallelogram;*/
+Mesh* sun;
 
 ///SceneGraph
 SceneGraph* scene;
@@ -191,10 +192,11 @@ void destroyShaderProgram()
 
 void createBufferObjects()
 {
-	table->createBufferObjects();
+	sun->createBufferObjects();
+	/*table->createBufferObjects();
 	cube->createBufferObjects();
 	triangle->createBufferObjects();
-	parallelogram->createBufferObjects();
+	parallelogram->createBufferObjects();*/
 	
 
 #ifndef ERROR_CALLBACK
@@ -204,11 +206,11 @@ void createBufferObjects()
 
 void destroyBufferObjects()
 {
-
-	table->destroyBufferObjects();
+	sun->destroyBufferObjects();
+	/*table->destroyBufferObjects();
 	cube->destroyBufferObjects();
 	triangle->destroyBufferObjects();
-	parallelogram->destroyBufferObjects();
+	parallelogram->destroyBufferObjects();*/
 
 #ifndef ERROR_CALLBACK
 	checkOpenGLError("ERROR: Could not destroy VAOs and VBOs.");
@@ -266,10 +268,16 @@ void makeAnimation() {
 
 void createSceneGraph()
 {
+
 	SceneNode* root = new SceneNode();
 	root->setShaderProgram(shader);
+	SceneNode* sun_Node = root->createNode();
+	sun_Node->setMesh(sun);
+	sun_Node->setColor(vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	
 
-	SceneNode* tableGround = root->createNode();
+
+	/*SceneNode* tableGround = root->createNode();
 	tableGround->setMesh(table);
 	tableGround->setColor(vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	qtrn qTable = qTable.qFromAngleAxis(90.0f, vec4(1.0f, 0.0f, 0.0f, 1.0f));///Rotacao de modo a ver de frente
@@ -407,7 +415,7 @@ void createSceneGraph()
 	nodesToAnimate.push_back(trianguloS1);
 	nodesToAnimate.push_back(trianguloS2);
 	nodesToAnimate.push_back(cubeT);
-	nodesToAnimate.push_back(paraT);
+	nodesToAnimate.push_back(paraT);*/
 	
 
 	scene = new SceneGraph(mainCamera, root);
@@ -673,12 +681,21 @@ GLFWwindow* setup(int major, int minor,
 #ifdef ERROR_CALLBACK
 	setupErrorCallback();
 #endif
-	std::string cube_dir = "models/cube_vn.obj";
+	/*std::string cube_dir = "models/cube_vn.obj";
 	std::string triangle_dir = "models/triangle.obj";
 	std::string parallelogram_dir = "models/parallelogram.obj";
-	std::string table_dir = "models/table.obj";
+	std::string table_dir = "models/table.obj";*/
 
-	table = new Mesh();
+	std::string sun_dir = "models/sphere.obj";
+	sun = new Mesh();
+	sun->createMesh(sun_dir);
+
+	Texture* texSun = new Texture("C:/Users/adria/Desktop/IST/CGJ/Project/Lab2/Lab2/src/yellow.jpg");
+	//texSun->Bind();
+	//shader->setUniform1i("u_texture", 0);
+	sun->setTexture(texSun);
+
+	/*table = new Mesh();
 	cube = new Mesh();
 	triangle = new Mesh();
 	parallelogram = new Mesh();
@@ -686,7 +703,7 @@ GLFWwindow* setup(int major, int minor,
 	cube->createMesh(cube_dir);
 	triangle->createMesh(triangle_dir);
 	parallelogram->createMesh(parallelogram_dir);
-	table->createMesh(table_dir);
+	table->createMesh(table_dir);*/
 
 	mainCamera = new Camera();
 	mainCamera->setTranslationMatrix(d);

@@ -5,17 +5,20 @@
 #include <sstream>
 #include <fstream>
 #include "Shaders.h"
+#include "Texture.h"
 
 #define VERTICES 0
 #define TEXCOORDS 1
 #define NORMALS 2
+
 using namespace Shaders;
+using namespace EngineTexture;
 namespace EngineMesh {
 
 
 	struct Mesh {
 		Mesh() = default;
-
+		Texture* tex;
 		typedef struct {
 			GLfloat x, y, z;
 		} Vertex;
@@ -46,6 +49,8 @@ namespace EngineMesh {
 		void processMeshData();
 		void freeMeshData();
 		void draw(Shader* shader,  vec4& color, mat4& m);
+
+		void setTexture(Texture* tex);
 
 		void createBufferObjects();
 		void destroyBufferObjects();
