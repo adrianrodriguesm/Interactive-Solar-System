@@ -141,6 +141,7 @@
     <ClInclude Include="..\..\Headers\Scenegraph.h" />
     <ClInclude Include="..\..\Headers\SceneNode.h" />
     <ClInclude Include="..\..\Headers\Shader.h" />
+    <ClInclude Include="..\..\Headers\Texture.h" />
     <ClInclude Include="..\..\Headers\Vectors.h" />
   </ItemGroup>
   <ItemGroup>

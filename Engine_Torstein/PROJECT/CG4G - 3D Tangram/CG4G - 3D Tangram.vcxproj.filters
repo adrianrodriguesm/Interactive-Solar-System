@@ -42,6 +42,9 @@
     <ClInclude Include="..\..\Headers\Scenegraph.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Headers\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Camera.cpp">
