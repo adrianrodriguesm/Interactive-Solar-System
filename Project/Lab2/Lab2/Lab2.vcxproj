@@ -149,10 +149,12 @@
     <ClCompile Include="src\SceneGraph.cpp" />
     <ClCompile Include="src\SceneNode.cpp" />
     <ClCompile Include="src\Shaders.cpp" />
+    <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\vec2.cpp" />
     <ClCompile Include="src\vec3.cpp" />
     <ClCompile Include="src\vec4.cpp" />
     <ClCompile Include="src\vectors.cpp" />
+    <ClCompile Include="src\Vendor\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
@@ -168,10 +170,12 @@
     <ClInclude Include="include\SceneNode.h" />
     <ClInclude Include="include\Shaders.h" />
     <ClInclude Include="include\State.h" />
+    <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\vec2.h" />
     <ClInclude Include="include\vec3.h" />
     <ClInclude Include="include\vec4.h" />
     <ClInclude Include="include\vectors.h" />
+    <ClInclude Include="src\Vendor\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\fragment.frag" />
