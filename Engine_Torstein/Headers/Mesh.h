@@ -31,16 +31,25 @@ private:
 	void freeMeshData();
 
 	void createBufferObjects(Mesh& mesh);
+
 public:
+
 	bool NormalsLoaded, TexcoordsLoaded;
 
 	Mesh();
+
 	Mesh(std::string& filename);
+
 	GLuint VaoId, verticesCount;
+
 	Mesh meshFromObj(std::string& filename);
+
 	void destroy();
+
 	const void createMesh(std::string& filename);
+
 	void bindVaoId(); 
+
 	void draw();
 };
 

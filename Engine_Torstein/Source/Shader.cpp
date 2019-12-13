@@ -5,7 +5,7 @@
 #include <fstream>
 
 Shader::Shader() {
-	mProgramId = 0;
+	ProgramId = 0;
 	PositionUniformId = 0;
 	ColorUniformId = 0;
 	ProjectionMatrix_UId = 0;
@@ -40,7 +40,7 @@ unsigned int Shader::GetCompiledShader(unsigned int shader_type, const std::stri
 	return shader_id;
 }
 
-bool Shader::Load(const std::string& vertexShaderFile, const std::string& fragmentShaderFile)
+void Shader::Load(const std::string& vertexShaderFile, const std::string& fragmentShaderFile)
 {
 	std::string f_fs;
 	std::string f_vs;
@@ -62,31 +62,56 @@ bool Shader::Load(const std::string& vertexShaderFile, const std::string& fragme
 	}
 	else std::cout << "Error: Shader file '" << fragmentShaderFile << "'could not be found." << std::endl;
 	
-	mProgramId = glCreateProgram();
+	ProgramId = glCreateProgram();
 
-	unsigned int vs = GetCompiledShader(GL_VERTEX_SHADER, f_vs);
-	unsigned int fs = GetCompiledShader(GL_FRAGMENT_SHADER, f_fs);
+	vs = GetCompiledShader(GL_VERTEX_SHADER, f_vs);
+	fs = GetCompiledShader(GL_FRAGMENT_SHADER, f_fs);
 
-	glAttachShader(mProgramId, vs);
-	glAttachShader(mProgramId, fs);
+	glAttachShader(ProgramId, vs);
+	glAttachShader(ProgramId, fs);
 
-	glBindAttribLocation(mProgramId, 0, "inPosition");
-	if (TexcoordsLoaded)
-		glBindAttribLocation(mProgramId, 1, "inTexcoord");
-	if (NormalsLoaded)
-		glBindAttribLocation(mProgramId, 2, "inNormal");
-	
-	glLinkProgram(mProgramId);
+	//glBindAttribLocation(ProgramId, 0, "inPosition");
+	//if (TexcoordsLoaded)
+	//	glBindAttribLocation(ProgramId, 1, "inTexcoord");
+	//if (NormalsLoaded)
+	//	glBindAttribLocation(ProgramId, 2, "inNormal");
+	//
+	//glLinkProgram(ProgramId);
 
-	ColorUniformId = glGetUniformLocation(mProgramId, "colorOverride");
-	ModelMatrix_UId = glGetUniformLocation(mProgramId, "ModelMatrix");
-	ViewMatrix_UId = glGetUniformLocation(mProgramId, "ViewMatrix");
-	ProjectionMatrix_UId = glGetUniformLocation(mProgramId, "ProjectionMatrix");
+	//ColorUniformId = glGetUniformLocation(ProgramId, "colorOverride");
+	//ModelMatrix_UId = glGetUniformLocation(ProgramId, "ModelMatrix");
+	//ViewMatrix_UId = glGetUniformLocation(ProgramId, "ViewMatrix");
+	//ProjectionMatrix_UId = glGetUniformLocation(ProgramId, "ProjectionMatrix");
 
-	glValidateProgram(mProgramId);
+	//glValidateProgram(ProgramId);
 
-	glDetachShader(mProgramId, vs);
-	glDetachShader(mProgramId, fs);
+	//glDetachShader(ProgramId, vs);
+	//glDetachShader(ProgramId, fs);
+
+	//glDeleteShader(vs);
+	//glDeleteShader(fs);
+
+	//return true;
+}
+
+void Shader::AddAttribute(const GLuint index, const GLchar* name) {
+	glBindAttribLocation(this->ProgramId, index, name);
+}
+
+void Shader::AddUniform(const GLchar* name) 
+{
+	GLint linkStatus;
+	glGetProgramiv(ProgramId, GL_LINK_STATUS, &linkStatus);
+	if (linkStatus == GL_FALSE) glLinkProgram(ProgramId);
+
+	this->Uniforms[name] = glGetUniformLocation(this->ProgramId, name);
+}
+
+bool Shader::Create() {
+	glValidateProgram(ProgramId);
+
+	glDetachShader(ProgramId, vs);
+	glDetachShader(ProgramId, fs);
 
 	glDeleteShader(vs);
 	glDeleteShader(fs);
@@ -96,11 +121,11 @@ bool Shader::Load(const std::string& vertexShaderFile, const std::string& fragme
 
 void Shader::Use()
 {
-	glUseProgram(mProgramId);
+	glUseProgram(ProgramId);
 }
 
 void Shader::Delete()
 {
-	glDeleteProgram(mProgramId);
+	glDeleteProgram(ProgramId);
 }
 

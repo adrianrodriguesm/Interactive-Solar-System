@@ -171,11 +171,14 @@ void destroyMeshes() {
 /////////////////////////////////////////////////////////////////////// SHADER
 
 void createShader() {
-	///// Assuming all the meshes are exported the same way: (They all use the same shader)
-	shader.TexcoordsLoaded = squareMesh.TexcoordsLoaded;
-	shader.NormalsLoaded = squareMesh.NormalsLoaded;
-	////////////////////////////////////////////
 	shader.Load(vertexShaderFile, fragmentShaderFile);
+	shader.AddAttribute(0, "inPosition");
+	shader.AddAttribute(1, "inTexcoord");
+	shader.AddUniform("ModelMatrix");
+	shader.AddUniform("ProjectionMatrix");
+	shader.AddUniform("ViewMatrix");
+	shader.AddUniform("HeightMap");
+	shader.AddUniform("ColorMap");
 }
 
 /////////////////////////////////////////////////////////////////////// SCENE

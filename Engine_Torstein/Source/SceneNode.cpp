@@ -30,10 +30,9 @@ void SceneNode::draw(Camera* cam) {
 
 		mat4 totalMatrix = parent->modelMatrix * this->modelMatrix * this->scaleMatrix;
 
-		glUniform4f(shader->ColorUniformId, color.x, color.y, color.z, color.w);
-		glUniformMatrix4fv(shader->ModelMatrix_UId, 1, GL_TRUE, totalMatrix.data);
-		glUniformMatrix4fv(shader->ViewMatrix_UId, 1, GL_TRUE, cam->ViewMatrix.data);
-		glUniformMatrix4fv(shader->ProjectionMatrix_UId, 1, GL_TRUE, cam->ProjectionMatrix.data);
+		glUniformMatrix4fv(shader->Uniforms["ModelMatrix"], 1, GL_TRUE, totalMatrix.data);
+		glUniformMatrix4fv(shader->Uniforms["ViewMatrix"], 1, GL_TRUE, cam->ViewMatrix.data);
+		glUniformMatrix4fv(shader->Uniforms["ProjectionMatrix"], 1, GL_TRUE, cam->ProjectionMatrix.data);
 
 		this->mesh->draw();
 

@@ -1,18 +1,22 @@
-#ifndef SHADERUTIL_H
-#define SHADERUTIL_H
-
 #include <string>
+#include <map>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 class Shader {
 
 private:
-	unsigned int mProgramId;
+	GLuint vs, fs;
+
+	GLuint ProgramId;
 
 	unsigned int GetCompiledShader(unsigned int shader_type, const std::string& shader_source);
 
 public:
 	Shader();
 	~Shader() {}
+
+	std::map<const GLchar*, GLuint> Uniforms;
 
 	unsigned int PositionUniformId;
 	unsigned int ColorUniformId;
@@ -23,7 +27,12 @@ public:
 	bool TexcoordsLoaded, NormalsLoaded;
 
 	// Load a vertex and a fragment shader from file
-	bool Load(const std::string& vertexShaderFile, const std::string& fragmentShaderFile);
+	void Load(const std::string& vertexShaderFile, const std::string& fragmentShaderFile);
+
+	void AddAttribute(const GLuint index, const GLchar* name);
+	void AddUniform(const GLchar* name);
+
+	bool Create();
 
 	// Use the program
 	void Use();
@@ -32,6 +41,3 @@ public:
 	void Delete();
 
 };
-
-
-#endif
