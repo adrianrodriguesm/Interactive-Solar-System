@@ -1,7 +1,7 @@
 #version 330
 out vec4 FragColor;
 
-in vec2 ex_Texcoord;
+in vec2 exTexcoord;
 in vec4 E;
 
 uniform sampler2D ColorMap;
@@ -13,8 +13,8 @@ int max_iter = 1000;
 
 void main()
 {	
-	vec2 UV_temp = ex_Texcoord;
-	vec2 texCoord = ex_Texcoord;
+	vec2 UV_temp = exTexcoord;
+	vec2 texCoord = exTexcoord;
 	float th;
 	float dh = E.z/max_iter;
 	vec2 dw = vec2(length(vec2(E.x, E.y))/max_iter);
