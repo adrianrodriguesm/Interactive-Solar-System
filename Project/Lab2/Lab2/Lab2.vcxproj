@@ -149,6 +149,7 @@
     <ClCompile Include="src\SceneGraph.cpp" />
     <ClCompile Include="src\SceneNode.cpp" />
     <ClCompile Include="src\Shaders.cpp" />
+    <ClCompile Include="src\Sun.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\vec2.cpp" />
     <ClCompile Include="src\vec3.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="include\SceneNode.h" />
     <ClInclude Include="include\Shaders.h" />
     <ClInclude Include="include\State.h" />
+    <ClInclude Include="include\Sun.h" />
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\vec2.h" />
     <ClInclude Include="include\vec3.h" />
@@ -178,6 +180,12 @@
     <ClInclude Include="src\Vendor\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\bloomFinalF.glsl" />
+    <None Include="shaders\bloomFinalV.glsl" />
+    <None Include="shaders\BloomV.glsl" />
+    <None Include="shaders\blurrF.glsl" />
+    <None Include="shaders\blurrV.glsl" />
+    <None Include="shaders\brightFilterF.glsl" />
     <None Include="shaders\fragment.frag" />
     <None Include="shaders\vertex.vert" />
   </ItemGroup>

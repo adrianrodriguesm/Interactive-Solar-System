@@ -1,11 +1,15 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "../include/SceneGraph.h"
+#include "../include/Sun.h"
 
 using namespace EngineSceneGraph;
 
 ///Shader
 Shader* shader;
+Shader* shaderBright;
+Shader* shaderBlur;
+Shader* shaderBloomFinal;
 
 ///Mesh
 /*Mesh* table;
@@ -13,6 +17,7 @@ Mesh* cube;
 Mesh* triangle;
 Mesh* parallelogram;*/
 Mesh* sun;
+Sun* bloom;
 
 ///SceneGraph
 SceneGraph* scene;
@@ -165,9 +170,18 @@ static void checkOpenGLError(std::string error)
 void createShaderProgram()
 {
 
-	shader = new Shader("shaders/vertex.vert", "shaders/fragment.frag");
+	shader = new Shader("shaders/vertex.vert", "shaders/brightFilterF.glsl");
 	shader->load();
 	shader->enable();
+
+	/*shaderBright = new Shader("shaders/BloomV.glsl", "shaders/brightFilterF.glsl");
+	shaderBright->load();*/
+	 shaderBlur = new Shader ("shaders/blurrV.glsl", "shaders/blurrF.glsl");
+	 shaderBlur->load();
+	 shaderBlur->enable();
+	 shaderBlur->setUniform1i("image", 0);
+	/*shaderBloomFinal= new Shader("shaders/bloomFinalV.glsl", "shaders/bloomFinalF.glsl");
+	shaderBloomFinal->load();*/
 	
 	//shader->addAttribute(VERTICES, "in_Position");
 
@@ -228,11 +242,12 @@ void drawScene()
 	else {
 		mainCamera->setPersProjMatrix(fov, 640.0f / 480.0f, 0.0f, 20.0f);
 	}
-
+	//bloom->renderBrightFilterBuffer();
 	if (animation) {
 		makeAnimation();
 	}
 	else {
+		//bloom->renderWithBlurr(shaderBlur, scene);
 		scene->draw();
 	}
 			
@@ -288,126 +303,6 @@ void createSceneGraph()
 	///Tangram
 	SceneNode* tangram = root->createNode();
 	
-
-	////Triangulo
-	SceneNode* trianguloM = tangram->createNode();
-	trianguloM->setMesh(triangle);
-	trianguloM->setColor(vec4(1.0f, 1.0f, 0.0f, 1.0f));	
-	mat4 transT1 = mathsMatFactory::matFactory::createTranslationMat4(vec3(0.0f, -1.55f, 0.0f));
-	trianguloM->setTrans(transT1);
-	qtrn qRot = qRot.qFromAngleAxis(90.0f, vec4(0.0f, 1.0f, 0.0f, 1.0f));///Rotacao de modo a ver de frente
-	trianguloM->setRot(qTable * qRot);
-	mat4 scaleM = mathsMatFactory::matFactory::createScaleMat4(vec3(1.1f, -1.0f, 1.1f));
-	trianguloM->setScale(scaleM);
-	State tM = State(transT1, qTable * qRot);
-	trianguloM->setInitialState(tM);
-	
-
-	///Bigs triangles
-	SceneNode* trianguloB1 = tangram->createNode();
-	trianguloB1->setMesh(triangle);
-	trianguloB1->setColor(vec4(1.0f, 0.0f, 1.0f, 1.0f));
-	trianguloB1->setRot(qTable * qRot);
-	mat4 scaleTB = mathsMatFactory::matFactory::createScaleMat4(vec3(1.5f, 1.0f, 1.5f));
-	trianguloB1->setScale(scaleTB);
-	mat4 transB1 = mathsMatFactory::matFactory::createTranslationMat4(vec3(-1.5f, 1.0f, 0.0f));
-	trianguloB1->setTrans(transB1);
-	State tB1 = State(transB1, qTable * qRot);
-	trianguloB1->setInitialState(tB1);
-
-
-	SceneNode* trianguloB2 = tangram->createNode();
-	trianguloB2->setMesh(triangle);
-	trianguloB2->setColor(vec4(1.0f, 0.0f, 0.5f, 1.0f));
-	trianguloB2->setRot(qTable * qRot);
-	trianguloB2->setScale(scaleTB);
-	mat4 transB2 = mathsMatFactory::matFactory::createTranslationMat4(vec3(1.5f, 1.0f, 0.0f));
-	trianguloB2->setTrans(transB2);
-	State tB2 = State(transB2, qTable * qRot);
-	trianguloB2->setInitialState(tB2);
-
-	///Small Triangles
-	SceneNode* trianguloS1 = tangram->createNode();
-	trianguloS1->setMesh(triangle);
-	trianguloS1->setColor(vec4(0.5f, 0.0f, 1.0f, 1.0f));
-	mat4 scaleS1 = mathsMatFactory::matFactory::createScaleMat4(vec3(0.74f, 1.0f, 0.74f));
-	trianguloS1->setScale(scaleS1);
-	trianguloS1->setRot(qTable);
-	mat4 transS1 = mathsMatFactory::matFactory::createTranslationMat4(vec3(0.74f, 0.25f, 0.0f));
-	trianguloS1->setTrans(transS1);
-	State tS1 = State(transS1, qTable);
-	trianguloS1->setInitialState(tS1);
-
-	SceneNode* trianguloS2 = tangram->createNode();
-	trianguloS2->setMesh(triangle);
-	trianguloS2->setColor(vec4(0.0f, 1.0f, 0.5f, 1.0f));
-	trianguloS2->setScale(scaleS1);
-	qtrn qS2 = qS2.qFromAngleAxis(-90.0f, vec4(0.0f, 1.0f, 0.0f, 1.0f));
-	trianguloS2->setRot(qTable * qS2);
-	mat4 transS2 = mathsMatFactory::matFactory::createTranslationMat4(vec3(0.0f, 0.95f, 0.0f));
-	trianguloS2->setTrans(transS2);
-	State tS2 = State(transS2, qTable * qS2);
-	trianguloS2->setInitialState(tS2);
-	
-
-	///Cube
-	SceneNode* cubeT = tangram->createNode();
-	cubeT->setMesh(cube);
-	cubeT->setColor(vec4(0.5f, 1.0f, 0.0f, 1.0f));
-	mat4 scaleSquare = mathsMatFactory::matFactory::createScaleMat4(vec3(0.5f, 0.5f, 0.2f));
-	cubeT->setScale(scaleSquare);
-	mat4 transC = mathsMatFactory::matFactory::createTranslationMat4(vec3(0.0f, -1.f, 0.0f));
-	cubeT->setTrans(transC);
-	State sQ = State(transC, qtrn(1.0f, 0.0f, 0.0f, 0.0f));
-	cubeT->setInitialState(sQ);
-
-	//Parallelogram
-	SceneNode* paraT = tangram->createNode();
-	paraT->setMesh(parallelogram);
-	paraT->setColor(vec4(1.0f, 0.5f, 0.0f, 1.0f));
-	mat4 transPara = mathsMatFactory::matFactory::createTranslationMat4(vec3(-0.35f, 0.575f, 0.0f));
-	paraT->setTrans(transPara);
-	mat4 scalePara = mathsMatFactory::matFactory::createScaleMat4(vec3(0.5f, 1.0f, 0.5f));
-	paraT->setScale(scalePara);
-	qtrn qPara = qPara.qFromAngleAxis(45.0f, vec4(0.0f, 1.0f, 0.0f, 1.0f));///Rotacao de modo a ver de frente
-	paraT->setRot(qTable* qPara);
-	State sP = State(transPara, qTable * qPara);
-	paraT->setInitialState(sP);
-	
-
-	///SQUARE
-
-	transB1 = mathsMatFactory::matFactory::createTranslationMat4(vec3(-1.0f, 0.0f, 0.0f));
-	State sB1 = State(transB1, qTable);
-	trianguloB1->setFinalState(sB1);
-
-	transB2 = mathsMatFactory::matFactory::createTranslationMat4(vec3(-1.0f, 0.0f, 0.0f));
-	qtrn qQB2 = qQB2.qFromAngleAxis(90.0f, vec4(0.0f, 1.0f, 0.0f, 1.0f));
-	State sB2 = State(transB1, qTable * qQB2);
-	trianguloB2->setFinalState(sB2);
-
-	transPara = mathsMatFactory::matFactory::createTranslationMat4(vec3(0.14f, -0.42f, 0.0f));
-	State sPara = State(transPara, qTable * qPara);
-	paraT->setFinalState(sPara);
-
-	transS1 = mathsMatFactory::matFactory::createTranslationMat4(vec3(-0.95f, -0.1f, 0.0f));
-	qtrn qQS1 = qQB2.qFromAngleAxis(180.0f, vec4(0.0f, 1.0f, 0.0f, 1.0f));
-	State sS1 = State(transS1, qTable* qQS1);
-	trianguloS1->setFinalState(sS1);
-
-	transS2 = mathsMatFactory::matFactory::createTranslationMat4(vec3(-1.67f, 0.71f, 0.0f));
-	State sS2= State(transS2, qTable * qS2);
-	trianguloS2->setFinalState(sS2);
-
-	qtrn qQM = qQM.qFromAngleAxis(45.0f, vec4(0.0f, 1.0f, 0.0f, 1.0f));
-	mat4 transM = mathsMatFactory::matFactory::createTranslationMat4(vec3(0.5f, 1.5f, 0.0f));
-	State sM = State(transM, qTable * qQM);
-	trianguloM->setFinalState(sM);
-
-	transC = mathsMatFactory::matFactory::createTranslationMat4(vec3(-0.95f, 0.65f, 0.0f));
-	qtrn qC = qC.qFromAngleAxis(45.0f, vec4(0.0f, 0.0f, 1.0f, 1.0f));
-	State sQ1 = State(transC, qC);
-	cubeT->setFinalState(sQ1);
 
 	nodesToAnimate.push_back(trianguloM);
 	nodesToAnimate.push_back(trianguloB1);
@@ -690,27 +585,24 @@ GLFWwindow* setup(int major, int minor,
 	sun = new Mesh();
 	sun->createMesh(sun_dir);
 
-	Texture* texSun = new Texture("C:/Users/adria/Desktop/IST/CGJ/Project/Lab2/Lab2/src/yellow.jpg");
-	//texSun->Bind();
-	//shader->setUniform1i("u_texture", 0);
+	Texture* texSun = new Texture("src/yellow.jpg");
+
 	sun->setTexture(texSun);
+	bloom = new Sun();
 
-	/*table = new Mesh();
-	cube = new Mesh();
-	triangle = new Mesh();
-	parallelogram = new Mesh();
-
-	cube->createMesh(cube_dir);
-	triangle->createMesh(triangle_dir);
-	parallelogram->createMesh(parallelogram_dir);
-	table->createMesh(table_dir);*/
-
+	
 	mainCamera = new Camera();
 	mainCamera->setTranslationMatrix(d);
 
 	createShaderProgram();
 	createBufferObjects();
 	createSceneGraph();
+
+
+	bloom->createBrightFilterBuffer();
+	bloom->createDepthBuffer();
+	bloom->createBlurBuffer();
+	//bloom->renderWithBlurr(shaderBlur,scene);*/
 	return win;
 }
 
