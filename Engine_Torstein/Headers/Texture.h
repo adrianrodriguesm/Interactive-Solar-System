@@ -1,24 +1,30 @@
-#pragma once
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
+#ifndef TEXTURE_H
+#define TEXTURE_H
+
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <string>
+#include "stb_image.h"
 
-#define VERTICES 0
-#define TEXCOORDS 1
-#define NORMALS 2
+struct Texture {
 
-class Texture
-{
+	Texture(const std::string& m_FilePath);
+	~Texture();
+		
+
+	void Bind(unsigned int slot = 0) const;
+	void Unbind() const;
+
+	inline int GetId() const { return id; }
+	inline int GetWidth() const { return width; }
+	inline int GetHeight() const { return height; }
+
 private:
 	GLuint id;
-	int weight;
-	int height;
+	int width, height, m_BPP;
+	std::string m_FilePath;
+	unsigned char* m_LocalBuffer;
 
-public:
-
-	Texture();
 };
 
+#endif

@@ -31,12 +31,14 @@
 #include "Scenegraph.h"
 #include "Mesh.h"
 #include "SceneNode.h"
+#include "Texture.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #define BATFIGURE 1
 #define SQUAREFIGURE -1
+
 
 ////////////////////////////////////////////////// VARIABLES
 
@@ -49,12 +51,14 @@ vec4 yAxis = vec4(0, 1, 0, 1);
 vec4 zAxis = vec4(0, 0, -1, 1);
 
 //Meshes
-Mesh squareMesh, triangleMesh, parallellogramMesh;
+Mesh sphereMesh;
 
 //Shader files must be in Shader folder:
-string vertexShaderFile = "vShader_basic.vert";
-string fragmentShaderFile = "fShader_basic.frag";
-Shader shader = Shader();
+string vertexShaderFile = "TextureTest_vert.glsl";
+string fragmentShaderFile = "TextureTest_frag.glsl";
+//string vertexShaderFile = "Displacement_Mapping_vert.glsl";
+//string fragmentShaderFile = "Displacement_Mapping_frag.glsl";
+Shader earthShader = Shader();
 
 //Camera
 bool mouseChange = true; //Boolean for mouse input
@@ -66,7 +70,7 @@ mat4 cameraTranslation;
 
 //Scene:
 SceneGraph* scenegraph;
-SceneNode* ground, * greyTriangle1, * greyTriangle2, * batFace, * batEarL, * batEarR, * batBottomR, * batBottomL;
+SceneNode* ground, * Earth;
 
 //Animation (Press 'P' to animate)
 float animationSpeed = 0.005;
@@ -89,7 +93,7 @@ static const std::string errorSource(GLenum source)
 	switch (source) {
 	case GL_DEBUG_SOURCE_API:				return "API";
 	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:		return "window system";
-	case GL_DEBUG_SOURCE_SHADER_COMPILER:	return "shader compiler";
+	case GL_DEBUG_SOURCE_SHADER_COMPILER:	return "earthShader compiler";
 	case GL_DEBUG_SOURCE_THIRD_PARTY:		return "third party";
 	case GL_DEBUG_SOURCE_APPLICATION:		return "application";
 	case GL_DEBUG_SOURCE_OTHER:				return "other";
@@ -147,38 +151,52 @@ void setupErrorCallback()
 	// params: source, type, severity, count, ids, enabled
 }
 
+/////////////////////////////////////////////////////////////////////// TEXTURES
+
+void createTextures() {
+	Texture EarthHeightMap = Texture("../../Textures/earthbump1k.jpg");
+	//Texture EarthColorMap = Texture("../../Textures/earthmap1k.jpg");
+	Texture EarthColorMap = Texture("../../Textures/yellow.jpg");
+
+	earthShader.Use();
+
+	EarthHeightMap.Bind();
+	glUniform1i(earthShader.Uniforms["HeightMap"], EarthHeightMap.GetId());
+
+	EarthColorMap.Bind();
+	glUniform1i(earthShader.Uniforms["ColorMap"], EarthColorMap.GetId());
+
+	EarthColorMap.Unbind();
+	glUseProgram(0);
+
+}
+
 /////////////////////////////////////////////////////////////////////// MESHES
 
 void createMeshes() {
 	std::string mesh_dir = "../../Blender Objects/";
 
-	std::string squarePath = mesh_dir + "Tangram_square.obj";
-	squareMesh = Mesh(squarePath);
-
-	std::string trianglePath = mesh_dir + "Tangram_triangle.obj";
-	triangleMesh = Mesh(trianglePath);
-
-	std::string paraPath = mesh_dir + "Tangram_parallellogram.obj";
-	parallellogramMesh = Mesh(paraPath);
+	std::string spherePath = mesh_dir + "sphere.obj";
+	sphereMesh = Mesh(spherePath);
 }
 
 void destroyMeshes() {
-	squareMesh.destroy();
-	triangleMesh.destroy();
-	parallellogramMesh.destroy();
+	sphereMesh.destroy();
 }
 
 /////////////////////////////////////////////////////////////////////// SHADER
 
 void createShader() {
-	shader.Load(vertexShaderFile, fragmentShaderFile);
-	shader.AddAttribute(0, "inPosition");
-	shader.AddAttribute(1, "inTexcoord");
-	shader.AddUniform("ModelMatrix");
-	shader.AddUniform("ProjectionMatrix");
-	shader.AddUniform("ViewMatrix");
-	shader.AddUniform("HeightMap");
-	shader.AddUniform("ColorMap");
+	earthShader.Load(vertexShaderFile, fragmentShaderFile);
+	earthShader.AddAttribute(0, "inPosition");
+	earthShader.AddAttribute(1, "inTexcoord");
+	earthShader.AddAttribute(2, "inNormals");
+	earthShader.AddUniform("ModelMatrix");
+	earthShader.AddUniform("ProjectionMatrix");
+	earthShader.AddUniform("ViewMatrix");
+	earthShader.AddUniform("HeightMap");
+	earthShader.AddUniform("ColorMap");
+	earthShader.Create();
 }
 
 /////////////////////////////////////////////////////////////////////// SCENE
@@ -194,185 +212,14 @@ mat4 Scale_S = MatrixFactory::createScaleMat4(vec3(SMALL, SMALL, 1));
 mat4 Scale_M = MatrixFactory::createScaleMat4(vec3(MEDIUM, MEDIUM, 1));
 mat4 Scale_L = MatrixFactory::createScaleMat4(vec3(LARGE, LARGE, 1));
 
-void createTangramScene(SceneGraph* scenegraph) {
+void createScene(SceneGraph* scenegraph) {
 	
 	ground = scenegraph->createNode();
-	ground->setMesh(&squareMesh);
-	ground->setMatrix(MatrixFactory::createTranslationMat4(vec3(-figureOffset, -figureOffset, -0.1)));
-	ground->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(XXLARGE, XXLARGE, 1)));
-	ground->setColor(vec4(0.3, 0.0, 0.0));
-	ground->setShader(&shader);
+	ground->setShader(&earthShader);
 	
-	vec3 pos1, pos2;
-	float angle1, angle2;
-
-	////////////////////////////////////////Right Wing
-	greyTriangle1 = ground->createNode();
-	greyTriangle1->setMesh(&triangleMesh);
-	//Initial Position:
-	angle1 = -135;
-	pos1 = vec3(figureOffset, figureOffset, 0.2);
-	//Figure Position
-	angle2 = 135;
-	pos2 = vec3(figureOffset + 4.95, figureOffset + 4.95, 0.2);
-	//
-	greyTriangle1->setMatrix(MatrixFactory::createTranslationMat4(pos1) *
-							MatrixFactory::createRoationMat4(angle1, zAxis));
-	greyTriangle1->setScaleMatrix(Scale_L);
-	greyTriangle1->setColor(0.9 * colorGrey);
-
-	animationObject tempObject = animationObject{
-	greyTriangle1, 
-		pos1,
-		pos2,
-		qtrn::qFromAngleAxis(angle1, zAxis),
-		qtrn::qFromAngleAxis(angle2, zAxis)
-	};
-	animationObjects.push_back(tempObject);
-
-	////////////////////////////////////////Left Wing
-	greyTriangle2 = ground->createNode();
-	greyTriangle2->setMesh(&triangleMesh);
-	//Initial Position:
-	angle1 = -45;
-	pos1 = vec3(figureOffset, figureOffset, 0.2);
-	//Figure Position
-	angle2 = 135;
-	pos2 = vec3(figureOffset - 4.95, figureOffset + 4.95, 0.2);
-	//
-	greyTriangle2->setMatrix(MatrixFactory::createTranslationMat4(pos1) *
-							MatrixFactory::createRoationMat4(angle1, zAxis));
-	greyTriangle2->setScaleMatrix(Scale_L);
-	greyTriangle2->setColor(colorGrey);
-
-	tempObject = animationObject{
-	greyTriangle2,
-		pos1,
-		pos2,
-		qtrn::qFromAngleAxis(angle1, zAxis),
-		qtrn::qFromAngleAxis(angle2, zAxis)
-	};
-	animationObjects.push_back(tempObject);
-
-	////////////////////////////////////////Face
-	batFace = ground->createNode();
-	batFace->setMesh(&squareMesh);
-	//Initial Position:
-	angle1 = 45;
-	pos1 = vec3(figureOffset, figureOffset, 0.2);
-	//Figure Position
-	angle2 = -45;
-	pos2 = vec3(figureOffset, figureOffset, 0.2);
-	//
-	batFace->setMatrix(MatrixFactory::createTranslationMat4(pos1) *
-		MatrixFactory::createRoationMat4(angle1, zAxis));
-	batFace->setScaleMatrix(Scale_S);
-	batFace->setColor(1.2*colorGrey);
-
-	tempObject = animationObject{
-	batFace,
-		pos1,
-		pos2,
-		qtrn::qFromAngleAxis(angle1, zAxis),
-		qtrn::qFromAngleAxis(angle2, zAxis)
-	};
-	animationObjects.push_back(tempObject);
-
-	////////////////////////////////////////Left Ear
-	batEarL = ground->createNode();
-	batEarL->setMesh(&triangleMesh);
-	//Initial Position:
-	angle1 = 135;
-	pos1 = vec3(figureOffset, figureOffset, 0.2);
-	//Figure Position
-	angle2 = 225;
-	pos2 = vec3(figureOffset, figureOffset + 4.95, 0.2);
-	//
-	batEarL->setMatrix(MatrixFactory::createTranslationMat4(pos1) *
-		MatrixFactory::createRoationMat4(angle1, zAxis));
-	batEarL->setScaleMatrix(Scale_S);
-	batEarL->setColor(0.8 * colorGrey);
-
-	tempObject = animationObject{
-	batEarL,
-		pos1,
-		pos2,
-		qtrn::qFromAngleAxis(angle1, zAxis),
-		qtrn::qFromAngleAxis(angle2, zAxis)
-	};
-	animationObjects.push_back(tempObject);
-
-	////////////////////////////////////////Right Ear
-	batEarR = ground->createNode();
-	batEarR->setMesh(&triangleMesh);
-	//Initial Position:
-	angle1 = 45;
-	pos1 = vec3(figureOffset + 2.475, figureOffset + 2.475, 0.2);
-	//Figure Position
-	angle2 = 45;
-	pos2 = vec3(figureOffset, figureOffset + 4.95, 0.2);
-	//
-	batEarR->setMatrix(MatrixFactory::createTranslationMat4(pos1) *
-		MatrixFactory::createRoationMat4(angle1, zAxis));
-	batEarR->setScaleMatrix(Scale_S);
-	batEarR->setColor(0.7 * colorGrey);
-
-	tempObject = animationObject{
-	batEarR,
-		pos1,
-		pos2,
-		qtrn::qFromAngleAxis(angle1, zAxis),
-		qtrn::qFromAngleAxis(angle2, zAxis)
-	};
-	animationObjects.push_back(tempObject);
-
-	////////////////////////////////////////Right bottom
-	batBottomR = ground->createNode();
-	batBottomR->setMesh(&triangleMesh);
-	//Initial Position:
-	angle1 = -90;
-	pos1 = vec3(figureOffset + 5, figureOffset - 5, 0.2);
-	//Figure Position
-	angle2 = -45;
-	pos2 = vec3(figureOffset + 1.424, figureOffset - 3.58, 0.2);
-	//
-	batBottomR->setMatrix(MatrixFactory::createTranslationMat4(pos1) *
-		MatrixFactory::createRoationMat4(angle1, zAxis));
-	batBottomR->setScaleMatrix(Scale_M);
-	batBottomR->setColor(0.3 * colorGrey);
-
-	tempObject = animationObject{
-	batBottomR,
-		pos1,
-		pos2,
-		qtrn::qFromAngleAxis(angle1, zAxis),
-		qtrn::qFromAngleAxis(angle2, zAxis)
-	};
-	animationObjects.push_back(tempObject);
-
-	////////////////////////////////////////Left Bottom
-	batBottomL = ground->createNode();
-	batBottomL->setMesh(&parallellogramMesh);
-	//Initial Position:
-	angle1 = 0;
-	pos1 = vec3(figureOffset - 5, figureOffset - 5, 0.2);
-	//Figure Position
-	angle2 = -135;
-	pos2 = vec3(figureOffset + 1.424, figureOffset - 3.57, 0.2);
-	//
-	batBottomL->setMatrix(MatrixFactory::createTranslationMat4(pos1) *
-		MatrixFactory::createRoationMat4(angle1, zAxis));
-	batBottomL->setScaleMatrix(Scale_M);
-	batBottomL->setColor(0.4 * colorGrey);
-
-	tempObject = animationObject{
-	batBottomL,
-		pos1,
-		pos2,
-		qtrn::qFromAngleAxis(angle1, zAxis),
-		qtrn::qFromAngleAxis(angle2, zAxis)
-	};
-	animationObjects.push_back(tempObject);
+	Earth = ground->createNode();
+	Earth->setShader(&earthShader);
+	Earth->setMesh(&sphereMesh);
 }
 
 void createSceneGraph(Camera& cam) {
@@ -381,9 +228,9 @@ void createSceneGraph(Camera& cam) {
 
 	scenegraph->getCamera()->ProjectionMatrix = MatrixFactory::createPerspectiveProjectionMatrix(30, aspect, 1, 500);
 	SceneNode* n = scenegraph->getRoot();
-	n->setShader(&shader);
+	n->setShader(&earthShader);
 
-	createTangramScene(scenegraph);
+	createScene(scenegraph);
 }
 
 void updateAnimation() {
@@ -412,7 +259,7 @@ void drawScene() {
 
 void window_close_callback(GLFWwindow* win)
 {
-	shader.Delete();
+	earthShader.Delete();
 	destroyMeshes();
 }
 
@@ -670,6 +517,8 @@ GLFWwindow* setup(int major, int minor,
 	createMeshes();
 	//Shader:
 	createShader();
+	//Texture:
+	createTextures();
 	//Scene Setup
 	createSceneGraph(cam);
 

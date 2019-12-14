@@ -1,33 +1,32 @@
-﻿  Final Scene.cpp
+﻿  Camera.cpp
+  Final Scene.cpp
 C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(74,29): warning C4305:  'initializing': truncation from 'double' to 'float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(190,40): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(200,96): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(202,37): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(213,45): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(216,59): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(221,41): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(237,45): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(240,59): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(261,45): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(264,45): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(269,33): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(285,45): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(288,52): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(293,35): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(309,61): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(312,52): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(317,35): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(333,53): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(336,60): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(341,38): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(357,53): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(360,60): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(365,38): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(392,30): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(499,29): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(509,117): warning C4305:  'argument': truncation from 'double' to 'const float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(526,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(527,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(547,47): warning C4244:  '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(76,29): warning C4305:  'initializing': truncation from 'double' to 'float'
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(209,40): warning C4305:  'argument': truncation from 'double' to 'const float'
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(240,30): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(347,29): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(357,117): warning C4305:  'argument': truncation from 'double' to 'const float'
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(374,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(375,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
+  Matrices.cpp
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(395,47): warning C4244:  '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Matrices.cpp(626,14): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
+  Mesh.cpp
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Matrices.cpp(672,13): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
+  Quaternions.cpp
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Mesh.cpp(138,39): warning C4267:  '=': conversion from 'size_t' to 'GLuint', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Quaternions.cpp(1,10): warning C4067:  unexpected tokens following preprocessor directive - expected a newline
+  Scenegraph.cpp
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
+  SceneNode.cpp
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
+  Shader.cpp
+  stb_image.cpp
+  Texture.cpp
+  Vectors.cpp
+  Generating Code...
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   CG4G - 3D Tangram.vcxproj -> C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\PROJECT\\bin\CG4G - 3D Tangram.exe

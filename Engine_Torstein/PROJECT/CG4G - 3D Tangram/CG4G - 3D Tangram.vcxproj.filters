@@ -45,6 +45,9 @@
     <ClInclude Include="..\..\Headers\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Headers\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Camera.cpp">
@@ -74,6 +77,12 @@
     <ClCompile Include="..\..\Source\Matrices.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\stb_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Shaders\fShader_basic.glsl">
@@ -82,10 +91,16 @@
     <None Include="..\..\Shaders\vShader_basic.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Displacement_Mapping_frag.glsl">
+    <None Include="..\..\Shaders\Displacement_Mapping_frag.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Displacement_Mapping_vert.glsl">
+    <None Include="..\..\Shaders\Displacement_Mapping_vert.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\TextureTest_frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\TextureTest_vert.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

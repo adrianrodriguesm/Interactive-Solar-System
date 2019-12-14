@@ -141,6 +141,7 @@
     <ClInclude Include="..\..\Headers\Scenegraph.h" />
     <ClInclude Include="..\..\Headers\SceneNode.h" />
     <ClInclude Include="..\..\Headers\Shader.h" />
+    <ClInclude Include="..\..\Headers\stb_image.h" />
     <ClInclude Include="..\..\Headers\Texture.h" />
     <ClInclude Include="..\..\Headers\Vectors.h" />
   </ItemGroup>
@@ -153,13 +154,17 @@
     <ClCompile Include="..\..\Source\Scenegraph.cpp" />
     <ClCompile Include="..\..\Source\SceneNode.cpp" />
     <ClCompile Include="..\..\Source\Shader.cpp" />
+    <ClCompile Include="..\..\Source\stb_image.cpp" />
+    <ClCompile Include="..\..\Source\Texture.cpp" />
     <ClCompile Include="..\..\Source\Vectors.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Shaders\Displacement_Mapping_frag.glsl" />
+    <None Include="..\..\Shaders\Displacement_Mapping_vert.glsl" />
     <None Include="..\..\Shaders\fShader_basic.glsl" />
+    <None Include="..\..\Shaders\TextureTest_frag.glsl" />
+    <None Include="..\..\Shaders\TextureTest_vert.glsl" />
     <None Include="..\..\Shaders\vShader_basic.glsl" />
-    <None Include="Displacement_Mapping_frag.glsl" />
-    <None Include="Displacement_Mapping_vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

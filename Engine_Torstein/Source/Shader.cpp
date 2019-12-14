@@ -1,16 +1,12 @@
-#include <Shader.h>
+#include "Shader.h"
 
 #include <GL/glew.h>
 #include <iostream>
 #include <fstream>
 
 Shader::Shader() {
+	vs = fs = 0;
 	ProgramId = 0;
-	PositionUniformId = 0;
-	ColorUniformId = 0;
-	ProjectionMatrix_UId = 0;
-	ModelMatrix_UId = 0;
-	ViewMatrix_UId = 0;
 	NormalsLoaded = TexcoordsLoaded = false;
 }
 
