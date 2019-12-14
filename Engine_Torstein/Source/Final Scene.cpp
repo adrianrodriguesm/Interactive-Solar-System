@@ -136,10 +136,10 @@ static void error(GLenum source, GLenum type, GLuint id, GLenum severity, GLsize
 	std::cerr << "  type:       " << errorType(type) << std::endl;
 	std::cerr << "  severity:   " << errorSeverity(severity) << std::endl;
 	std::cerr << "  debug call: " << std::endl << message << std::endl;
-	if (severity != GL_DEBUG_SEVERITY_NOTIFICATION) {
-		std::cerr << "Press <return>.";
-		std::cin.ignore();
-	}
+	//if (severity != GL_DEBUG_SEVERITY_NOTIFICATION) {
+	//	std::cerr << "Press <return>.";
+	//	std::cin.ignore();
+	//}
 }
 
 void setupErrorCallback()
