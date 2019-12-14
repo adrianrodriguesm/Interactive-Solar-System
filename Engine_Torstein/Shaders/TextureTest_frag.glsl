@@ -5,9 +5,9 @@ in vec2 ex_Texcoord;
 in vec4 E;
 
 uniform sampler2D ColorMap;
-uniform sampler2D HeightMap;
 
 void main()
 {	
-	FragColor = texture(ColorMap, ex_Texcoord);
+	//FragColor = texture(ColorMap, ex_Texcoord);
+	FragColor = vec4(ex_Texcoord,0,1);
 }

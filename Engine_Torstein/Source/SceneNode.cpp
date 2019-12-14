@@ -4,6 +4,7 @@ SceneNode::SceneNode() {
 	parent = nullptr;
 	children = std::vector<SceneNode*>();
 	modelMatrix= mat4(1);
+	scaleMatrix = mat4(1);
 }
 
 SceneNode* SceneNode::createNode() {

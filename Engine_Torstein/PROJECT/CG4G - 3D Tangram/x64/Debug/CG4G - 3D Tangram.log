@@ -1,6 +1,4 @@
-﻿  Camera.cpp
-  Final Scene.cpp
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
+﻿  Final Scene.cpp
 C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
 C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(76,29): warning C4305:  'initializing': truncation from 'double' to 'float'
 C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(209,40): warning C4305:  'argument': truncation from 'double' to 'const float'
@@ -9,24 +7,5 @@ C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torste
 C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(357,117): warning C4305:  'argument': truncation from 'double' to 'const float'
 C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(374,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(375,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
-  Matrices.cpp
 C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Final Scene.cpp(395,47): warning C4244:  '-=': conversion from 'double' to 'float', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Matrices.cpp(626,14): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
-  Mesh.cpp
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Matrices.cpp(672,13): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
-  Quaternions.cpp
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Mesh.cpp(138,39): warning C4267:  '=': conversion from 'size_t' to 'GLuint', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Source\Quaternions.cpp(1,10): warning C4067:  unexpected tokens following preprocessor directive - expected a newline
-  Scenegraph.cpp
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
-  SceneNode.cpp
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
-  Shader.cpp
-  stb_image.cpp
-  Texture.cpp
-  Vectors.cpp
-  Generating Code...
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   CG4G - 3D Tangram.vcxproj -> C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine_Torstein\PROJECT\\bin\CG4G - 3D Tangram.exe

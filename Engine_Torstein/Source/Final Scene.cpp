@@ -63,8 +63,8 @@ Shader earthShader = Shader();
 //Camera
 bool mouseChange = true; //Boolean for mouse input
 bool scrollChange = true; //Boolean for scroll input
-Camera cam = Camera(vec3(0,0,20), vec3(0,0,0), vec3(0,1,0));
-float cameraDistance = 10;
+Camera cam = Camera(vec3(0,0,1), vec3(0,0,0), vec3(0,1,0));
+float cameraDistance = 1;
 mat4 cameraRotation;
 mat4 cameraTranslation;
 
@@ -160,8 +160,8 @@ void createTextures() {
 
 	earthShader.Use();
 
-	EarthHeightMap.Bind();
-	glUniform1i(earthShader.Uniforms["HeightMap"], EarthHeightMap.GetId());
+	//EarthHeightMap.Bind();
+	//glUniform1i(earthShader.Uniforms["HeightMap"], EarthHeightMap.GetId());
 
 	EarthColorMap.Bind();
 	glUniform1i(earthShader.Uniforms["ColorMap"], EarthColorMap.GetId());
@@ -194,7 +194,7 @@ void createShader() {
 	earthShader.AddUniform("ModelMatrix");
 	earthShader.AddUniform("ProjectionMatrix");
 	earthShader.AddUniform("ViewMatrix");
-	earthShader.AddUniform("HeightMap");
+	//earthShader.AddUniform("HeightMap");
 	earthShader.AddUniform("ColorMap");
 	earthShader.Create();
 }
