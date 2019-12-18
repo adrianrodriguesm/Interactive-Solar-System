@@ -173,10 +173,6 @@ void destroyShaderProgram()
 void createBufferObjects()
 {
 	planet->createBufferObjects();
-	/*table->createBufferObjects();
-	cube->createBufferObjects();
-	triangle->createBufferObjects();
-	parallelogram->createBufferObjects();*/
 	
 
 #ifndef ERROR_CALLBACK
@@ -187,10 +183,7 @@ void createBufferObjects()
 void destroyBufferObjects()
 {
 	planet->destroyBufferObjects();
-	/*table->destroyBufferObjects();
-	cube->destroyBufferObjects();
-	triangle->destroyBufferObjects();
-	parallelogram->destroyBufferObjects();*/
+
 
 #ifndef ERROR_CALLBACK
 	checkOpenGLError("ERROR: Could not destroy VAOs and VBOs.");
@@ -200,7 +193,9 @@ void destroyBufferObjects()
 /////////////////////////////////////////////////////////////////////// SCENE
 void drawScene()
 {
+	float curr_time = (float)glfwGetTime();
 	shader->enable();
+	shader->setUniform1f("time", curr_time);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	if (typeProj == 0) {
 		mainCamera->setOrthoProjMatrix(-5.0f, 5.0f, -5.0f, 5.0f, 1.0f, 20.0f);
@@ -208,6 +203,8 @@ void drawScene()
 	else {
 		mainCamera->setPersProjMatrix(fov, 640.0f / 480.0f, 0.0f, 20.0f);
 	}
+
+
 	scene->draw();
 
 			
@@ -425,7 +422,9 @@ GLFWwindow* setup(int major, int minor,
 	planet = new Mesh();
 	planet->createMesh(planet_dir);
 
+//	Texture* texPlanet = new Texture("src/Perlin-sphere.jpg");
 	Texture* texPlanet = new Texture("src/perlinNoise.png");
+
 	planet->setTexture(texPlanet);
 
 	mainCamera = new Camera();
