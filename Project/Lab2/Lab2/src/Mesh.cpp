@@ -163,13 +163,18 @@ namespace EngineMesh {
 
 	void Mesh::draw(Shader* shader, vec4& color, mat4& m) {
 		glBindVertexArray(this->VaoId);
-		shader->setUniform4f("u_Color", color);
+		
+		shader->enable();
+		//shader->setUniform4f("u_Color", color);
 		shader->setUniformMat4("Matrix", m);
 		if ( tex != nullptr ) {		
 			tex->Bind();
 			shader->setUniform1i("u_texture", 0);
+			
 		}
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->Vertices.size());
+		glBindVertexArray(0);
+		shader->disable();
 	}
 
 	void Mesh::setTexture(Texture* texture) {

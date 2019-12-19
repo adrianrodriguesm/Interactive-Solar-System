@@ -5,8 +5,7 @@ namespace EngineSceneGraph {
 
 	SceneGraph::SceneGraph() {
 		this->main = nullptr;
-		this->root = nullptr;
-		
+		this->root = nullptr;	
 
 	}
 	SceneGraph::SceneGraph(Camera* main, SceneNode* root) {
@@ -23,9 +22,11 @@ namespace EngineSceneGraph {
 	}
 	void SceneGraph::draw() {
 		Shader* shader = this->root->getShader();
+		shader->enable();
 		shader->setUniformMat4("ProjectionMatrix", main->projMatrix);
 		shader->setUniformMat4("ViewMatrix", main->viewMatrix);
 		this->root->draw();
+		
 	}
 
 

@@ -7,7 +7,6 @@ namespace EngineTexture {
 	struct Texture {
 
 		Texture(const std::string& m_FilePath);
-		Texture(const std::string& m_FilePath, int i);///Bloom
 		~Texture();
 		
 
