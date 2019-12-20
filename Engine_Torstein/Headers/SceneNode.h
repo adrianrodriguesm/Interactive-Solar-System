@@ -5,6 +5,7 @@
 #include "Vectors.h"
 #include "Camera.h"
 #include "quaternions.h"
+#include "Texture.h"
 
 class SceneNode
 {
@@ -18,6 +19,7 @@ private:
 	//qtrn quaternion;
 	mat4 modelMatrix;
 
+	Texture* texture;
 	Shader* shader;
 	vec4 color;
 
@@ -34,6 +36,7 @@ public:
 	//void setQuaternion(qtrn q);
 	void setMatrix(mat4 m);
 
+	void setTexture(Texture* t);
 	void setShader(Shader* s);
 	void setColor(vec4 c);
 	void setParent(SceneNode* parent);

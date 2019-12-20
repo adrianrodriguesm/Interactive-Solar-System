@@ -29,6 +29,11 @@ void SceneNode::draw(Camera* cam) {
 		}
 		shader->Use();
 
+		/////////////////////////// TESTING:
+		//texture->Bind();
+		//glUniform1i(shader->Uniforms["ColorMap"], texture->GetId());
+		////////////////////////////////////////////////////////////////
+
 		mat4 totalMatrix = parent->modelMatrix * this->modelMatrix * this->scaleMatrix;
 
 		glUniformMatrix4fv(shader->Uniforms["ModelMatrix"], 1, GL_TRUE, totalMatrix.data);
@@ -71,6 +76,10 @@ void SceneNode::setScaleMatrix(mat4 M) {
 //	}
 //	else this->quaternion = q;
 //}
+
+void SceneNode::setTexture(Texture* t) {
+	this->texture= t;
+}
 
 void SceneNode::setShader(Shader* s) {
 	this->shader = s;

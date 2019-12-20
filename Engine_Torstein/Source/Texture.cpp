@@ -1,5 +1,14 @@
 #include "Texture.h"
 
+Texture::Texture() {
+	id = 0;
+	width = 0;
+	height = 0;
+	m_BPP = 0;
+	m_FilePath;
+	m_LocalBuffer = nullptr;
+}
+
 Texture::Texture(const std::string& m_FilePath)
 	:id(0), width(0), height(0), m_BPP(0), m_FilePath(m_FilePath), m_LocalBuffer(nullptr)
 {

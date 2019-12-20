@@ -1,23 +1,3 @@
-///////////////////////////////////////////////////////////////////////////////
-//
-//  Loading OBJ mesh from external file
-//
-//	Final individual assignment:
-//	1.	Create classes: Scene, Camera and Mesh (that loads a mesh from a 
-//      Wavefront OBJ file to an indexed format) and build a small scenegraph
-//      of your tangram scene (you may create more classes if needed).
-//	2.	Create a ground object and couple the tangram figure to the ground. 
-//      Press keys to move the ground about: the tangram figure must follow the
-//      ground.
-//	3.	Animate between closed puzzle (initial square) and tangram figure by
-//      pressing a key.
-//	4.	Spherical camera interaction through mouse. It should be possible to 
-//      interact while animation is playing.
-//
-// (c) 2013-19 by Carlos Martinho
-//
-///////////////////////////////////////////////////////////////////////////////
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -54,17 +34,17 @@ vec4 zAxis = vec4(0, 0, -1, 1);
 Mesh sphereMesh;
 
 //Shader files must be in Shader folder:
-string vertexShaderFile = "TextureTest_vert.glsl";
-string fragmentShaderFile = "TextureTest_frag.glsl";
-//string vertexShaderFile = "Displacement_Mapping_vert.glsl";
-//string fragmentShaderFile = "Displacement_Mapping_frag.glsl";
+//string vertexShaderFile = "TextureTest_vert.glsl";
+//string fragmentShaderFile = "TextureTest_frag.glsl";
+string vertexShaderFile = "Displacement_Mapping_vert.glsl";
+string fragmentShaderFile = "Displacement_Mapping_frag.glsl";
 Shader earthShader = Shader();
 
 //Camera
 bool mouseChange = true; //Boolean for mouse input
 bool scrollChange = true; //Boolean for scroll input
 Camera cam = Camera(vec3(0,0,1), vec3(0,0,0), vec3(0,1,0));
-float cameraDistance = 1;
+float cameraDistance = 10;
 mat4 cameraRotation;
 mat4 cameraTranslation;
 
@@ -153,20 +133,24 @@ void setupErrorCallback()
 
 /////////////////////////////////////////////////////////////////////// TEXTURES
 
+Texture* EarthColorMap;
+Texture* EarthNightMap;
+Texture* EarthHeightMap;
+
 void createTextures() {
-	Texture EarthHeightMap = Texture("../../Textures/earthbump1k.jpg");
-	//Texture EarthColorMap = Texture("../../Textures/earthmap1k.jpg");
-	Texture EarthColorMap = Texture("../../Textures/yellow.jpg");
+	EarthHeightMap = new Texture("../../Textures/earthbump2k.jpg");
+	EarthColorMap = new Texture("../../Textures/earthmap2k.jpg");
+	EarthNightMap = new Texture("../../Textures/earthlights2k.jpg");
 
 	earthShader.Use();
 
-	//EarthHeightMap.Bind();
-	//glUniform1i(earthShader.Uniforms["HeightMap"], EarthHeightMap.GetId());
+	EarthHeightMap->Bind(EarthHeightMap->GetId());
+	glUniform1i(earthShader.Uniforms["HeightMap"], EarthHeightMap->GetId());
 
-	EarthColorMap.Bind();
-	glUniform1i(earthShader.Uniforms["ColorMap"], EarthColorMap.GetId());
+	EarthColorMap->Bind(EarthColorMap->GetId());
+	glUniform1i(earthShader.Uniforms["ColorMap"], EarthColorMap->GetId());
 
-	EarthColorMap.Unbind();
+	//EarthColorMap->Unbind();
 	glUseProgram(0);
 
 }
@@ -176,7 +160,7 @@ void createTextures() {
 void createMeshes() {
 	std::string mesh_dir = "../../Blender Objects/";
 
-	std::string spherePath = mesh_dir + "sphere.obj";
+	std::string spherePath = mesh_dir + "smoothSphere.obj";
 	sphereMesh = Mesh(spherePath);
 }
 
@@ -190,28 +174,16 @@ void createShader() {
 	earthShader.Load(vertexShaderFile, fragmentShaderFile);
 	earthShader.AddAttribute(0, "inPosition");
 	earthShader.AddAttribute(1, "inTexcoord");
-	earthShader.AddAttribute(2, "inNormals");
+	earthShader.AddAttribute(2, "inNormal");
 	earthShader.AddUniform("ModelMatrix");
 	earthShader.AddUniform("ProjectionMatrix");
 	earthShader.AddUniform("ViewMatrix");
-	//earthShader.AddUniform("HeightMap");
+	earthShader.AddUniform("HeightMap");
 	earthShader.AddUniform("ColorMap");
 	earthShader.Create();
 }
 
 /////////////////////////////////////////////////////////////////////// SCENE
-const float SMALL = 3.5f;
-const float MEDIUM = 5.0f;
-const float LARGE = 7.0f;
-const float XXLARGE = 25.0f;
-const float figureOffset = XXLARGE / 2;
-
-const vec4 colorGrey = vec4(0.2,0.2,0.2);
-
-mat4 Scale_S = MatrixFactory::createScaleMat4(vec3(SMALL, SMALL, 1));
-mat4 Scale_M = MatrixFactory::createScaleMat4(vec3(MEDIUM, MEDIUM, 1));
-mat4 Scale_L = MatrixFactory::createScaleMat4(vec3(LARGE, LARGE, 1));
-
 void createScene(SceneGraph* scenegraph) {
 	
 	ground = scenegraph->createNode();
@@ -220,6 +192,8 @@ void createScene(SceneGraph* scenegraph) {
 	Earth = ground->createNode();
 	Earth->setShader(&earthShader);
 	Earth->setMesh(&sphereMesh);
+	Earth->setTexture(EarthColorMap);
+
 }
 
 void createSceneGraph(Camera& cam) {
@@ -286,7 +260,7 @@ bool mouseClicked;
 qtrn rotQtrn = qtrn(1, 0, 0, 0);
 
 //Scrolling (zooming)
-float scrollSensitivity = 4;
+float scrollSensitivity = 0.5;
 
 //Shape movement
 float shapeMovementX = 0, shapeMovementY = 0;
@@ -353,8 +327,18 @@ void process_keyboard_input(GLFWwindow* win) {
 	if (keyW) shapeMovementY += movStep;
 	if (keyQ) shapeRotation -= angStep;
 	if (keyE) shapeRotation += angStep;
-	ground->setMatrix(MatrixFactory::createRoationMat4(shapeRotation, zAxis) * 
-						MatrixFactory::createTranslationMat4(vec3(-figureOffset + shapeMovementX, -figureOffset + shapeMovementY, -0.1)));
+	if ((glfwGetKey(win, GLFW_KEY_N) == GLFW_PRESS) && (glfwGetKey(win, GLFW_KEY_N) != GLFW_REPEAT)) {
+		//Change to night
+		earthShader.Use();
+		EarthNightMap->Bind(1);
+		glUniform1i(earthShader.Uniforms["ColorMap"], 1);
+		glUseProgram(0);
+	}
+
+	ground->setMatrix(
+		MatrixFactory::createRoationMat4(shapeRotation, zAxis) * 
+		MatrixFactory::createTranslationMat4(vec3(shapeMovementX, shapeMovementY, -0.1))
+	);
 
 }
 

@@ -7,7 +7,8 @@
 #include "stb_image.h"
 
 struct Texture {
-
+	
+	Texture();
 	Texture(const std::string& m_FilePath);
 	~Texture();
 		

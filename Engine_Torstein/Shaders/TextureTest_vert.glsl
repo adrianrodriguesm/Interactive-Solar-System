@@ -1,7 +1,7 @@
 #version 330
 in vec3 inPosition;
 in vec2 inTexcoord;
-in vec3 inNormals;
+in vec3 inNormal;
 
 out vec2 exTexcoord;
 out vec4 exPosition;
