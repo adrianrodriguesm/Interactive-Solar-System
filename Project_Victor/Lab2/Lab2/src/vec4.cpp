@@ -29,7 +29,7 @@ namespace mathsVec4
 
 
 
-		/*
+		
 		const vec4 operator + (const vec4& left, const vec4& right)
 		{
 
@@ -57,7 +57,7 @@ namespace mathsVec4
 		{
 			return vec4(left.x / right, left.y / right, left.z / right, left.w);
 		}
-		*/
+		
 		const vec4 normalize(const vec4& v)
 		{
 			vec4 vn;
@@ -91,6 +91,8 @@ namespace mathsVec4
 			w = other.w;
 			return *this;
 		}
+
+
 
 
 		//como un metodo toString

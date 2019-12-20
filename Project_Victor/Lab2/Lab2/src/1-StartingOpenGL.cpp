@@ -10,12 +10,16 @@ Shader* shader;
 ///Mesh
 Mesh* planet;
 
+
+vec4 initialLightPosition = vec4(0.0f, 0.0f, 2.0f, 1.0f);
+
 ///SceneGraph
 SceneGraph* scene;
 
 ///Camera
 Camera* mainCamera;
 
+float number = 0.0f;
 ////Camara Coord
 bool typeProj = 1;
 bool typeRot = 0;
@@ -149,7 +153,6 @@ void createShaderProgram()
 	shader->load();
 	shader->enable();
 	
-	//shader->addAttribute(VERTICES, "in_Position");
 
 
 #ifndef ERROR_CALLBACK
@@ -195,7 +198,9 @@ void drawScene()
 {
 	float curr_time = (float)glfwGetTime();
 	shader->enable();
+	shader->setUniform4f("lightPosition", vec4(2.0f, 1.50f* sin(curr_time*2.0f), 2.0f, 1.0f));
 	shader->setUniform1f("time", curr_time);
+	shader->setUniform1f("cameraValue",d);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	if (typeProj == 0) {
 		mainCamera->setOrthoProjMatrix(-5.0f, 5.0f, -5.0f, 5.0f, 1.0f, 20.0f);
@@ -203,11 +208,7 @@ void drawScene()
 	else {
 		mainCamera->setPersProjMatrix(fov, 640.0f / 480.0f, 0.0f, 20.0f);
 	}
-
-
-	scene->draw();
-
-			
+	scene->draw();		
 	shader->disable();
 	glBindVertexArray(0);
 
@@ -218,6 +219,8 @@ void drawScene()
 
 void createSceneGraph()
 {
+	shader->setUniform4f("lightColor",vec4(1.0f,1.0f,1.0f,1.0f));
+	
 	SceneNode* root = new SceneNode();
 	root->setShaderProgram(shader);
 	SceneNode* planet_Node = root->createNode();
@@ -418,7 +421,7 @@ GLFWwindow* setup(int major, int minor,
 	setupErrorCallback();
 #endif
 
-	std::string planet_dir = "models/sphere.obj";
+	std::string planet_dir = "models/smoothSphere.obj";
 	planet = new Mesh();
 	planet->createMesh(planet_dir);
 

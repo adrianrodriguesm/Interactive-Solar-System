@@ -18,7 +18,7 @@ namespace mathsVec4
 
 			//uno es normal porque es ahi donde vamos a guardar las alteraciones
 			friend const vec4 normalize(const vec4& vector);
-			/*
+			
 			friend const vec4 operator + (const vec4& left, const vec4& right);
 			friend const vec4 operator - (const vec4& left, const vec4& right);
 			friend const vec4 operator * (const vec4& left, const float right);
@@ -29,7 +29,8 @@ namespace mathsVec4
 			//operaciones mas practicas
 			vec4& operator+=(const vec4& other);
 			vec4& operator-=(const vec4& other);
-			vec4& operator*=(const float& scalar); */
+			vec4& operator*=(const float& scalar); 
+			
 			bool operator==(const vec4& other);
 			bool operator!=(const vec4& other);
 			vec4& operator = (const vec4& other);
