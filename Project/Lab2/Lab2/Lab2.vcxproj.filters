@@ -16,11 +16,11 @@
     <Filter Include="Source Files\vendor">
       <UniqueIdentifier>{798b7066-5968-4d73-b8c4-3f5e0f589bf8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{572cc881-72af-4ebb-ab0e-9050a68d06c3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\1-StartingOpenGL.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\mat2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,6 +69,12 @@
     <ClCompile Include="src\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Bloom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\mat2.h">
@@ -93,9 +99,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\vectors.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\models.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\file.h">
@@ -128,9 +131,34 @@
     <ClInclude Include="include\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Bloom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\fragment.frag" />
-    <None Include="shaders\vertex.vert" />
+    <None Include="shaders\bloomFinalF.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\blurrV.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\blurrF.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\bloomV.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\bloomFinalV.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\fragment.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\vertex.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\bloomF.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

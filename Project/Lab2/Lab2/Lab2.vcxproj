@@ -138,7 +138,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\1-StartingOpenGL.cpp" />
+    <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\mat2.cpp" />
     <ClCompile Include="src\mat3.cpp" />
@@ -149,6 +149,7 @@
     <ClCompile Include="src\SceneGraph.cpp" />
     <ClCompile Include="src\SceneNode.cpp" />
     <ClCompile Include="src\Shaders.cpp" />
+    <ClCompile Include="src\Bloom.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\vec2.cpp" />
     <ClCompile Include="src\vec3.cpp" />
@@ -164,12 +165,12 @@
     <ClInclude Include="include\mat4.h" />
     <ClInclude Include="include\matFactory.h" />
     <ClInclude Include="include\Mesh.h" />
-    <ClInclude Include="include\models.h" />
     <ClInclude Include="include\Quartenion.h" />
     <ClInclude Include="include\SceneGraph.h" />
     <ClInclude Include="include\SceneNode.h" />
     <ClInclude Include="include\Shaders.h" />
     <ClInclude Include="include\State.h" />
+    <ClInclude Include="include\Bloom.h" />
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\vec2.h" />
     <ClInclude Include="include\vec3.h" />
@@ -178,6 +179,12 @@
     <ClInclude Include="src\Vendor\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\bloomFinalF.glsl" />
+    <None Include="shaders\bloomFinalV.glsl" />
+    <None Include="shaders\bloomV.glsl" />
+    <None Include="shaders\blurrF.glsl" />
+    <None Include="shaders\blurrV.glsl" />
+    <None Include="shaders\bloomF.glsl" />
     <None Include="shaders\fragment.frag" />
     <None Include="shaders\vertex.vert" />
   </ItemGroup>
