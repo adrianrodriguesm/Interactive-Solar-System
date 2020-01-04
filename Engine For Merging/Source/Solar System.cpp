@@ -12,15 +12,18 @@
 #include "Mesh.h"
 #include "SceneNode.h"
 #include "Texture.h"
+#include "Bloom.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 
 ////////////////////////////////////////////////// VARIABLES
 
 //General
 const int screenWidth = 1920 / 2;
 const int screenHeight = 1920 / 2;
+
 float aspect = screenWidth / screenHeight;
 vec4 xAxis = vec4(1, 0, 0, 1);
 vec4 yAxis = vec4(0, 1, 0, 1);
@@ -36,6 +39,7 @@ mat4 cameraTranslation;
 
 //Declaration of Textures:
 Texture* EarthColorMap;
+Texture* SunTex;
 /////////////////
 
 //Declaration of meshes:
@@ -44,7 +48,13 @@ Mesh sphereMesh;
 
 //Declaration of Shaders:
 Shader earthShader = Shader();
+Shader bloomShader = Shader();
+Shader blurrShader = Shader();
+Shader bloomMergeShader = Shader();
 /////////////////
+
+///Bloom
+Bloom* bloom;
 
 ////////////////////////////////////////////////// ERROR CALLBACK (OpenGL 4.3+)
 
@@ -122,6 +132,13 @@ void createTextures() {
 	EarthColorMap->Bind(EarthColorMap->GetId());
 	glUniform1i(earthShader.Uniforms["ColorMap"], EarthColorMap->GetId());	
 	glUseProgram(0);
+
+	SunTex = new Texture("../../Textures/yellow.jpg");
+	bloomShader.Use();
+	SunTex->Bind(SunTex->GetId());
+	glUniform1i(bloomShader.Uniforms["u_Texture"], SunTex->GetId());
+	glUseProgram(0);
+
 	////////////////////////////
 	
 }
@@ -157,16 +174,53 @@ void createEarthShader() {
 	earthShader.Create();
 }
 
+void createBloomShader() {
+	bloomShader.Load("bloomV.glsl", "bloomF.glsl");
+	bloomShader.AddAttribute(0, "aPos");
+	bloomShader.AddAttribute(1, "aTexCoords");
+	bloomShader.AddUniform("ModelMatrix");	
+	bloomShader.AddUniform("ProjectionMatrix");
+	bloomShader.AddUniform("ViewMatrix");
+	bloomShader.AddUniform("u_Texture");
+
+	blurrShader.Load("blurrV.glsl", "blurrF.glsl");
+	blurrShader.AddAttribute(0, "aPos");
+	blurrShader.AddAttribute(1, "aTexCoords");
+	blurrShader.AddUniform("horizontal");
+
+	bloomMergeShader.Load("bloomFinalV.glsl", "bloomFinalF.glsl");
+	bloomMergeShader.AddAttribute(0, "aPos");
+	bloomMergeShader.AddAttribute(1, "aTexCoords");
+	bloomMergeShader.AddUniform("scene");
+	bloomMergeShader.AddUniform("bloomBlur");
+	bloomMergeShader.AddUniform("bloom");
+	bloomMergeShader.AddUniform("exposure");
+
+}
+
 //Then add your function to this createShaders function which is called in the "Setup" function.
 void createShaders() {
 	createEarthShader();
+	createBloomShader();
 }
 
 // Also add the delete function for your shader here:
 void deleteShaders() {
 	earthShader.Delete();
-}
 
+	////Bloom
+	bloomShader.Delete();
+	blurrShader.Delete();
+	bloomMergeShader.Delete();
+
+}
+/////////////////////////////////////////////////////////////////////// INIT BLOOM
+void initBloom() {
+	bloom = new Bloom();
+	bloom->createBrightFilterBuffer();
+	bloom->createAttachBuffer();
+	bloom->createBlurBuffer();
+}
 /////////////////////////////////////////////////////////////////////// SCENE
 
 SceneGraph* scenegraph;
@@ -174,6 +228,7 @@ SceneGraph* scenegraph;
 //Initialize nodes here:
 
 SceneNode* base;
+SceneNode* sun;
 
 ///////////////////
 
@@ -182,7 +237,10 @@ void createScene(SceneGraph* scenegraph) {
 	
 	base = scenegraph->createNode();
 	
-	//Sun = base->createNode(); //I think the first planet will be the sun since it is the center of the solar system
+	sun = base->createNode(); //I think the first planet will be the sun since it is the center of the solar system
+	sun->setMesh(&sphereMesh);
+	sun->setTexture(SunTex);
+	sun->setShader(&bloomShader);
 }
 
 void createSceneGraph(Camera& cam) {
@@ -224,7 +282,17 @@ void updateAnimation() {
 
 void drawScene() {
 	updateAnimation();
+
+	bloom->bindHDRBuffer();
+	bloomShader.Use();
+	SunTex->Bind(SunTex->GetId());
+	glUniform1i(bloomShader.Uniforms["u_Texture"], SunTex->GetId());
+	glUseProgram(0);
 	scenegraph->draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	bloom->renderWithBlurr(&blurrShader);
+	bloom->combineProcess(&bloomMergeShader);
+	
 }
 
 /////////////////////////////////////////////////////////////////////// WINDOW CALLBACKS
@@ -310,6 +378,12 @@ void get_keyboard_input(GLFWwindow* win) {
 		keyP = false;
 		timeoutKeyP = fmaxf(--timeoutKeyP, -0.1f);
 	}
+
+	/////BLOOM
+	if (glfwGetKey(win, GLFW_KEY_B) == GLFW_PRESS) { bloom->activateBloom(true); }
+	if (glfwGetKey(win, GLFW_KEY_V) == GLFW_PRESS) { bloom->activateBloom(false); }
+	if (glfwGetKey(win, GLFW_KEY_N) == GLFW_PRESS) { bloom->increaseExpresure(); }
+	if (glfwGetKey(win, GLFW_KEY_M) == GLFW_PRESS) { bloom->decreaseExpresure(); }
 }
 
 void process_keyboard_input(GLFWwindow* win) {
@@ -484,6 +558,10 @@ GLFWwindow* setup(int major, int minor,
 	//Input:
 	initialize_inputs();
 	mouse_initialize(win);
+
+	///Init Bloom frameBuffers:
+	initBloom();
+	
 	//Meshes:
 	createMeshes();
 	//Shader:
@@ -541,7 +619,7 @@ int main(int argc, char* argv[])
 	int is_fullscreen = 0;
 	int is_vsync = 1;
 	GLFWwindow* win = setup(gl_major, gl_minor,
-		screenWidth, screenHeight, "Hello 3D tangram", is_fullscreen, is_vsync);
+		screenWidth, screenHeight, "Interactive - Solar - System", is_fullscreen, is_vsync);
 	run(win);
 	exit(EXIT_SUCCESS);
 }

@@ -135,6 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Headers\Bloom.h" />
     <ClInclude Include="..\..\Headers\Camera.h" />
     <ClInclude Include="..\..\Headers\Matrices.h" />
     <ClInclude Include="..\..\Headers\Mesh.h" />
@@ -147,6 +148,7 @@
     <ClInclude Include="..\..\Headers\Vectors.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Bloom.cpp" />
     <ClCompile Include="..\..\Source\Camera.cpp" />
     <ClCompile Include="..\..\Source\Matrices.cpp" />
     <ClCompile Include="..\..\Source\Mesh.cpp" />
@@ -160,6 +162,12 @@
     <ClCompile Include="..\..\Source\Vectors.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Shaders\bloomF.glsl" />
+    <None Include="..\..\Shaders\bloomFinalF.glsl" />
+    <None Include="..\..\Shaders\bloomFinalV.glsl" />
+    <None Include="..\..\Shaders\bloomV.glsl" />
+    <None Include="..\..\Shaders\blurrF.glsl" />
+    <None Include="..\..\Shaders\blurrV.glsl" />
     <None Include="..\..\Shaders\Displacement_Mapping_frag.glsl" />
     <None Include="..\..\Shaders\Displacement_Mapping_vert.glsl" />
     <None Include="..\..\Shaders\fShader_basic.glsl" />

@@ -51,6 +51,9 @@
     <ClInclude Include="..\..\Headers\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Headers\Bloom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Camera.cpp">
@@ -86,6 +89,9 @@
     <ClCompile Include="..\..\Source\Solar System.cpp">
       <Filter>Source Files\Main</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Bloom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Shaders\fShader_basic.glsl">
@@ -104,6 +110,24 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\..\Shaders\TextureTest_vert.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\bloomF.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\bloomFinalF.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\bloomFinalV.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\bloomV.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\blurrF.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\blurrV.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
