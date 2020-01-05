@@ -106,10 +106,10 @@ static void error(GLenum source, GLenum type, GLuint id, GLenum severity, GLsize
 	std::cerr << "  type:       " << errorType(type) << std::endl;
 	std::cerr << "  severity:   " << errorSeverity(severity) << std::endl;
 	std::cerr << "  debug call: " << std::endl << message << std::endl;
-	//if (severity != GL_DEBUG_SEVERITY_NOTIFICATION) {
-	//	std::cerr << "Press <return>.";
-	//	std::cin.ignore();
-	//}
+	if (severity != GL_DEBUG_SEVERITY_NOTIFICATION) {
+		std::cerr << "Press <return>.";
+		std::cin.ignore();
+	}
 }
 
 void setupErrorCallback()
@@ -182,11 +182,13 @@ void createBloomShader() {
 	bloomShader.AddUniform("ProjectionMatrix");
 	bloomShader.AddUniform("ViewMatrix");
 	bloomShader.AddUniform("u_Texture");
+	bloomShader.Create();
 
 	blurrShader.Load("blurrV.glsl", "blurrF.glsl");
 	blurrShader.AddAttribute(0, "aPos");
 	blurrShader.AddAttribute(1, "aTexCoords");
 	blurrShader.AddUniform("horizontal");
+	bloomShader.Create();
 
 	bloomMergeShader.Load("bloomFinalV.glsl", "bloomFinalF.glsl");
 	bloomMergeShader.AddAttribute(0, "aPos");
@@ -195,6 +197,7 @@ void createBloomShader() {
 	bloomMergeShader.AddUniform("bloomBlur");
 	bloomMergeShader.AddUniform("bloom");
 	bloomMergeShader.AddUniform("exposure");
+	bloomMergeShader.Create();
 
 }
 
@@ -237,7 +240,7 @@ void createScene(SceneGraph* scenegraph) {
 	
 	base = scenegraph->createNode();
 	
-	sun = base->createNode(); //I think the first planet will be the sun since it is the center of the solar system
+	sun = base->createNode();
 	sun->setMesh(&sphereMesh);
 	sun->setTexture(SunTex);
 	sun->setShader(&bloomShader);
@@ -397,7 +400,7 @@ void process_keyboard_input(GLFWwindow* win) {
 	// THIS WILL MOVE THE ENTIRE SOLAR SYSTEM
 	base->setMatrix(
 		MatrixFactory::createRoationMat4(shapeRotation, zAxis) * 
-		MatrixFactory::createTranslationMat4(vec3(shapeMovementX, shapeMovementY, -0.1))
+		MatrixFactory::createTranslationMat4(vec3(shapeMovementX, shapeMovementY, 0))
 	);
 	/////////////////////////
 
@@ -619,7 +622,7 @@ int main(int argc, char* argv[])
 	int is_fullscreen = 0;
 	int is_vsync = 1;
 	GLFWwindow* win = setup(gl_major, gl_minor,
-		screenWidth, screenHeight, "Interactive - Solar - System", is_fullscreen, is_vsync);
+		screenWidth, screenHeight, "Interactive Solar System", is_fullscreen, is_vsync);
 	run(win);
 	exit(EXIT_SUCCESS);
 }

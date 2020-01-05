@@ -1,20 +1,21 @@
-﻿  Engine.cpp
+﻿  Bloom.cpp
   Camera.cpp
-  mat2.cpp
-  mat3.cpp
-  mat4.cpp
-  matFactory.cpp
+  Engine.cpp
   Mesh.cpp
   Quartenion.cpp
   SceneGraph.cpp
   SceneNode.cpp
   Shaders.cpp
-  Bloom.cpp
   Texture.cpp
+  stb_image.cpp
+  mat2.cpp
+  mat3.cpp
+  mat4.cpp
+  matFactory.cpp
   vec2.cpp
   vec3.cpp
   vec4.cpp
   vectors.cpp
-  stb_image.cpp
   Generating Code...
+  LINK : C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Project\Lab2\..\..\bin\x64\Lab2.exe not found or not built by the last incremental link; performing full link
   Lab2.vcxproj -> C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Project\Lab2\..\..\bin\x64\Lab2.exe

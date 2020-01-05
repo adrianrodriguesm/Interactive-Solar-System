@@ -106,12 +106,6 @@
     <None Include="..\..\Shaders\Displacement_Mapping_vert.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\..\Shaders\TextureTest_frag.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\Shaders\TextureTest_vert.glsl">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="..\..\Shaders\bloomF.glsl">
       <Filter>Shaders</Filter>
     </None>

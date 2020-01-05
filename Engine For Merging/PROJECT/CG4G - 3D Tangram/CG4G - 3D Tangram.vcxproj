@@ -171,8 +171,6 @@
     <None Include="..\..\Shaders\Displacement_Mapping_frag.glsl" />
     <None Include="..\..\Shaders\Displacement_Mapping_vert.glsl" />
     <None Include="..\..\Shaders\fShader_basic.glsl" />
-    <None Include="..\..\Shaders\TextureTest_frag.glsl" />
-    <None Include="..\..\Shaders\TextureTest_vert.glsl" />
     <None Include="..\..\Shaders\vShader_basic.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
