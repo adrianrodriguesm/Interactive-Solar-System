@@ -217,6 +217,7 @@ void deleteShaders() {
 /////////////////////////////////////////////////////////////////////// INIT BLOOM
 void initBloom() {
 	bloom = new Bloom();
+	bloom->setScreenSize(screenWidth, screenHeight);
 	bloom->createBrightFilterBuffer();
 	bloom->createAttachBuffer();
 	bloom->createBlurBuffer();

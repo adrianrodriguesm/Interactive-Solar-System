@@ -17,8 +17,8 @@ struct Bloom {
 private:
 
 	///SCREEN
-	unsigned int SCR_WIDTH = 1920/2;
-	unsigned int SCR_HEIGHT = 1920 / 2;
+	unsigned int SCR_WIDTH;
+	unsigned int SCR_HEIGHT;
 
 	///BUFFERS
 	unsigned int hdrFBO;
