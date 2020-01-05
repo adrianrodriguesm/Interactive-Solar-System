@@ -185,6 +185,11 @@ void Bloom::decreaseExpresure()
 	
 }
 
+void Bloom::setScreenSize(const unsigned int width, const unsigned int height) {
+	this->SCR_WIDTH = width;
+	this->SCR_HEIGHT = height;
+}
+
 
 
 

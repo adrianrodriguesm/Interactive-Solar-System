@@ -13,11 +13,12 @@ struct Bloom {
 	void activateBloom(bool value);
 	void increaseExpresure();
 	void decreaseExpresure();
+	void setScreenSize(const unsigned int width, const unsigned int height);
 private:
 
 	///SCREEN
-	const unsigned int SCR_WIDTH = 1920/2;
-	const unsigned int SCR_HEIGHT = 1920 / 2;
+	unsigned int SCR_WIDTH = 1920/2;
+	unsigned int SCR_HEIGHT = 1920 / 2;
 
 	///BUFFERS
 	unsigned int hdrFBO;

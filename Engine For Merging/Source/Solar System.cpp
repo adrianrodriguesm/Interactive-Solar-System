@@ -188,7 +188,7 @@ void createBloomShader() {
 	blurrShader.AddAttribute(0, "aPos");
 	blurrShader.AddAttribute(1, "aTexCoords");
 	blurrShader.AddUniform("horizontal");
-	bloomShader.Create();
+	blurrShader.Create();
 
 	bloomMergeShader.Load("bloomFinalV.glsl", "bloomFinalF.glsl");
 	bloomMergeShader.AddAttribute(0, "aPos");
@@ -198,7 +198,6 @@ void createBloomShader() {
 	bloomMergeShader.AddUniform("bloom");
 	bloomMergeShader.AddUniform("exposure");
 	bloomMergeShader.Create();
-
 }
 
 //Then add your function to this createShaders function which is called in the "Setup" function.
@@ -311,6 +310,7 @@ void window_close_callback(GLFWwindow* win)
 void window_size_callback(GLFWwindow* win, int winx, int winy)
 {
 	glViewport(0, 0, winx, winy);
+	bloom->setScreenSize(winx, winy);
 }
 
 ////////////////////////////////////////////////////////////////////////// INPUT
