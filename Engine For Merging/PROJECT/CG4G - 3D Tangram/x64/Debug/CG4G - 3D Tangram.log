@@ -2,8 +2,8 @@
   Solar System.cpp
 C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
 C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(422,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(423,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(427,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(428,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
   Generating Code...
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(443,47): warning C4244:  '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(448,47): warning C4244:  '-=': conversion from 'double' to 'float', possible loss of data
   CG4G - 3D Tangram.vcxproj -> C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\PROJECT\\bin\Solar System.exe

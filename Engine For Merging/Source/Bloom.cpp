@@ -134,7 +134,7 @@ void Bloom::combineProcess(Shader* shaderBloomFinal)
 	glUniform1f(shaderBloomFinal->Uniforms["exposure"], exposure);
 	renderQuad();
 	
-	std::cout << "bloom: " << (bloom ? "on" : "off") << "| exposure: " << exposure << std::endl;
+	//std::cout << "bloom: " << (bloom ? "on" : "off") << "| exposure: " << exposure << std::endl;
 	glUseProgram(0);
 }
 
@@ -168,13 +168,17 @@ void Bloom::renderQuad()
 
 void Bloom::activateBloom(bool value)
 {
-	this->exposure = 1.0f;
-	this->bloom = value;
+	if (this->bloom != value) {//I added this so the console isn't filled with "Bloom:on" xD
+		this->exposure = 1.0f;
+		this->bloom = value;
+		std::cout << "bloom: " << (value? "on" : "off") << std::endl;
+	}	
 }
 
 void Bloom::increaseExpresure()
 {
 	exposure += 0.01f;
+	cout << "exposure: " << exposure << std::endl;
 }
 
 void Bloom::decreaseExpresure()
@@ -182,7 +186,7 @@ void Bloom::decreaseExpresure()
 	if (exposure > 0) {
 		exposure -= 0.01f;
 	}
-	
+	cout << "exposure: " << exposure << std::endl;
 }
 
 void Bloom::setScreenSize(const unsigned int width, const unsigned int height) {

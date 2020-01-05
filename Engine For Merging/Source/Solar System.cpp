@@ -23,8 +23,7 @@
 //General
 const int screenWidth = 1920 / 2;
 const int screenHeight = 1920 / 2;
-
-float aspect = screenWidth / screenHeight;
+float aspect = (float)screenWidth / screenHeight;
 vec4 xAxis = vec4(1, 0, 0, 1);
 vec4 yAxis = vec4(0, 1, 0, 1);
 vec4 zAxis = vec4(0, 0, -1, 1);
@@ -38,7 +37,7 @@ mat4 cameraRotation;
 mat4 cameraTranslation;
 
 //Declaration of Textures:
-Texture* EarthColorMap;
+//Texture* EarthColorMap;
 Texture* SunTex;
 /////////////////
 
@@ -127,19 +126,17 @@ void setupErrorCallback()
 
 void createTextures() {
 	//Example on how to initialize texture and bind to shader: 	
-	EarthColorMap = new Texture("../../Textures/earthbump2k.jpg");
-	earthShader.Use();
-	EarthColorMap->Bind(EarthColorMap->GetId());
-	glUniform1i(earthShader.Uniforms["ColorMap"], EarthColorMap->GetId());	
-	glUseProgram(0);
+	//EarthColorMap = new Texture("../../Textures/earthbump2k.jpg");
+	//earthShader.Use();
+	//EarthColorMap->Bind(EarthColorMap->GetId());
+	//glUniform1i(earthShader.Uniforms["ColorMap"], EarthColorMap->GetId());	
+	//glUseProgram(0);
 
 	SunTex = new Texture("../../Textures/yellow.jpg");
 	bloomShader.Use();
 	SunTex->Bind(SunTex->GetId());
 	glUniform1i(bloomShader.Uniforms["u_Texture"], SunTex->GetId());
 	glUseProgram(0);
-
-	////////////////////////////
 	
 }
 
@@ -188,6 +185,7 @@ void createBloomShader() {
 	blurrShader.AddAttribute(0, "aPos");
 	blurrShader.AddAttribute(1, "aTexCoords");
 	blurrShader.AddUniform("horizontal");
+	blurrShader.AddUniform("image");
 	blurrShader.Create();
 
 	bloomMergeShader.Load("bloomFinalV.glsl", "bloomFinalF.glsl");
@@ -285,8 +283,8 @@ void updateAnimation() {
 void drawScene() {
 	updateAnimation();
 
-	bloom->bindHDRBuffer();
 	bloomShader.Use();
+	bloom->bindHDRBuffer();	
 	SunTex->Bind(SunTex->GetId());
 	glUniform1i(bloomShader.Uniforms["u_Texture"], SunTex->GetId());
 	glUseProgram(0);
@@ -311,6 +309,9 @@ void window_size_callback(GLFWwindow* win, int winx, int winy)
 {
 	glViewport(0, 0, winx, winy);
 	bloom->setScreenSize(winx, winy);
+	aspect = (float)winx / (float)winy;
+	cout << "aspect: " << aspect << " | width : " << winx << " | height : " << winy << std::endl;
+	scenegraph->getCamera()->ProjectionMatrix = MatrixFactory::createPerspectiveProjectionMatrix(45, aspect, 1, 500);
 }
 
 ////////////////////////////////////////////////////////////////////////// INPUT
