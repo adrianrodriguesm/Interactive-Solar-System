@@ -37,7 +37,7 @@ mat4 cameraRotation;
 mat4 cameraTranslation;
 
 //Declaration of Textures:
-//Texture* EarthColorMap;
+Texture* EarthColorMap;
 Texture* SunTex;
 /////////////////
 
@@ -47,9 +47,9 @@ Mesh sphereMesh;
 
 //Declaration of Shaders:
 Shader earthShader = Shader();
-Shader bloomShader = Shader();
-Shader blurrShader = Shader();
-Shader bloomMergeShader = Shader();
+Shader* bloomShader = new Shader();
+Shader* blurrShader = new Shader();
+Shader* bloomMergeShader = new Shader();
 /////////////////
 
 ///Bloom
@@ -133,10 +133,10 @@ void createTextures() {
 	//glUseProgram(0);
 
 	SunTex = new Texture("../../Textures/yellow.jpg");
-	bloomShader.Use();
+	/*bloomShader->Use();
 	SunTex->Bind(SunTex->GetId());
-	glUniform1i(bloomShader.Uniforms["u_Texture"], SunTex->GetId());
-	glUseProgram(0);
+	glUniform1i(bloomShader->Uniforms["u_Texture"], SunTex->GetId());
+	glUseProgram(0);*/
 	
 }
 
@@ -172,30 +172,29 @@ void createEarthShader() {
 }
 
 void createBloomShader() {
-	bloomShader.Load("bloomV.glsl", "bloomF.glsl");
-	bloomShader.AddAttribute(0, "aPos");
-	bloomShader.AddAttribute(1, "aTexCoords");
-	bloomShader.AddUniform("ModelMatrix");	
-	bloomShader.AddUniform("ProjectionMatrix");
-	bloomShader.AddUniform("ViewMatrix");
-	bloomShader.AddUniform("u_Texture");
-	bloomShader.Create();
+	bloomShader->Load("bloomV.glsl", "bloomF.glsl");
+	bloomShader->AddAttribute(0, "aPos");
+	bloomShader->AddAttribute(1, "aTexCoords");
+	bloomShader->AddUniform("ModelMatrix");
+	bloomShader->AddUniform("ProjectionMatrix");
+	bloomShader->AddUniform("ViewMatrix");
+	bloomShader->AddUniform("u_Texture");
+	bloomShader->Create();
 
-	blurrShader.Load("blurrV.glsl", "blurrF.glsl");
-	blurrShader.AddAttribute(0, "aPos");
-	blurrShader.AddAttribute(1, "aTexCoords");
-	blurrShader.AddUniform("horizontal");
-	blurrShader.AddUniform("image");
-	blurrShader.Create();
+	blurrShader->Load("blurrV.glsl", "blurrF.glsl");
+	blurrShader->AddAttribute(0, "aPos");
+	blurrShader->AddAttribute(1, "aTexCoords");
+	blurrShader->AddUniform("horizontal");
+	blurrShader->AddUniform("image");
+	blurrShader->Create();
 
-	bloomMergeShader.Load("bloomFinalV.glsl", "bloomFinalF.glsl");
-	bloomMergeShader.AddAttribute(0, "aPos");
-	bloomMergeShader.AddAttribute(1, "aTexCoords");
-	bloomMergeShader.AddUniform("scene");
-	bloomMergeShader.AddUniform("bloomBlur");
-	bloomMergeShader.AddUniform("bloom");
-	bloomMergeShader.AddUniform("exposure");
-	bloomMergeShader.Create();
+	bloomMergeShader->Load("bloomFinalV.glsl", "bloomFinalF.glsl");
+	bloomMergeShader->AddAttribute(0, "aPos");
+	bloomMergeShader->AddAttribute(1, "aTexCoords");
+	bloomMergeShader->AddUniform("scene");
+	bloomMergeShader->AddUniform("bloomBlur");
+	bloomMergeShader->AddUniform("exposure");
+	bloomMergeShader->Create();
 }
 
 //Then add your function to this createShaders function which is called in the "Setup" function.
@@ -209,9 +208,9 @@ void deleteShaders() {
 	earthShader.Delete();
 
 	////Bloom
-	bloomShader.Delete();
-	blurrShader.Delete();
-	bloomMergeShader.Delete();
+	bloomShader->Delete();
+	blurrShader->Delete();
+	bloomMergeShader->Delete();
 
 }
 /////////////////////////////////////////////////////////////////////// INIT BLOOM
@@ -241,7 +240,7 @@ void createScene(SceneGraph* scenegraph) {
 	sun = base->createNode();
 	sun->setMesh(&sphereMesh);
 	sun->setTexture(SunTex);
-	sun->setShader(&bloomShader);
+	sun->setShader(bloomShader);
 }
 
 void createSceneGraph(Camera& cam) {
@@ -282,17 +281,17 @@ void updateAnimation() {
 /////////////////////////////////////////////////////////////////////// DRAW SCENE
 
 void drawScene() {
-	updateAnimation();
+	//updateAnimation();
 
-	bloomShader.Use();
+	bloomShader->Use();
 	bloom->bindHDRBuffer();	
-	SunTex->Bind(SunTex->GetId());
-	glUniform1i(bloomShader.Uniforms["u_Texture"], SunTex->GetId());
-	glUseProgram(0);
+	//SunTex->Bind(SunTex->GetId());
+	//glUniform1i(bloomShader->Uniforms["u_Texture"], SunTex->GetId());
+	//glUseProgram(0);
 	scenegraph->draw();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	bloom->renderWithBlurr(&blurrShader);
-	bloom->combineProcess(&bloomMergeShader);
+	bloom->renderWithBlurr(blurrShader);
+	bloom->combineProcess(bloomMergeShader);
 	
 }
 

@@ -167,7 +167,8 @@ namespace EngineMesh {
 		shader->enable();
 		//shader->setUniform4f("u_Color", color);
 		shader->setUniformMat4("Matrix", m);
-		if ( tex != nullptr ) {		
+		if ( tex != nullptr ) {
+			std::cout << "Entre" << std::endl;
 			tex->Bind();
 			shader->setUniform1i("u_texture", 0);
 			

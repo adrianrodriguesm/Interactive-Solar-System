@@ -12,12 +12,10 @@
 #include "Mesh.h"
 #include "SceneNode.h"
 #include "Texture.h"
+#include "Bloom.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
-#define BATFIGURE 1
-#define SQUAREFIGURE -1
 
 
 ////////////////////////////////////////////////// VARIABLES
@@ -25,46 +23,37 @@
 //General
 const int screenWidth = 1920 / 2;
 const int screenHeight = 1920 / 2;
-float aspect = screenWidth / screenHeight;
+float aspect = (float)screenWidth / screenHeight;
 vec4 xAxis = vec4(1, 0, 0, 1);
 vec4 yAxis = vec4(0, 1, 0, 1);
 vec4 zAxis = vec4(0, 0, -1, 1);
 
-//Meshes
-Mesh sphereMesh;
-
-//Shader files must be in Shader folder:
-//string vertexShaderFile = "TextureTest_vert.glsl";
-//string fragmentShaderFile = "TextureTest_frag.glsl";
-string vertexShaderFile = "Displacement_Mapping_vert.glsl";
-string fragmentShaderFile = "Displacement_Mapping_frag.glsl";
-Shader earthShader = Shader();
-
 //Camera
 bool mouseChange = true; //Boolean for mouse input
 bool scrollChange = true; //Boolean for scroll input
-Camera cam = Camera(vec3(0,0,1), vec3(0,0,0), vec3(0,1,0));
-float cameraDistance = 10;
+Camera cam = Camera(vec3(0, 0, 1), vec3(0, 0, 0), vec3(0, 1, 0)); //Initial camera center and up vector
+float cameraDistance = 10;									//Initial camera distance from center defined in the line above
 mat4 cameraRotation;
 mat4 cameraTranslation;
 
-//Scene:
-SceneGraph* scenegraph;
-SceneNode* ground, * Earth;
+//Declaration of Textures:
+//Texture* EarthColorMap;
+Texture* SunTex;
+/////////////////
 
-//Animation (Press 'P' to animate)
-float animationSpeed = 0.005;
-float currentAnimationStep;
-bool animationInProgress = false;
-float finalFigure = SQUAREFIGURE;
+//Declaration of meshes:
+Mesh sphereMesh;
+/////////////////
 
-typedef struct {
-	SceneNode* node;
-	vec3 pos1, pos2;
-	qtrn q1, q2;
-} animationObject;
+//Declaration of Shaders:
+Shader earthShader = Shader();
+Shader* bloomShader = new Shader();
+Shader* blurrShader = new Shader();
+Shader* bloomMergeShader = new Shader();
+/////////////////
 
-vector<animationObject> animationObjects = vector<animationObject>();
+///Bloom
+Bloom* bloom;
 
 ////////////////////////////////////////////////// ERROR CALLBACK (OpenGL 4.3+)
 
@@ -116,10 +105,10 @@ static void error(GLenum source, GLenum type, GLuint id, GLenum severity, GLsize
 	std::cerr << "  type:       " << errorType(type) << std::endl;
 	std::cerr << "  severity:   " << errorSeverity(severity) << std::endl;
 	std::cerr << "  debug call: " << std::endl << message << std::endl;
-	//if (severity != GL_DEBUG_SEVERITY_NOTIFICATION) {
-	//	std::cerr << "Press <return>.";
-	//	std::cin.ignore();
-	//}
+	if (severity != GL_DEBUG_SEVERITY_NOTIFICATION) {
+		std::cerr << "Press <return>.";
+		std::cin.ignore();
+	}
 }
 
 void setupErrorCallback()
@@ -134,46 +123,43 @@ void setupErrorCallback()
 /////////////////////////////////////////////////////////////////////// TEXTURES
 
 
-//I think declaring the textures as texture pointers here is the best way, what do you think?
-Texture* EarthColorMap;
-Texture* EarthNightMap;
-Texture* EarthHeightMap;
 
 void createTextures() {
-	EarthHeightMap = new Texture("../../Textures/earthbump2k.jpg");
-	EarthColorMap = new Texture("../../Textures/earthmap2k.jpg");
-	EarthNightMap = new Texture("../../Textures/earthlights2k.jpg");
+	//Example on how to initialize texture and bind to shader: 	
+	//EarthColorMap = new Texture("../../Textures/earthbump2k.jpg");
+	//earthShader.Use();
+	//EarthColorMap->Bind(EarthColorMap->GetId());
+	//glUniform1i(earthShader.Uniforms["ColorMap"], EarthColorMap->GetId());	
+	//glUseProgram(0);
 
-	earthShader.Use();
-
-	EarthHeightMap->Bind(EarthHeightMap->GetId());
-	glUniform1i(earthShader.Uniforms["HeightMap"], EarthHeightMap->GetId());
-
-	EarthColorMap->Bind(EarthColorMap->GetId());
-	glUniform1i(earthShader.Uniforms["ColorMap"], EarthColorMap->GetId());
-
-	//EarthColorMap->Unbind();
-	glUseProgram(0);
+	SunTex = new Texture("../../Textures/yellow.jpg");
+	/*bloomShader->Use();
+	SunTex->Bind(SunTex->GetId());
+	glUniform1i(bloomShader->Uniforms["u_Texture"], SunTex->GetId());
+	glUseProgram(0);*/
 
 }
 
 /////////////////////////////////////////////////////////////////////// MESHES
 
 void createMeshes() {
-	std::string mesh_dir = "../../Blender Objects/";
+	std::string mesh_dir = "../../Blender Objects/";		// This is the working mesh dir relative to this main
 
-	std::string spherePath = mesh_dir + "smoothSphere.obj";
-	sphereMesh = Mesh(spherePath);
+	std::string spherePath = mesh_dir + "smoothSphere.obj"; // Just add your mesh.obj in the folder "Blender Objects, and put the file name here
+	sphereMesh = Mesh(spherePath);							//Create it by using the constructor of the mesh class
 }
 
+//Add your mesh.destroy here afterwards:
 void destroyMeshes() {
 	sphereMesh.destroy();
 }
 
 /////////////////////////////////////////////////////////////////////// SHADER
 
-void createShader() {
-	earthShader.Load(vertexShaderFile, fragmentShaderFile);
+//Make a "createYOURShader" function for each of your shaders like this:
+
+void createEarthShader() {
+	earthShader.Load("Displacement_Mapping_vert.glsl", "Displacement_Mapping_frag.glsl"); //  SHADER FILES MUST BE IN SHADER FOLDER !!
 	earthShader.AddAttribute(0, "inPosition");
 	earthShader.AddAttribute(1, "inTexcoord");
 	earthShader.AddAttribute(2, "inNormal");
@@ -185,63 +171,147 @@ void createShader() {
 	earthShader.Create();
 }
 
-/////////////////////////////////////////////////////////////////////// SCENE
-void createScene(SceneGraph* scenegraph) {
-	
-	ground = scenegraph->createNode();
-	ground->setShader(&earthShader);
-	
-	Earth = ground->createNode();
-	Earth->setShader(&earthShader);
-	Earth->setMesh(&sphereMesh);
-	Earth->setTexture(EarthColorMap);
+void createBloomShader() {
+	bloomShader->Load("bloomV.glsl", "bloomF.glsl");
+	bloomShader->AddAttribute(0, "aPos");
+	bloomShader->AddAttribute(1, "aTexCoords");
+	bloomShader->AddUniform("ModelMatrix");
+	bloomShader->AddUniform("ProjectionMatrix");
+	bloomShader->AddUniform("ViewMatrix");
+	bloomShader->AddUniform("u_Texture");
+	bloomShader->Create();
 
+	blurrShader->Load("blurrV.glsl", "blurrF.glsl");
+	blurrShader->AddAttribute(0, "aPos");
+	blurrShader->AddAttribute(1, "aTexCoords");
+	blurrShader->AddUniform("horizontal");
+	blurrShader->AddUniform("image");
+	blurrShader->Create();
+
+	bloomMergeShader->Load("bloomFinalV.glsl", "bloomFinalF.glsl");
+	bloomMergeShader->AddAttribute(0, "aPos");
+	bloomMergeShader->AddAttribute(1, "aTexCoords");
+	bloomMergeShader->AddUniform("scene");
+	bloomMergeShader->AddUniform("bloomBlur");
+	bloomMergeShader->AddUniform("exposure");
+	bloomMergeShader->Create();
+}
+
+//Then add your function to this createShaders function which is called in the "Setup" function.
+void createShaders() {
+	createEarthShader();
+	createBloomShader();
+}
+
+// Also add the delete function for your shader here:
+void deleteShaders() {
+	earthShader.Delete();
+
+	////Bloom
+	bloomShader->Delete();
+	blurrShader->Delete();
+	bloomMergeShader->Delete();
+
+}
+/////////////////////////////////////////////////////////////////////// INIT BLOOM
+void initBloom() {
+	bloom = new Bloom();
+	bloom->setScreenSize(screenWidth, screenHeight);
+	bloom->createBrightFilterBuffer();
+	bloom->createAttachBuffer();
+	bloom->createBlurBuffer();
+}
+/////////////////////////////////////////////////////////////////////// SCENE
+
+SceneGraph* scenegraph;
+
+//Initialize nodes here:
+
+SceneNode* base;
+SceneNode* sun;
+
+///////////////////
+
+
+void createScene(SceneGraph* scenegraph) {
+
+	base = scenegraph->createNode();
+
+	sun = base->createNode();
+	sun->setMesh(&sphereMesh);
+	sun->setTexture(SunTex);
+	sun->setShader(bloomShader);
 }
 
 void createSceneGraph(Camera& cam) {
+
+	//Initialization of the scenegraph:
 	scenegraph = new SceneGraph();
 	scenegraph->setCamera(cam);
-
 	scenegraph->getCamera()->ProjectionMatrix = MatrixFactory::createPerspectiveProjectionMatrix(30, aspect, 1, 500);
 	SceneNode* n = scenegraph->getRoot();
-	n->setShader(&earthShader);
+	//////////////////////
+
+	// n->setShader(&earthShader); //Set the base shader here (if any). The child nodes will use the parent's shader 
+	// if they don't have a shader assigned to themselves.
 
 	createScene(scenegraph);
 }
 
+
+/////////////////////////////////////////////////////////////////////// ANIMATION
+
+
+//In the "animationObject" struct we have to fill in all information that is relative to the animation.
+typedef struct {
+	SceneNode* node;
+
+} animationObject;
+////////////////////////
+
+//We have to fill this vector with animationObjects when we create the sceneNodes:
+vector<animationObject> animationObjects = vector<animationObject>();
+////////////////////////
+
+
 void updateAnimation() {
-	currentAnimationStep += animationSpeed * finalFigure;
-
-	if (currentAnimationStep > 1 || currentAnimationStep < 0) {
-		currentAnimationStep = fmax(0, fmin(currentAnimationStep, 1));
-		animationInProgress = false;
-	}
-
-	vec3 currentPos;
-	qtrn currentAngle;
-
-	for (animationObject currentObject : animationObjects){
-		currentPos = vecLerp(currentObject.pos1, currentObject.pos2, currentAnimationStep);
-		currentAngle = qLerp(currentObject.q1, currentObject.q2, currentAnimationStep);
-		currentObject.node->setMatrix(MatrixFactory::createTranslationMat4(currentPos) *
-			matrixFromQtrn(currentAngle));
-	}
+	//TO BE IMPLEMENTED BASED ON OUR NEEDS
 }
+
+/////////////////////////////////////////////////////////////////////// DRAW SCENE
 
 void drawScene() {
-	if (animationInProgress) updateAnimation();
+	//updateAnimation();
+
+	bloomShader->Use();
+	bloom->bindHDRBuffer();
+	SunTex->Bind(SunTex->GetId());
+	glUniform1i(bloomShader->Uniforms["u_Texture"], SunTex->GetId());
+	glUseProgram(0);
 	scenegraph->draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	bloom->renderWithBlurr(blurrShader);
+	bloom->combineProcess(bloomMergeShader);
+
 }
 
+/////////////////////////////////////////////////////////////////////// WINDOW CALLBACKS
+
+//Here we add all the destroy/Delete functions. Maybe we should add one for textures.
 void window_close_callback(GLFWwindow* win)
 {
-	earthShader.Delete();
+	deleteShaders();
 	destroyMeshes();
 }
+///////////////////////
 
 void window_size_callback(GLFWwindow* win, int winx, int winy)
 {
 	glViewport(0, 0, winx, winy);
+	bloom->setScreenSize(winx, winy);
+	aspect = (float)winx / (float)winy;
+	cout << "aspect: " << aspect << " | width : " << winx << " | height : " << winy << std::endl;
+	scenegraph->getCamera()->ProjectionMatrix = MatrixFactory::createPerspectiveProjectionMatrix(45, aspect, 1, 500);
 }
 
 ////////////////////////////////////////////////////////////////////////// INPUT
@@ -303,11 +373,7 @@ void get_keyboard_input(GLFWwindow* win) {
 	if (glfwGetKey(win, GLFW_KEY_E) == GLFW_PRESS) { keyE = true; }
 	else if (glfwGetKey(win, GLFW_KEY_E) == GLFW_RELEASE) { keyE = false; }
 
-	//RESET:
-	if (glfwGetKey(win, GLFW_KEY_R) == GLFW_PRESS) keyR = true;
-	else keyR = false;
-
-	//Start Animation
+	//This is a toggle key, it has a timer so that it doesn't "spam" itself when you press it:
 	if ((glfwGetKey(win, GLFW_KEY_P) == GLFW_PRESS) && (timeoutKeyP <= 0)) {
 		keyP = true;
 		timeoutKeyP = 10;
@@ -316,31 +382,28 @@ void get_keyboard_input(GLFWwindow* win) {
 		keyP = false;
 		timeoutKeyP = fmaxf(--timeoutKeyP, -0.1f);
 	}
+
+	/////BLOOM
+	if (glfwGetKey(win, GLFW_KEY_B) == GLFW_PRESS) { bloom->activateBloom(true); }
+	if (glfwGetKey(win, GLFW_KEY_V) == GLFW_PRESS) { bloom->activateBloom(false); }
+	if (glfwGetKey(win, GLFW_KEY_N) == GLFW_PRESS) { bloom->increaseExpresure(); }
+	if (glfwGetKey(win, GLFW_KEY_M) == GLFW_PRESS) { bloom->decreaseExpresure(); }
 }
 
 void process_keyboard_input(GLFWwindow* win) {
-	if (keyP) {
-		finalFigure = finalFigure == BATFIGURE ? SQUAREFIGURE : BATFIGURE; // Switch destination figure
-		animationInProgress = true; // Start animation
-	}
 	if (keyA) shapeMovementX -= movStep;
 	if (keyD) shapeMovementX += movStep;
 	if (keyS) shapeMovementY -= movStep;
 	if (keyW) shapeMovementY += movStep;
 	if (keyQ) shapeRotation -= angStep;
 	if (keyE) shapeRotation += angStep;
-	if ((glfwGetKey(win, GLFW_KEY_N) == GLFW_PRESS) && (glfwGetKey(win, GLFW_KEY_N) != GLFW_REPEAT)) {
-		//Change to night
-		earthShader.Use();
-		EarthNightMap->Bind(1);
-		glUniform1i(earthShader.Uniforms["ColorMap"], 1);
-		glUseProgram(0);
-	}
 
-	ground->setMatrix(
-		MatrixFactory::createRoationMat4(shapeRotation, zAxis) * 
-		MatrixFactory::createTranslationMat4(vec3(shapeMovementX, shapeMovementY, -0.1))
+	// THIS WILL MOVE THE ENTIRE SOLAR SYSTEM
+	base->setMatrix(
+		MatrixFactory::createRoationMat4(shapeRotation, zAxis) *
+		MatrixFactory::createTranslationMat4(vec3(shapeMovementX, shapeMovementY, 0))
 	);
+	/////////////////////////
 
 }
 
@@ -357,7 +420,7 @@ void mouse_callback(GLFWwindow* win, double xpos, double ypos) {
 		firstMouseCall = false;
 	}
 
-	float xoffset = xpos- lastX;
+	float xoffset = xpos - lastX;
 	float yoffset = ypos - lastY;
 	lastX = xpos;
 	lastY = ypos;
@@ -499,10 +562,14 @@ GLFWwindow* setup(int major, int minor,
 	//Input:
 	initialize_inputs();
 	mouse_initialize(win);
+
+	///Init Bloom frameBuffers:
+	initBloom();
+
 	//Meshes:
 	createMeshes();
 	//Shader:
-	createShader();
+	createShaders();
 	//Texture:
 	createTextures();
 	//Scene Setup
@@ -556,7 +623,7 @@ int main(int argc, char* argv[])
 	int is_fullscreen = 0;
 	int is_vsync = 1;
 	GLFWwindow* win = setup(gl_major, gl_minor,
-		screenWidth, screenHeight, "Hello 3D tangram", is_fullscreen, is_vsync);
+		screenWidth, screenHeight, "Interactive Solar System", is_fullscreen, is_vsync);
 	run(win);
 	exit(EXIT_SUCCESS);
 }

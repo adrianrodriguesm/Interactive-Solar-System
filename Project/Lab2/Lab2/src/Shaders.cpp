@@ -23,7 +23,7 @@ namespace Shaders {
 
 	GLuint Shader::load() {
 		GLuint program = glCreateProgram();
-		const GLchar* VertexShader = ParseShader(pathVertex);
+		const GLchar* VertexShader;
 		GLuint VertexShaderId = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(VertexShaderId, 1, &VertexShader, 0);
 		glCompileShader(VertexShaderId);

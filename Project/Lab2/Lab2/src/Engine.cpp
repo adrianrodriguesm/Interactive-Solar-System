@@ -191,14 +191,14 @@ void createShaderProgram()
 	shader->addAttribute(1, "aTexCoords");
 	shader->disable();
 
-	shaderBlur = new Shader ("shaders/blurrV.glsl", "shaders/blurrF.glsl");
+	shaderBlur = new Shader("shaders/blurrV.glsl", "shaders/blurrF.glsl");
 	shaderBlur->load();
 	shaderBlur->enable();
 	shaderBlur->addAttribute(0, "aPos");
 	shaderBlur->addAttribute(1, "aTexCoords");
 	shaderBlur->disable();
-	
-	shaderBloomFinal= new Shader("shaders/bloomFinalV.glsl", "shaders/bloomFinalF.glsl");
+
+	shaderBloomFinal = new Shader("shaders/bloomFinalV.glsl", "shaders/bloomFinalF.glsl");
 	shaderBloomFinal->load();
 	shaderBloomFinal->enable();
 	shaderBloomFinal->addAttribute(0, "aPos");
@@ -257,12 +257,12 @@ void drawScene()
 		makeAnimation();
 	}
 	else {
-		
+
 		//scene->draw();
 	}*/
 	bloom->bindHDRBuffer();
-		scene->draw();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
+	scene->draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(shaderBlur);
 	bloom->combineProcess(shaderBloomFinal);
 
@@ -272,15 +272,15 @@ void drawScene()
 }
 
 void makeAnimation() {
-	
+
 	curr_time = (float)glfwGetTime();
-	
+
 	delta = (curr_time - start);
 	animationTime = animationTime + delta;
-	
+
 	for (SceneNode* node : nodesToAnimate) {
 
-		node->playAnimation(duration,  animationTime);
+		node->playAnimation(duration, animationTime);
 		scene->draw();
 
 	}
@@ -319,10 +319,10 @@ void createSceneGraph()
 	nodesToAnimate.push_back(trianguloS2);
 	nodesToAnimate.push_back(cubeT);
 	nodesToAnimate.push_back(paraT);*/
-	
+
 	scene = new SceneGraph(mainCamera, root);
 
-	
+
 }
 
 ///////////////////////////////////////////////////////////////////// CALLBACKS
@@ -340,7 +340,7 @@ void window_size_callback(GLFWwindow* win, int winx, int winy)
 
 void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
 {
-	
+
 	if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(win, GLFW_TRUE);
@@ -348,7 +348,7 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
 	}
 	if (glfwGetKey(win, GLFW_KEY_P) == GLFW_PRESS) {
 		if (typeProj == 0) {
-			typeProj = 1;			
+			typeProj = 1;
 			mainCamera->setPersProjMatrix(fov, 640.0f / 480.0f, 0.0f, 20.0f);
 			return;
 		}
@@ -373,7 +373,7 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
 	}
 
 	if (glfwGetKey(win, GLFW_KEY_R) == GLFW_PRESS) {
-		
+
 		delta = 0;
 		animationTime =0;
 		animation = true;
@@ -410,8 +410,8 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
 	}
 
 	if (glfwGetKey(win, GLFW_KEY_Q) == GLFW_PRESS) {
-		rotTable += 10.0f ;
-		qtrn qtrnAct = qtrnAct.qFromAngleAxis(rotTable,vec4( 0.0f, 0.0f, 1.0f,1.0f));
+		rotTable += 10.0f;
+		qtrn qtrnAct = qtrnAct.qFromAngleAxis(rotTable, vec4(0.0f, 0.0f, 1.0f, 1.0f));
 		scene->root->setRot(qtrnAct);
 	}
 	/////BLOOM
@@ -442,7 +442,7 @@ void mouse_button_callback(GLFWwindow* win, int button, int action, int mods)
 	{
 		tracking = false;
 	}
-	
+
 
 }
 
@@ -450,25 +450,25 @@ void mouse_callback(GLFWwindow* win, double xpos, double ypos)
 {
 	if (tracking) {
 
-			if (firstMouse)
-			{
-				lastX = (float)xpos;
-				lastY = (float)ypos;
-				firstMouse = false;
-			}
-
-			float xoffset = (float)xpos - lastX;
-			float yoffset =  (float)ypos - lastY;
+		if (firstMouse)
+		{
 			lastX = (float)xpos;
 			lastY = (float)ypos;
+			firstMouse = false;
+		}
 
-			float sensitivity = 0.1f;
-			xoffset *= sensitivity;
-			yoffset *= sensitivity;
+		float xoffset = (float)xpos - lastX;
+		float yoffset = (float)ypos - lastY;
+		lastX = (float)xpos;
+		lastY = (float)ypos;
 
-			mainCamera->setRotMatrix(xoffset, yoffset);
+		float sensitivity = 0.1f;
+		xoffset *= sensitivity;
+		yoffset *= sensitivity;
+
+		mainCamera->setRotMatrix(xoffset, yoffset);
 	}
-	
+
 
 }
 
@@ -482,7 +482,7 @@ void scroll_callback(GLFWwindow* win, double xoffset, double yoffset)
 		d += 1.0f;
 	}
 	mainCamera->setTranslationMatrix(d);
-	
+
 }
 ///////////////////////////////////////////////////////////////////////// SETUP
 
@@ -515,7 +515,7 @@ void setupCallbacks(GLFWwindow* win)
 	glfwSetCursorPosCallback(win, mouse_callback);
 	glfwSetMouseButtonCallback(win, mouse_button_callback);
 	glfwSetScrollCallback(win, scroll_callback);
-	
+
 }
 
 GLFWwindow* setupGLFW(int gl_major, int gl_minor,
@@ -607,7 +607,7 @@ GLFWwindow* setup(int major, int minor,
 	createShaderProgram();
 	createBufferObjects();
 	createSceneGraph();
-	
+
 	return win;
 }
 

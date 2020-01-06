@@ -90,7 +90,7 @@ void Bloom::renderWithBlurr(Shader* shaderBlur)
 	unsigned int amount = 10;
 	shaderBlur->enable();
 	
-	mat4 m = mathsMatFactory::matFactory::createIdentityMat4();
+	
 	vec4 color = vec4(1.0f, 1.0f, 0.0f, 1.0f);
 	for (unsigned int i = 0; i < amount; i++)
 	{
