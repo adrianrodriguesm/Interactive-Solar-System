@@ -1,9 +1,11 @@
 #version 330 core
 
+//IN VARIABLES
 in vec4 in_Position;
 in vec2 texCoord;
 in vec3 normals;
 
+//UNIFORM VARIABLES
 uniform mat4 Matrix;
 uniform	mat4 ViewMatrix;
 uniform	mat4 ProjectionMatrix;
@@ -11,6 +13,7 @@ uniform float time;
 uniform vec4 lightPosition;
 uniform float cameraValue;
 
+//OUT VARIABLES
 out vec2 v_TexCoord;
 out vec3 v_Normals;
 out vec4 v_FragPos;

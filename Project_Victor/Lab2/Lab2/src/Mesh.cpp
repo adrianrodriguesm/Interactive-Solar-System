@@ -167,7 +167,7 @@ namespace EngineMesh {
 		shader->setUniformMat4("Matrix", m);
 		if ( tex != nullptr ) {		
 			tex->Bind();
-			shader->setUniform1i("u_texture", 0);
+			shader->setUniform1i("u_Texture", 0);
 		}
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->Vertices.size());
 	}

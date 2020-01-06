@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 #include "../include/SceneGraph.h"
 
 using namespace EngineSceneGraph;
@@ -220,6 +221,9 @@ void drawScene()
 void createSceneGraph()
 {
 	shader->setUniform4f("lightColor",vec4(1.0f,1.0f,1.0f,1.0f));
+	shader->setUniform1f("att.constant", 1.0f);
+	shader->setUniform1f("att.linear", 0.07f);
+	shader->setUniform1f("att.quadratic", 0.017f);
 	
 	SceneNode* root = new SceneNode();
 	root->setShaderProgram(shader);
@@ -425,8 +429,8 @@ GLFWwindow* setup(int major, int minor,
 	planet = new Mesh();
 	planet->createMesh(planet_dir);
 
-//	Texture* texPlanet = new Texture("src/Perlin-sphere.jpg");
-	Texture* texPlanet = new Texture("src/perlinNoise.png");
+	Texture* texPlanet = new Texture();
+	//Texture* texPlanet = new Texture("src/perlinNoise.png");
 
 	planet->setTexture(texPlanet);
 

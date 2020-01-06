@@ -1,12 +1,14 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string>
+#include "PerlinNoise.h"
 
 
 namespace EngineTexture {
 	struct Texture {
 
 		Texture(const std::string& m_FilePath);
+		Texture();
 		~Texture();
 		
 

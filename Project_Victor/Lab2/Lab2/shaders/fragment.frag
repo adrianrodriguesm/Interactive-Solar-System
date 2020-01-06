@@ -1,5 +1,11 @@
 #version 330 core
 
+struct Attenuation 
+{
+    float constant;
+    float linear;
+    float quadratic;
+};
 
 in vec2 v_TexCoord; 
 in vec3 v_Normals;
@@ -12,17 +18,18 @@ out vec4 out_Color;
 uniform vec4 u_Color;
 uniform sampler2D u_Texture;
 uniform float time;
-
 uniform vec4 lightColor;
-
+uniform Attenuation att;
 
 //Rotation Matrix
-mat2 rotate2d(float angle){
+mat2 rotate2d(float angle)
+{
     return mat2(cos(angle),-sin(angle), sin(angle),cos(angle));
 }
 
 // Simple random function
-float random (in vec2 st) {
+float random (in vec2 st) 
+{
     return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
 }
 void main(void)
@@ -34,30 +41,36 @@ void main(void)
     vec4 chocolate = vec4(0.961, 0.871, 0.702, 1.0f);
     vec4 brown = vec4(0.741, 0.718, 0.420, 1.0f);
     
+    float shininess = 32.0f;
+    vec3 normal = normalize(v_Normals);
+    vec4 lightDirection = normalize(v_lightPosition - v_FragPos);
+    vec4 viewDir = normalize(v_FragPos - v_CameraPos);
+    float distance = length(v_lightPosition - v_FragPos);
+    float attenuationValue = 1.0f / (att.constant + att.linear * distance + 
+    		    att.quadratic * (distance * distance)); ;
+    
     float rand = random(v_TexCoord);
     mat2 rot = rotate2d(radians(90.0));
     
     //AMBIENT LIGHT
     float ambientStrength = 0.2f;
-    vec4 ambientLight = lightColor * ambientStrength;
+    vec4 ambientLight = lightColor * ambientStrength * attenuationValue;
     
     //DIFFUSE LIGHT
-    vec3 normal = normalize(v_Normals);
-    vec4 lightDirection = normalize(v_lightPosition - v_FragPos);
     float diff = max(dot(vec4(normal,1.0f),lightDirection), 0.0f);
-    vec4 diffuseLight = lightColor * diff;
+    vec4 diffuseLight = lightColor * diff * attenuationValue;
     
     //SPECULAR LIGHT
     float specularStrength = 0.3;
-    vec4 viewDir = normalize(v_FragPos - v_CameraPos);
-    vec4 reflectDir = reflect(-lightDirection, vec4(normal,1.0f));
-    float spec =  pow(max(dot(viewDir, reflectDir), 0.0), 16);
-    vec4 specularLight = lightColor * specularStrength * spec;
+    vec3 halfwayVector = normalize(lightDirection + viewDir).xyz;
+    
+    float spec =  pow(max(dot(normal, halfwayVector), 0.0), shininess);
+    vec4 specularLight = lightColor * specularStrength * spec * attenuationValue;
     
     
     vec4 firstTexColor = texture(u_Texture, rot * vec2((1.0 - v_TexCoord.x), v_TexCoord.y + sin(rand) / 30.0));
     vec4 secondTexColor = texture(u_Texture,v_TexCoord);
-    vec4 finalColor = mix(firstTexColor, secondTexColor, 0.5) * (ambientLight + diffuseLight +  specularLight);
+    vec4 finalColor = mix(firstTexColor, secondTexColor, 0.4) * (ambientLight + diffuseLight +  specularLight);
     
     
     

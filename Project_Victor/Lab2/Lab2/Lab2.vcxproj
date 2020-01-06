@@ -145,6 +145,7 @@
     <ClCompile Include="src\mat4.cpp" />
     <ClCompile Include="src\matFactory.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\PerlinNoise.cpp" />
     <ClCompile Include="src\Quartenion.cpp" />
     <ClCompile Include="src\SceneGraph.cpp" />
     <ClCompile Include="src\SceneNode.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="include\matFactory.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\models.h" />
+    <ClInclude Include="include\PerlinNoise.h" />
     <ClInclude Include="include\Quartenion.h" />
     <ClInclude Include="include\SceneGraph.h" />
     <ClInclude Include="include\SceneNode.h" />
@@ -175,6 +177,7 @@
     <ClInclude Include="include\vec3.h" />
     <ClInclude Include="include\vec4.h" />
     <ClInclude Include="include\vectors.h" />
+    <ClInclude Include="PerlinNoise.h" />
     <ClInclude Include="src\Vendor\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
