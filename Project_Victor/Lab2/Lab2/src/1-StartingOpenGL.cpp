@@ -2,9 +2,11 @@
 #include <GLFW/glfw3.h>
 
 #include "../include/SceneGraph.h"
+#include "../include/snapshot.h"
 
 using namespace EngineSceneGraph;
 
+Snapshot snapshot;
 ///Shader
 Shader* shader;
 
@@ -264,6 +266,10 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
 			return;
 		}
 	}
+	if (glfwGetKey(win, GLFW_KEY_S) == GLFW_PRESS) 
+	{
+		snapshot.captureSnapshot();
+	}
 }
 
 void mouse_button_callback(GLFWwindow* win, int button, int action, int mods)
@@ -431,6 +437,8 @@ GLFWwindow* setup(int major, int minor,
 
 	Texture* texPlanet = new Texture();
 	//Texture* texPlanet = new Texture("src/perlinNoise.png");
+
+	snapshot = Snapshot();
 
 	planet->setTexture(texPlanet);
 
