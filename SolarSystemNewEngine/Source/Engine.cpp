@@ -24,6 +24,8 @@ Bloom* bloom;
 ///Textures
 Texture* texSun;
 Texture* EarthColorMap;
+Texture* EarthNightMap;
+Texture* EarthHeightMap;
 
 ///SceneGraph
 SceneGraph* scene;
@@ -182,8 +184,25 @@ void createTextures()
 	texSun = new Texture("../../Textures/yellow.jpg");
 	sphereSun->setTexture(texSun);
 
-	EarthColorMap = new Texture("../../Textures/earthbump2k.jpg");
+	EarthHeightMap = new Texture("../../Textures/earthbump2k.jpg");
+	sphereEarth->setTexture(EarthHeightMap);
+
+	EarthColorMap = new Texture("../../Textures/earthmap2k.jpg");
 	sphereEarth->setTexture(EarthColorMap);
+
+	EarthNightMap = new Texture("../../Textures/earthlights2k.jpg");
+
+	/*earthShader->Use();
+
+	EarthHeightMap->Bind(EarthHeightMap->GetId());
+	glUniform1i(earthShader->Uniforms["HeightMap"], EarthHeightMap->GetId());
+
+	EarthColorMap->Bind(EarthColorMap->GetId());
+	glUniform1i(earthShader->Uniforms["ColorMap"], EarthColorMap->GetId());
+
+	//EarthColorMap->Unbind();
+	glUseProgram(0);*/
+
 	
 }
 
@@ -287,8 +306,12 @@ void initCamera() {
 /////////////////////////////////////////////////////////////////////// SCENE
 void drawScene()
 {
-	//makeAnimation();
+	makeAnimation();
 	bloom->bindHDRBuffer();
+	/*bloomShader->Use();
+	texSun->Bind();
+	glUniform1i(bloomShader->Uniforms["u_texture"], texSun->GetId());
+	glUseProgram(0);*/
 	scene->draw();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
@@ -323,17 +346,19 @@ void makeAnimation() {
 /////////////////////////////////////////////////////////////////////// SCENE GRAPH
 void createSceneGraph()
 {
-
+	///SUN
 	SceneNode* root = new SceneNode();
 	root->setShaderProgram(bloomShader);
 	SceneNode* sun_Node = root->createNode();
 	sun_Node->setMesh(sphereSun);
+	sun_Node->setMesh(sphereSun);
+	
 
 	///EARTH
 	SceneNode* earthNode = root->createNode();
 	earthNode->setShaderProgram(earthShader);
 	earthNode->setMesh(sphereEarth);
-	earthNode->setLocalMatrix(matFactory::createTranslationMat4(vec3(0, 0, 0)));
+	earthNode->setTrans(matFactory::createTranslationMat4(vec3(0, 2, 0)));
 
 	/*SceneNode* tableGround = root->createNode();
 	tableGround->setMesh(table);
@@ -341,20 +366,10 @@ void createSceneGraph()
 	qtrn qTable = qTable.qFromAngleAxis(90.0f, vec4(1.0f, 0.0f, 0.0f, 1.0f));///Rotacao de modo a ver de frente
 	mat4 scaleTable = mathsMatFactory::matFactory::createScaleMat4(vec3(3.0f, 3.0f, 2.0f));
 	tableGround->setRot(qTable);
-	tableGround->setScale(scaleTable);
+	tableGround->setScale(scaleTable);*/
 
-	///Tangram
-	SceneNode* tangram = root->createNode();
-	nodesToAnimate.push_back(trianguloM);
-	nodesToAnimate.push_back(trianguloB1);
-	nodesToAnimate.push_back(trianguloB2);
-	nodesToAnimate.push_back(trianguloS1);
-	nodesToAnimate.push_back(trianguloS2);
-	nodesToAnimate.push_back(cubeT);
-	nodesToAnimate.push_back(paraT);*/
 
 	scene = new SceneGraph(mainCamera, root);
-
 
 }
 
@@ -579,12 +594,13 @@ GLFWwindow* setup(int major, int minor,
 	initBloom();
 	//Meshes:
 	createModels();
-	//Textures :
-	createTextures();
+	
 	//Shaders:
 	createShaderProgram();
 	//BufferObjects:
 	createBufferObjects();
+	//Textures :
+	createTextures();
 	//Scene:
 	createSceneGraph();
 

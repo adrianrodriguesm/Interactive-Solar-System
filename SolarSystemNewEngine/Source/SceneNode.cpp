@@ -62,7 +62,7 @@ void SceneNode::setScale(const mat4& s) {
 	this->scale = s;
 }
 
-void  SceneNode::draw() {
+void  SceneNode::draw(Camera* cam) {
 
 	SceneNode* currParent = this->parent;
 	mat4 rot;
@@ -80,11 +80,12 @@ void  SceneNode::draw() {
 			
 	}
 	Shader* currShader = this->getShader();
-	if (mesh != nullptr) {			
-		mesh->draw(currShader, color, worldMatrix);
+	if (mesh != nullptr && currShader != nullptr) {
+		mesh->draw(currShader,cam ,color, worldMatrix);
 	}
 	for (SceneNode* node : childNodes) {
-		node->draw();
+		
+		node->draw(cam);
 	}
 	
 }

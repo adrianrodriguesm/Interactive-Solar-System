@@ -4,7 +4,7 @@ out vec4 FragColor;
 in vec2 exTexcoord;
 in vec4 E;
 
-uniform sampler2D u_Texture;
+uniform sampler2D ColorMap;
 uniform sampler2D HeightMap;
 
 bool inside = true;
@@ -34,5 +34,5 @@ void main()
 			inside = true;
 		}
 	}
-	FragColor = texture(u_Texture, texCoord);
+	FragColor = texture(ColorMap, texCoord);
 }

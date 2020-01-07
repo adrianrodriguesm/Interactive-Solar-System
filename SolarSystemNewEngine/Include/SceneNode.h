@@ -26,7 +26,7 @@ public :
 	SceneNode();
 	SceneNode* createNode();
 		
-	void draw();
+	void draw(Camera* cam);
 	void switchState();
 	void playAnimation(float Duration, float curr_time);
 

@@ -7,6 +7,7 @@
 #include "Shaders.h"
 #include "Texture.h"
 #include "mat4.h"
+#include "Camera.h"
 
 #define VERTICES 0
 #define TEXCOORDS 1
@@ -46,7 +47,7 @@ struct Mesh {
 	void loadMeshData(std::string& filename);
 	void processMeshData();
 	void freeMeshData();
-	void draw(Shader* shader,  vec4& color, mat4& m);
+	void draw(Shader* shader,Camera* cam , vec4& color, mat4& m);
 
 	void setTexture(Texture* tex);
 

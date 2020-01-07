@@ -161,11 +161,12 @@ bool Mesh::getNormalLoaded() {
 	return NormalsLoaded;
 }
 
-void Mesh::draw(Shader* shader, vec4& color, mat4& m) {
+void Mesh::draw(Shader* shader, Camera* main,vec4& color, mat4& m) {
 	glBindVertexArray(this->VaoId);
 		
 	shader->Use();
-	
+	glUniformMatrix4fv(shader->Uniforms["ViewMatrix"], 1, GL_FALSE, main->viewMatrix.elements);
+	glUniformMatrix4fv(shader->Uniforms["ProjectionMatrix"], 1, GL_FALSE, main->projMatrix.elements);
 	glUniformMatrix4fv(shader->Uniforms["ModelMatrix"], 1, GL_FALSE, m.elements);
 	if ( tex != nullptr ) {
 		tex->Bind();
