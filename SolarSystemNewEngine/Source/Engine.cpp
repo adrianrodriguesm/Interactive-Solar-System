@@ -58,9 +58,8 @@ bool tracking = false;
 SceneNode* sun_Node;
 SceneNode* earthNode;
 
-#define ERROR_CALLBACK
-#ifdef  ERROR_CALLBACK
 void makeAnimation();
+
 ////////////////////////////////////////////////// ERROR CALLBACK (OpenGL 4.3+)
 static const std::string errorSource(GLenum source)
 {
@@ -123,53 +122,6 @@ void setupErrorCallback()
 	// params: source, type, severity, count, ids, enabled
 }
 
-#else
-
-///////////////////////////////////////////////// ERROR HANDLING (All versions)
-
-static const std::string errorString(GLenum error)
-{
-	switch (error) {
-	case GL_NO_ERROR:
-		return "No error has been recorded.";
-	case GL_INVALID_ENUM:
-		return "An unacceptable value is specified for an enumerated argument.";
-	case GL_INVALID_VALUE:
-		return "A numeric argument is out of range.";
-	case GL_INVALID_OPERATION:
-		return "The specified operation is not allowed in the current state.";
-	case GL_INVALID_FRAMEBUFFER_OPERATION:
-		return "The framebuffer object is not complete.";
-	case GL_OUT_OF_MEMORY:
-		return "There is not enough memory left to execute the command.";
-	case GL_STACK_UNDERFLOW:
-		return "An attempt has been made to perform an operation that would cause an internal stack to underflow.";
-	case GL_STACK_OVERFLOW:
-		return "An attempt has been made to perform an operation that would cause an internal stack to overflow.";
-	default: exit(EXIT_FAILURE);
-	}
-}
-
-static bool isOpenGLError()
-{
-	bool isError = false;
-	GLenum errCode;
-	while ((errCode = glGetError()) != GL_NO_ERROR) {
-		isError = true;
-		std::cerr << "OpenGL ERROR [" << errorString(errCode) << "]." << std::endl;
-	}
-	return isError;
-}
-
-static void checkOpenGLError(std::string error)
-{
-	if (isOpenGLError()) {
-		std::cerr << error << std::endl;
-		exit(EXIT_FAILURE);
-	}
-}
-
-#endif // ERROR_CALLBACK
 
 /////////////////////////////////////////////////////////////////////// MODELs
 void createModels()
@@ -254,10 +206,6 @@ void createShaderProgram()
 {
 	createSunShader();
 	createEarthShader();
-
-#ifndef ERROR_CALLBACK
-	checkOpenGLError("ERROR: Could not create shaders.");
-#endif
 }
 
 void destroyShaderProgram()
@@ -266,10 +214,6 @@ void destroyShaderProgram()
 	bloomShader->Delete();
 	blurrShader->Delete();
 	bloomMergeShader->Delete();
-
-#ifndef ERROR_CALLBACK
-	checkOpenGLError("ERROR: Could not destroy shaders.");
-#endif
 }
 
 /////////////////////////////////////////////////////////////////////// VAOs & VBOs
@@ -277,20 +221,12 @@ void createBufferObjects()
 {
 	sphereSun->createBufferObjects();
 	sphereEarth->createBufferObjects();
-
-#ifndef ERROR_CALLBACK
-	checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
-#endif
 }
 
 void destroyBufferObjects()
 {
 	sphereSun->destroyBufferObjects();
 	sphereEarth->destroyBufferObjects();
-
-#ifndef ERROR_CALLBACK
-	checkOpenGLError("ERROR: Could not destroy VAOs and VBOs.");
-#endif
 }
 /////////////////////////////////////////////////////////////////////// INIT BLOOM
 void initBloom() {
@@ -317,10 +253,6 @@ void drawScene()
 		scene->draw();
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);
-
-#ifndef ERROR_CALLBACK
-	checkOpenGLError("ERROR: Could not draw scene.");
-#endif
 }
 /////////////////////////////////////////////////////////////////////// ANIMATION(DEPRECATED)
 void makeAnimation() {
@@ -448,6 +380,7 @@ void mouse_button_callback(GLFWwindow* win, int button, int action, int mods)
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
 	{
 		tracking = false;
+		firstMouse = true;
 	}
 }
 
@@ -586,9 +519,6 @@ GLFWwindow* setup(int major, int minor,
 		setupGLFW(major, minor, winx, winy, title, is_fullscreen, is_vsync);
 	setupGLEW();
 	setupOpenGL(winx, winy);
-#ifdef ERROR_CALLBACK
-	setupErrorCallback();
-#endif
 
 	//Camera:
 	initCamera();
@@ -627,9 +557,6 @@ void run(GLFWwindow* win)
 		display(win, elapsed_time);
 		glfwSwapBuffers(win);
 		glfwPollEvents();
-#ifndef ERROR_CALLBACK
-		checkOpenGLError("ERROR: MAIN/RUN");
-#endif
 	}
 	glfwDestroyWindow(win);
 	glfwTerminate();
