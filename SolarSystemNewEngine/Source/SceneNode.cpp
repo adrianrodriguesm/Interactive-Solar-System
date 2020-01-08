@@ -101,7 +101,7 @@ void SceneNode::setFinalState(State& state) {
 Shader* SceneNode::getShader() {
 	SceneNode* currParent = this->parent;
 	Shader* currShader = this->shader;
-	while (currShader == nullptr) {
+	while (currShader == nullptr && currParent != nullptr) {
 		currShader = currParent->shader;
 		currParent = currParent->parent;
 	}

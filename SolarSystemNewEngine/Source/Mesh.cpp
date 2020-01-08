@@ -169,8 +169,8 @@ void Mesh::draw(Shader* shader, Camera* main,vec4& color, mat4& m) {
 	glUniformMatrix4fv(shader->Uniforms["ProjectionMatrix"], 1, GL_FALSE, main->projMatrix.elements);
 	glUniformMatrix4fv(shader->Uniforms["ModelMatrix"], 1, GL_FALSE, m.elements);
 	if ( tex != nullptr ) {
-		tex->Bind();
-		glUniform1i(shader->Uniforms["u_texture"], this->tex->GetId());
+		/*tex->Bind(0);
+		glUniform1i(shader->Uniforms["u_Texture"], 0);*/
 			
 	}
 	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->Vertices.size());

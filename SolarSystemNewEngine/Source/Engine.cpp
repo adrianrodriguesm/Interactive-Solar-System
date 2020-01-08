@@ -54,6 +54,10 @@ float fov = 45.0f;
 bool firstMouse = true;
 bool tracking = false;
 
+////NODES TEST
+SceneNode* sun_Node;
+SceneNode* earthNode;
+
 #define ERROR_CALLBACK
 #ifdef  ERROR_CALLBACK
 void makeAnimation();
@@ -192,17 +196,17 @@ void createTextures()
 
 	EarthNightMap = new Texture("../../Textures/earthlights2k.jpg");
 
-	/*earthShader->Use();
-
+	earthShader->Use();
 	EarthHeightMap->Bind(EarthHeightMap->GetId());
 	glUniform1i(earthShader->Uniforms["HeightMap"], EarthHeightMap->GetId());
-
 	EarthColorMap->Bind(EarthColorMap->GetId());
-	glUniform1i(earthShader->Uniforms["ColorMap"], EarthColorMap->GetId());
+	glUniform1i(earthShader->Uniforms["ColorMap"], EarthColorMap->GetId());	
+	glUseProgram(0);
 
-	//EarthColorMap->Unbind();
-	glUseProgram(0);*/
-
+	bloomShader->Use();
+	texSun->Bind(0);
+	glUniform1i(bloomShader->Uniforms["u_Texture"], 0);
+	glUseProgram(0);
 	
 }
 
@@ -226,7 +230,7 @@ void createSunShader() {
 	bloomShader->AddUniform("ModelMatrix");
 	bloomShader->AddUniform("ProjectionMatrix");
 	bloomShader->AddUniform("ViewMatrix");
-	bloomShader->AddUniform("u_texture");
+	bloomShader->AddUniform("u_Texture");
 	bloomShader->Create();
 
 	blurrShader->Load("blurrV.glsl", "blurrF.glsl");
@@ -306,14 +310,11 @@ void initCamera() {
 /////////////////////////////////////////////////////////////////////// SCENE
 void drawScene()
 {
-	makeAnimation();
+	//makeAnimation();
+
 	bloom->bindHDRBuffer();
-	/*bloomShader->Use();
-	texSun->Bind();
-	glUniform1i(bloomShader->Uniforms["u_texture"], texSun->GetId());
-	glUseProgram(0);*/
-	scene->draw();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		texSun->Bind(0);
+		scene->draw();
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);
 
@@ -348,17 +349,18 @@ void createSceneGraph()
 {
 	///SUN
 	SceneNode* root = new SceneNode();
-	root->setShaderProgram(bloomShader);
-	SceneNode* sun_Node = root->createNode();
+	//root->setShaderProgram(bloomShader);
+	sun_Node = root->createNode();
+	sun_Node->setShaderProgram(bloomShader);
 	sun_Node->setMesh(sphereSun);
 	sun_Node->setMesh(sphereSun);
 	
 
 	///EARTH
-	SceneNode* earthNode = root->createNode();
+	earthNode = root->createNode();
 	earthNode->setShaderProgram(earthShader);
 	earthNode->setMesh(sphereEarth);
-	earthNode->setTrans(matFactory::createTranslationMat4(vec3(0, 2, 0)));
+	earthNode->setTrans(matFactory::createTranslationMat4(vec3(4, 0, 0)));
 
 	/*SceneNode* tableGround = root->createNode();
 	tableGround->setMesh(table);

@@ -59,6 +59,9 @@ void Bloom::createAttachBuffer()
 	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	glDrawBuffers(2, attachments);
 	// finally check if framebuffer is complete
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Bloom::createBlurBuffer()
@@ -96,7 +99,7 @@ void Bloom::renderWithBlurr(Shader* shaderBlur)
 	shaderBlur->Use();
 	
 	
-	vec4 color = vec4(1.0f, 1.0f, 0.0f, 1.0f);
+	glUniform1i(shaderBlur->Uniforms["image"], 0);
 	for (unsigned int i = 0; i < amount; i++)
 	{
 	
@@ -117,9 +120,6 @@ void Bloom::combineProcess(Shader* shaderBloomFinal)
 {	
 	// 3. now render floating point color buffer to 2D quad and tonemap HDR colors to default framebuffer's (clamped) color range
 	//this->bloom = true;
-
-	mat4 m = matFactory::createIdentityMat4();
-	vec4 color = vec4(1.0f, 1.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	shaderBloomFinal->Use();
 	

@@ -148,6 +148,7 @@
     <ClCompile Include="..\..\Source\SceneGraph.cpp" />
     <ClCompile Include="..\..\Source\SceneNode.cpp" />
     <ClCompile Include="..\..\Source\Shaders.cpp" />
+    <ClCompile Include="..\..\Source\ShadowMap.cpp" />
     <ClCompile Include="..\..\Source\stb_image.cpp" />
     <ClCompile Include="..\..\Source\Texture.cpp" />
     <ClCompile Include="..\..\Source\vec2.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="..\..\Include\SceneGraph.h" />
     <ClInclude Include="..\..\Include\SceneNode.h" />
     <ClInclude Include="..\..\Include\Shaders.h" />
+    <ClInclude Include="..\..\Include\ShadowMap.h" />
     <ClInclude Include="..\..\Include\State.h" />
     <ClInclude Include="..\..\Include\stb_image.h" />
     <ClInclude Include="..\..\Include\Texture.h" />
@@ -185,6 +187,8 @@
     <None Include="..\..\Shaders\blurrV.glsl" />
     <None Include="..\..\Shaders\Displacement_Mapping_frag.glsl" />
     <None Include="..\..\Shaders\Displacement_Mapping_vert.glsl" />
+    <None Include="..\..\Shaders\ShadowsMapF.glsl" />
+    <None Include="..\..\Shaders\ShadowsMapV.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

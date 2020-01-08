@@ -81,6 +81,9 @@
     <ClCompile Include="..\..\Source\vectors.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Include\Bloom.h">
@@ -140,6 +143,9 @@
     <ClInclude Include="..\..\Include\vectors.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Include\ShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Shaders\bloomF.glsl">
@@ -164,6 +170,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\..\Shaders\Displacement_Mapping_vert.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\ShadowsMapV.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\ShadowsMapF.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

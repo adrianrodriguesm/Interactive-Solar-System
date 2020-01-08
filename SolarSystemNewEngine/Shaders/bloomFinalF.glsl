@@ -8,8 +8,6 @@ uniform sampler2D bloomBlur;
 uniform bool bloom;
 uniform float exposure;
 
-uniform sampler2D u_Texture;
-
 void main()
 {
 
