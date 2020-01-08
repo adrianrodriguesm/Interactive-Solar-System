@@ -210,6 +210,7 @@ void createShaderProgram()
 
 void destroyShaderProgram()
 {
+	earthShader->Delete();
 	////Bloom
 	bloomShader->Delete();
 	blurrShader->Delete();
@@ -248,9 +249,10 @@ void drawScene()
 {
 	//makeAnimation();
 
+
 	bloom->bindHDRBuffer();
-		texSun->Bind(0);
-		scene->draw();
+	texSun->Bind(0);
+	scene->draw();
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);
 }
@@ -285,11 +287,9 @@ void createSceneGraph()
 	sun_Node = root->createNode();
 	sun_Node->setShaderProgram(bloomShader);
 	sun_Node->setMesh(sphereSun);
-	sun_Node->setMesh(sphereSun);
 	
-
 	///EARTH
-	earthNode = root->createNode();
+	earthNode = sun_Node->createNode();
 	earthNode->setShaderProgram(earthShader);
 	earthNode->setMesh(sphereEarth);
 	earthNode->setTrans(matFactory::createTranslationMat4(vec3(4, 0, 0)));
