@@ -181,14 +181,14 @@ void createTextures()
 	EarthHeightMap->Bind(EarthHeightMap->GetId());
 	glUniform1i(earthShader->Uniforms["HeightMap"], EarthHeightMap->GetId());
 	EarthColorMap->Bind(EarthColorMap->GetId());
-	glUniform1i(earthShader->Uniforms["ColorMap"], EarthColorMap->GetId());	
+	glUniform1i(earthShader->Uniforms["ColorMap"], EarthColorMap->GetId());
 	glUseProgram(0);
 
 	bloomShader->Use();
 	texSun->Bind(0);
 	glUniform1i(bloomShader->Uniforms["u_Texture"], 0);
 	glUseProgram(0);
-	
+
 }
 
 /////////////////////////////////////////////////////////////////////// SHADERs
@@ -314,10 +314,10 @@ void drawScene()
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);
 
-	//Skybox:
-	//drawSkyBox();
-	//
-
+	earthShader->Use();
+	EarthHeightMap->Bind(0);
+	glUniform1i(earthShader->Uniforms["HeightMap"], 0);
+	earthNode->draw(mainCamera);
 }
 /////////////////////////////////////////////////////////////////////// ANIMATION(DEPRECATED)
 void makeAnimation() {
@@ -350,12 +350,12 @@ void createSceneGraph()
 	sun_Node = root->createNode();
 	sun_Node->setShaderProgram(bloomShader);
 	sun_Node->setMesh(sphereSun);
-	
+
 	///EARTH
 	earthNode = sun_Node->createNode();
 	earthNode->setShaderProgram(earthShader);
 	earthNode->setMesh(sphereEarth);
-	earthNode->setTrans(matFactory::createTranslationMat4(vec3(4, 0, 0)));
+	earthNode->setTrans(matFactory::createTranslationMat4(vec3(3, 0, 0)));
 
 	/*SceneNode* tableGround = root->createNode();
 	tableGround->setMesh(table);
@@ -535,7 +535,7 @@ GLFWwindow* setupGLFW(int gl_major, int gl_minor,
 void setupGLEW()
 {
 	glewExperimental = GL_TRUE;
-	// Allow extension entry points to be loaded even if the extension isn't 
+	// Allow extension entry points to be loaded even if the extension isn't
 	// present in the driver's extensions string.
 	GLenum result = glewInit();
 	if (result != GLEW_OK)
@@ -589,7 +589,7 @@ GLFWwindow* setup(int major, int minor,
 	initBloom();
 	//Meshes:
 	createModels();
-	
+
 	//Shaders:
 	createShaderProgram();
 	//BufferObjects:
