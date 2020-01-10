@@ -13,8 +13,10 @@ Shader* bloomShader = new Shader();
 Shader* blurrShader = new Shader();
 Shader* bloomMergeShader = new Shader();
 Shader* earthShader = new Shader();
+Shader* starBoxShader = new Shader();
 
 ///Mesh
+Mesh* starBoxMesh;
 Mesh* sphereSun;
 Mesh* sphereEarth;
 
@@ -22,6 +24,10 @@ Mesh* sphereEarth;
 Bloom* bloom;
 
 ///Textures
+
+//Starbox
+Texture* skyBoxTex;
+//
 Texture* texSun;
 Texture* EarthColorMap;
 Texture* EarthNightMap;
@@ -126,6 +132,10 @@ void setupErrorCallback()
 /////////////////////////////////////////////////////////////////////// MODELs
 void createModels()
 {
+	std::string cube_dir = "../../Models/Cube.obj";
+	starBoxMesh = new Mesh();
+	starBoxMesh->createMesh(cube_dir);
+
 	std::string sphere_dir = "../../Models/smoothSphere.obj";
 	sphereSun = new Mesh();
 	sphereSun->createMesh(sphere_dir);
@@ -135,8 +145,27 @@ void createModels()
 
 }
 /////////////////////////////////////////////////////////////////////// TEXTUREs
+
+void createStarBoxTextures() {
+	std::string skyDir = "../../Textures/Skybox/";
+	std::vector<std::string> faces{
+		skyDir + "bkg1_right.png",
+		skyDir + "bkg1_left.png",
+		skyDir + "bkg1_top.png",
+		skyDir + "bkg1_bot.png",
+		skyDir + "bkg1_front.png",
+		skyDir + "bkg1_back.png"
+	};
+
+	skyBoxTex = new Texture(faces);
+	starBoxMesh->setTexture(skyBoxTex);
+}
+
 void createTextures()
 {
+	createStarBoxTextures();
+	glUniform1i(starBoxShader->Uniforms["SkyBox"], skyBoxTex->GetId());
+
 	texSun = new Texture("../../Textures/yellow.jpg");
 	sphereSun->setTexture(texSun);
 
@@ -163,6 +192,16 @@ void createTextures()
 }
 
 /////////////////////////////////////////////////////////////////////// SHADERs
+void createStarBoxShader() {
+	starBoxShader->Load("Skybox_vert.glsl", "Skybox_frag.glsl");
+	starBoxShader->AddAttribute(0, "inPosition");
+	starBoxShader->AddUniform("ModelMatrix");
+	starBoxShader->AddUniform("ProjectionMatrix");
+	starBoxShader->AddUniform("ViewMatrix");
+	starBoxShader->AddUniform("SkyBox");
+	starBoxShader->Create();
+}
+
 void createEarthShader() {
 	earthShader->Load("Displacement_Mapping_vert.glsl", "Displacement_Mapping_frag.glsl"); //  SHADER FILES MUST BE IN SHADER FOLDER !!
 	earthShader->AddAttribute(0, "inPosition");
@@ -204,12 +243,14 @@ void createSunShader() {
 
 void createShaderProgram()
 {
+	createStarBoxShader();
 	createSunShader();
 	createEarthShader();
 }
 
 void destroyShaderProgram()
 {
+	starBoxShader->Delete();
 	earthShader->Delete();
 	////Bloom
 	bloomShader->Delete();
@@ -220,12 +261,14 @@ void destroyShaderProgram()
 /////////////////////////////////////////////////////////////////////// VAOs & VBOs
 void createBufferObjects()
 {
+	starBoxMesh->createBufferObjects();
 	sphereSun->createBufferObjects();
 	sphereEarth->createBufferObjects();
 }
 
 void destroyBufferObjects()
 {
+	starBoxMesh->destroyBufferObjects();
 	sphereSun->destroyBufferObjects();
 	sphereEarth->destroyBufferObjects();
 }
@@ -245,16 +288,36 @@ void initCamera() {
 	mainCamera->setPersProjMatrix(fov, aspect, 0.0f, 500.0f);
 }
 /////////////////////////////////////////////////////////////////////// SCENE
+float skyBoxSize = 0.2;
+mat4 skyBoxScale = matFactory::createScaleMat4(vec3(skyBoxSize));
+
+void drawSkyBox() {
+	vec4 color = vec4(1, 1, 1);
+
+	glFrontFace(GL_CW);
+	glDepthFunc(GL_LEQUAL);
+	glBindVertexArray(starBoxMesh->VaoId);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTex->GetId());
+	starBoxMesh->draw(starBoxShader, mainCamera, color, skyBoxScale);
+	glDepthFunc(GL_LESS);
+	glFrontFace(GL_CCW);
+}
+
 void drawScene()
 {
 	//makeAnimation();
-
 
 	bloom->bindHDRBuffer();
 	texSun->Bind(0);
 	scene->draw();
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);
+
+	//Skybox:
+	//drawSkyBox();
+	//
+
 }
 /////////////////////////////////////////////////////////////////////// ANIMATION(DEPRECATED)
 void makeAnimation() {

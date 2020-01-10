@@ -1,10 +1,13 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string>
+#include <vector>
+
 
 struct Texture {
 
 	Texture(const std::string& m_FilePath);
+	Texture(std::vector<std::string> faces); // For cubemap
 	~Texture();
 		
 
