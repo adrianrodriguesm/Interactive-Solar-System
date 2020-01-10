@@ -288,7 +288,7 @@ void initCamera() {
 	mainCamera->setPersProjMatrix(fov, aspect, 0.0f, 500.0f);
 }
 /////////////////////////////////////////////////////////////////////// SCENE
-float skyBoxSize = 0.2;
+float skyBoxSize = 10000;
 mat4 skyBoxScale = matFactory::createScaleMat4(vec3(skyBoxSize));
 
 void drawSkyBox() {
@@ -314,10 +314,14 @@ void drawScene()
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);
 
+	glClear(GL_DEPTH_BUFFER_BIT);
+
 	earthShader->Use();
 	EarthHeightMap->Bind(0);
 	glUniform1i(earthShader->Uniforms["HeightMap"], 0);
 	earthNode->draw(mainCamera);
+
+	drawSkyBox();
 }
 /////////////////////////////////////////////////////////////////////// ANIMATION(DEPRECATED)
 void makeAnimation() {
