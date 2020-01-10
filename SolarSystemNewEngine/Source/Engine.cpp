@@ -255,6 +255,11 @@ void drawScene()
 	scene->draw();
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);
+
+	earthShader->Use();
+	EarthHeightMap->Bind(0);
+	glUniform1i(earthShader->Uniforms["HeightMap"], 0);
+	earthNode->draw(mainCamera);
 }
 /////////////////////////////////////////////////////////////////////// ANIMATION(DEPRECATED)
 void makeAnimation() {
@@ -292,7 +297,7 @@ void createSceneGraph()
 	earthNode = sun_Node->createNode();
 	earthNode->setShaderProgram(earthShader);
 	earthNode->setMesh(sphereEarth);
-	earthNode->setTrans(matFactory::createTranslationMat4(vec3(4, 0, 0)));
+	earthNode->setTrans(matFactory::createTranslationMat4(vec3(3, 0, 0)));
 
 	/*SceneNode* tableGround = root->createNode();
 	tableGround->setMesh(table);
