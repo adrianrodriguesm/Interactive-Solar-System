@@ -1,6 +1,6 @@
 ﻿  Engine.cpp
-C:\Users\adria\Desktop\IST\Interactive-Solar-System\SolarSystemNewEngine\Source\Engine.cpp(235,36): warning C4244:  'argument': conversion from 'const float' to 'const unsigned int', possible loss of data
-C:\Users\adria\Desktop\IST\Interactive-Solar-System\SolarSystemNewEngine\Source\Engine.cpp(235,23): warning C4244:  'argument': conversion from 'const float' to 'const unsigned int', possible loss of data
-C:\Users\adria\Desktop\IST\Interactive-Solar-System\SolarSystemNewEngine\Source\Engine.cpp(578,16): warning C4244:  'argument': conversion from 'const float' to 'int', possible loss of data
-C:\Users\adria\Desktop\IST\Interactive-Solar-System\SolarSystemNewEngine\Source\Engine.cpp(578,3): warning C4244:  'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\adria\Desktop\IST\Interactive-Solar-System\SolarSystemNewEngine\Source\Engine.cpp(282,36): warning C4244:  'argument': conversion from 'const float' to 'const unsigned int', possible loss of data
+C:\Users\adria\Desktop\IST\Interactive-Solar-System\SolarSystemNewEngine\Source\Engine.cpp(282,23): warning C4244:  'argument': conversion from 'const float' to 'const unsigned int', possible loss of data
+C:\Users\adria\Desktop\IST\Interactive-Solar-System\SolarSystemNewEngine\Source\Engine.cpp(646,16): warning C4244:  'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\adria\Desktop\IST\Interactive-Solar-System\SolarSystemNewEngine\Source\Engine.cpp(646,3): warning C4244:  'argument': conversion from 'const float' to 'int', possible loss of data
   SolarSystem.vcxproj -> C:\Users\adria\Desktop\IST\Interactive-Solar-System\SolarSystemNewEngine\Project\\bin\SolarSystem.exe

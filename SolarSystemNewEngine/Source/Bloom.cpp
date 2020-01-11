@@ -16,7 +16,6 @@ Bloom::Bloom()
 
 void Bloom::bindHDRBuffer()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -114,6 +113,7 @@ void Bloom::renderWithBlurr(Shader* shaderBlur)
 			first_iteration = false;
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, SCR_WIDTH,SCR_HEIGHT);
 }
 
 void Bloom::combineProcess(Shader* shaderBloomFinal)

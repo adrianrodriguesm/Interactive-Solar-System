@@ -1,14 +1,36 @@
 #include "../Include/Mesh.h"
 
+typedef struct {
+	float x, y, z;
+} Vertex;
 
+typedef struct {
+	float u, v;
+} Texcoord;
 
+typedef struct {
+	float nx, ny, nz;
+} Normal;
 
-const void Mesh::createMesh(std::string& filename)
-{
-	loadMeshData(filename);
-	processMeshData();
+std::vector <Vertex> Vertices, vertexData;
+std::vector <Texcoord> Texcoords, texcoordData;
+std::vector <Normal> Normals, normalData;
+
+std::vector <unsigned int> vertexIdx, texcoordIdx, normalIdx;
+
+Mesh::Mesh() {
+	TexcoordsLoaded = false;
+	NormalsLoaded = false;
+	VaoId = 0;
+	verticesCount = 0;
+}
+
+Mesh::Mesh(std::string& filename) {
+	this->createMesh(filename);
+	createBufferObjects(*this);
 	freeMeshData();
 }
+
 void Mesh::parseVertex(std::stringstream& sin)
 {
 	Vertex v;
@@ -101,17 +123,34 @@ void Mesh::freeMeshData()
 	vertexData.clear();
 	texcoordData.clear();
 	normalData.clear();
+	Vertices.clear();
+	Normals.clear();
+	Texcoords.clear();
 	vertexIdx.clear();
 	texcoordIdx.clear();
 	normalIdx.clear();
 }
 
-void Mesh::createBufferObjects()
+const void Mesh::createMesh(std::string& filename)
 {
+	loadMeshData(filename);
+	processMeshData();
+	this->verticesCount = Vertices.size();
+}
+
+Mesh Mesh::meshFromObj(std::string& filename) {
+	Mesh newMesh = Mesh();
+	newMesh.createMesh(filename);
+	createBufferObjects(newMesh);
+	freeMeshData();
+	return newMesh;
+}
+
+void Mesh::createBufferObjects(Mesh& mesh) {
 	GLuint VboVertices, VboTexcoords, VboNormals;
 
-	glGenVertexArrays(1, &VaoId);
-	glBindVertexArray(VaoId);
+	glGenVertexArrays(1, &mesh.VaoId);
+	glBindVertexArray(mesh.VaoId);
 	{
 		glGenBuffers(1, &VboVertices);
 		glBindBuffer(GL_ARRAY_BUFFER, VboVertices);
@@ -143,37 +182,43 @@ void Mesh::createBufferObjects()
 	glDeleteBuffers(1, &VboNormals);
 }
 
-void Mesh::destroyBufferObjects()
+void destroyBufferObjects(GLuint& vaoid)
 {
-	glBindVertexArray(VaoId);
+	glBindVertexArray(vaoid);
 	glDisableVertexAttribArray(VERTICES);
 	glDisableVertexAttribArray(TEXCOORDS);
 	glDisableVertexAttribArray(NORMALS);
-	glDeleteVertexArrays(1, &VaoId);
+	glDeleteVertexArrays(1, &vaoid);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
-bool Mesh::getTexLoaded() {
-	return TexcoordsLoaded;
+
+void Mesh::destroy() {
+	freeMeshData();
+	destroyBufferObjects(this->VaoId);
 }
 
-bool Mesh::getNormalLoaded() {
-	return NormalsLoaded;
-}
-
-void Mesh::draw(Shader* shader, Camera* main,vec4& color, mat4& m) {
+void Mesh::bindVaoId() {
 	glBindVertexArray(this->VaoId);
-		
+}
+
+/*void Mesh::draw() {
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount);
+}*/
+
+void Mesh::draw(Shader* shader, Camera* main, vec4& color, mat4& m) {
+	glBindVertexArray(this->VaoId);
+
 	shader->Use();
 	glUniformMatrix4fv(shader->Uniforms["ViewMatrix"], 1, GL_FALSE, main->viewMatrix.elements);
 	glUniformMatrix4fv(shader->Uniforms["ProjectionMatrix"], 1, GL_FALSE, main->projMatrix.elements);
 	glUniformMatrix4fv(shader->Uniforms["ModelMatrix"], 1, GL_FALSE, m.elements);
-	if ( tex != nullptr ) {
+	if (tex != nullptr) {
 		/*tex->Bind(0);
 		glUniform1i(shader->Uniforms["u_Texture"], 0);*/
-			
+
 	}
-	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->Vertices.size());
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)this->verticesCount);
 	glBindVertexArray(0);
 	glUseProgram(0);
 }
@@ -181,5 +226,4 @@ void Mesh::draw(Shader* shader, Camera* main,vec4& color, mat4& m) {
 void Mesh::setTexture(Texture* texture) {
 	this->tex = texture;
 }
-
 

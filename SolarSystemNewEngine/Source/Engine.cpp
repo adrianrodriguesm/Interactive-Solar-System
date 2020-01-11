@@ -44,7 +44,7 @@ float duration = 2.0f;
 bool reverse = false;
 
 ////Movimento da mesa
-float horizontal, vertical;
+float horizontal, vertical, depth;
 float rotTable;
 qtrn rotTableY;
 
@@ -133,15 +133,15 @@ void setupErrorCallback()
 void createModels()
 {
 	std::string cube_dir = "../../Models/Cube.obj";
-	starBoxMesh = new Mesh();
-	starBoxMesh->createMesh(cube_dir);
+	starBoxMesh = new Mesh(cube_dir);
+	//starBoxMesh->createMesh(cube_dir);
 
 	std::string sphere_dir = "../../Models/smoothSphere.obj";
-	sphereSun = new Mesh();
-	sphereSun->createMesh(sphere_dir);
+	sphereSun = new Mesh(sphere_dir);
+	//sphereSun->createMesh(sphere_dir);
 
-	sphereEarth = new Mesh();
-	sphereEarth->createMesh(sphere_dir);
+	sphereEarth = new Mesh(sphere_dir);
+	//sphereEarth->createMesh(sphere_dir);
 
 }
 /////////////////////////////////////////////////////////////////////// TEXTUREs
@@ -165,7 +165,7 @@ void createTextures()
 {
 	createStarBoxTextures();
 	glUniform1i(starBoxShader->Uniforms["SkyBox"], skyBoxTex->GetId());
-
+	
 	texSun = new Texture("../../Textures/yellow.jpg");
 	sphereSun->setTexture(texSun);
 
@@ -177,6 +177,11 @@ void createTextures()
 
 	EarthNightMap = new Texture("../../Textures/earthlights2k.jpg");
 
+	bloomShader->Use();
+	texSun->Bind(texSun->GetId());
+	glUniform1i(bloomShader->Uniforms["u_Texture"], texSun->GetId());
+	glUseProgram(0);
+
 	earthShader->Use();
 	EarthHeightMap->Bind(EarthHeightMap->GetId());
 	glUniform1i(earthShader->Uniforms["HeightMap"], EarthHeightMap->GetId());
@@ -184,10 +189,7 @@ void createTextures()
 	glUniform1i(earthShader->Uniforms["ColorMap"], EarthColorMap->GetId());
 	glUseProgram(0);
 
-	bloomShader->Use();
-	texSun->Bind(0);
-	glUniform1i(bloomShader->Uniforms["u_Texture"], 0);
-	glUseProgram(0);
+
 
 }
 
@@ -261,16 +263,18 @@ void destroyShaderProgram()
 /////////////////////////////////////////////////////////////////////// VAOs & VBOs
 void createBufferObjects()
 {
-	starBoxMesh->createBufferObjects();
+	/*starBoxMesh->createBufferObjects();
 	sphereSun->createBufferObjects();
-	sphereEarth->createBufferObjects();
+	sphereEarth->createBufferObjects();*/
 }
 
 void destroyBufferObjects()
 {
-	starBoxMesh->destroyBufferObjects();
+	/*starBoxMesh->destroyBufferObjects();
 	sphereSun->destroyBufferObjects();
-	sphereEarth->destroyBufferObjects();
+	sphereEarth->destroyBufferObjects();*/
+	sphereSun->destroy();
+	sphereEarth->destroy();
 }
 /////////////////////////////////////////////////////////////////////// INIT BLOOM
 void initBloom() {
@@ -307,21 +311,22 @@ void drawSkyBox() {
 void drawScene()
 {
 	//makeAnimation();
-
-	bloom->bindHDRBuffer();
-	texSun->Bind(0);
-	scene->draw();
-	bloom->renderWithBlurr(blurrShader);
-	bloom->combineProcess(bloomMergeShader);
-
-	glClear(GL_DEPTH_BUFFER_BIT);
-
-	earthShader->Use();
-	EarthHeightMap->Bind(0);
-	glUniform1i(earthShader->Uniforms["HeightMap"], 0);
+	//bloom->bindHDRBuffer();
+	
+	//texSun->Bind(0);
+	
+	//sun_Node->draw(mainCamera);
+	//scene->draw();
 	earthNode->draw(mainCamera);
+	sun_Node->draw(mainCamera);
+	//bloom->renderWithBlurr(blurrShader);
+	//bloom->combineProcess(bloomMergeShader);
 
-	drawSkyBox();
+	//glClear( GL_DEPTH_BUFFER_BIT);
+	//scene->draw();
+	//earthNode->draw(mainCamera);
+
+	//drawSkyBox();
 }
 /////////////////////////////////////////////////////////////////////// ANIMATION(DEPRECATED)
 void makeAnimation() {
@@ -356,7 +361,7 @@ void createSceneGraph()
 	sun_Node->setMesh(sphereSun);
 
 	///EARTH
-	earthNode = sun_Node->createNode();
+	earthNode = root->createNode();
 	earthNode->setShaderProgram(earthShader);
 	earthNode->setMesh(sphereEarth);
 	earthNode->setTrans(matFactory::createTranslationMat4(vec3(3, 0, 0)));
@@ -417,12 +422,12 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods)
 
 	if (glfwGetKey(win, GLFW_KEY_W) == GLFW_PRESS) {
 		vertical += 0.1f;
-		scene->root->setTrans(matFactory::createTranslationMat4(vec3(horizontal, vertical, 0.0f)));
+		scene->root->setTrans(matFactory::createTranslationMat4(vec3(horizontal, vertical, depth)));
 	}
 
 	if (glfwGetKey(win, GLFW_KEY_S) == GLFW_PRESS) {
 		vertical -= 0.1f;
-		scene->root->setTrans(matFactory::createTranslationMat4(vec3(horizontal, vertical, 0.0f)));
+		scene->root->setTrans(matFactory::createTranslationMat4(vec3(horizontal, vertical, depth)));
 	}
 
 	if (glfwGetKey(win, GLFW_KEY_Q) == GLFW_PRESS) {
@@ -568,6 +573,7 @@ void setupOpenGL(int winx, int winy)
 	checkOpenGLInfo();
 #endif
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glDepthMask(GL_TRUE);

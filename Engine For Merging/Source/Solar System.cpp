@@ -38,6 +38,7 @@ mat4 cameraTranslation;
 
 //Declaration of Textures:
 Texture* EarthColorMap;
+Texture* EarthHeightMap;
 Texture* SunTex;
 /////////////////
 
@@ -46,7 +47,7 @@ Mesh sphereMesh;
 /////////////////
 
 //Declaration of Shaders:
-Shader earthShader = Shader();
+Shader* earthShader = new Shader();
 Shader* bloomShader = new Shader();
 Shader* blurrShader = new Shader();
 Shader* bloomMergeShader = new Shader();
@@ -126,17 +127,22 @@ void setupErrorCallback()
 
 void createTextures() {
 	//Example on how to initialize texture and bind to shader: 	
-	//EarthColorMap = new Texture("../../Textures/earthbump2k.jpg");
-	//earthShader.Use();
-	//EarthColorMap->Bind(EarthColorMap->GetId());
-	//glUniform1i(earthShader.Uniforms["ColorMap"], EarthColorMap->GetId());	
-	//glUseProgram(0);
+	EarthColorMap = new Texture("../../Textures/earthmap2k.jpg");
+	EarthHeightMap = new Texture("../../Textures/earthbump2k.jpg");
+	//sphereEarth->setTexture(EarthHeightMap);
+
+	earthShader->Use();
+	EarthHeightMap->Bind(EarthHeightMap->GetId());
+	glUniform1i(earthShader->Uniforms["HeightMap"], EarthHeightMap->GetId());
+	EarthColorMap->Bind(EarthColorMap->GetId());
+	glUniform1i(earthShader->Uniforms["ColorMap"], EarthColorMap->GetId());
+	glUseProgram(0);
 
 	SunTex = new Texture("../../Textures/yellow.jpg");
-	/*bloomShader->Use();
+	bloomShader->Use();
 	SunTex->Bind(SunTex->GetId());
 	glUniform1i(bloomShader->Uniforms["u_Texture"], SunTex->GetId());
-	glUseProgram(0);*/
+	glUseProgram(0);
 	
 }
 
@@ -159,16 +165,16 @@ void destroyMeshes() {
 //Make a "createYOURShader" function for each of your shaders like this:
 
 void createEarthShader() {
-	earthShader.Load("Displacement_Mapping_vert.glsl", "Displacement_Mapping_frag.glsl"); //  SHADER FILES MUST BE IN SHADER FOLDER !!
-	earthShader.AddAttribute(0, "inPosition");
-	earthShader.AddAttribute(1, "inTexcoord");
-	earthShader.AddAttribute(2, "inNormal");
-	earthShader.AddUniform("ModelMatrix");
-	earthShader.AddUniform("ProjectionMatrix");
-	earthShader.AddUniform("ViewMatrix");
-	earthShader.AddUniform("HeightMap");
-	earthShader.AddUniform("ColorMap");
-	earthShader.Create();
+	earthShader->Load("Displacement_Mapping_vert.glsl", "Displacement_Mapping_frag.glsl"); //  SHADER FILES MUST BE IN SHADER FOLDER !!
+	earthShader->AddAttribute(0, "inPosition");
+	earthShader->AddAttribute(1, "inTexcoord");
+	earthShader->AddAttribute(2, "inNormal");
+	earthShader->AddUniform("ModelMatrix");
+	earthShader->AddUniform("ProjectionMatrix");
+	earthShader->AddUniform("ViewMatrix");
+	earthShader->AddUniform("HeightMap");
+	earthShader->AddUniform("ColorMap");
+	earthShader->Create();
 }
 
 void createBloomShader() {
@@ -205,7 +211,7 @@ void createShaders() {
 
 // Also add the delete function for your shader here:
 void deleteShaders() {
-	earthShader.Delete();
+	earthShader->Delete();
 
 	////Bloom
 	bloomShader->Delete();
@@ -229,6 +235,7 @@ SceneGraph* scenegraph;
 
 SceneNode* base;
 SceneNode* sun;
+SceneNode* earthNode;
 
 ///////////////////
 
@@ -239,8 +246,13 @@ void createScene(SceneGraph* scenegraph) {
 	
 	sun = base->createNode();
 	sun->setMesh(&sphereMesh);
-	sun->setTexture(SunTex);
+	//sun->setTexture(SunTex);
 	sun->setShader(bloomShader);
+
+	earthNode = sun->createNode();
+	earthNode->setMesh(&sphereMesh);
+	earthNode->setShader(earthShader);
+	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(4.0f, 0, 0)));
 }
 
 void createSceneGraph(Camera& cam) {
@@ -283,15 +295,13 @@ void updateAnimation() {
 void drawScene() {
 	//updateAnimation();
 
-	bloomShader->Use();
-	bloom->bindHDRBuffer();	
-	//SunTex->Bind(SunTex->GetId());
-	//glUniform1i(bloomShader->Uniforms["u_Texture"], SunTex->GetId());
-	//glUseProgram(0);
+	
+	//bloom->bindHDRBuffer();	
+
 	scenegraph->draw();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
-	bloom->combineProcess(bloomMergeShader);
+	bloom->combineProcess(bloomMergeShader);*/
 	
 }
 
