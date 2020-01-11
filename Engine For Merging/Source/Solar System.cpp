@@ -246,12 +246,13 @@ void createScene(SceneGraph* scenegraph) {
 	
 	sun = base->createNode();
 	sun->setMesh(&sphereMesh);
-	//sun->setTexture(SunTex);
+	sun->setTexture(SunTex);
 	sun->setShader(bloomShader);
 
 	earthNode = sun->createNode();
 	earthNode->setMesh(&sphereMesh);
 	earthNode->setShader(earthShader);
+	earthNode->setTexture(EarthColorMap);
 	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(4.0f, 0, 0)));
 }
 
@@ -302,6 +303,7 @@ void drawScene() {
 	/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);*/
+	
 	
 }
 
