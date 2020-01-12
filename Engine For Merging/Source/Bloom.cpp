@@ -7,10 +7,10 @@
 
 
 Bloom::Bloom()
-	:hdrFBO(0), colorBuffers(), pingpongFBO(), pingpongColorbuffers(), horizontal(true), 
+	:hdrFBO(0), colorBuffers(), pingpongFBO(), pingpongColorbuffers(), horizontal(true),
 	first_iteration(true), bloom(false), quadVAO(0), quadVBO(0)
 {
-	
+
 }
 
 
@@ -24,10 +24,9 @@ void Bloom::bindHDRBuffer()
 void Bloom::createBrightFilterBuffer()
 {
 	// set up floating point framebuffer to render scene to
-	
+
 	glGenFramebuffers(1, &hdrFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
-	
 	glGenTextures(2, colorBuffers);
 	for (unsigned int i = 0; i < 2; i++)
 	{
@@ -44,16 +43,24 @@ void Bloom::createBrightFilterBuffer()
 			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorBuffers[i], 0
 		);
 	}
-	
+
 }
 
 
 void Bloom::createAttachBuffer()
 {
+	unsigned int rboDepth;
+	glGenRenderbuffers(1, &rboDepth);
+	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 	// tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
 	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	glDrawBuffers(2, attachments);
 	// finally check if framebuffer is complete
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Bloom::createBlurBuffer()
@@ -82,25 +89,23 @@ void Bloom::createBlurBuffer()
 
 void Bloom::renderWithBlurr(Shader* shaderBlur)
 {
-	
+
 	// 2. blur bright fragments with two-pass Gaussian Blur 
 	// --------------------------------------------------
 	horizontal = true;
 	first_iteration = true;
 	unsigned int amount = 10;
 	shaderBlur->Use();
+
+
 	glUniform1i(shaderBlur->Uniforms["image"], 0);
-	
-	vec4 color = vec4(1.0f, 1.0f, 0.0f, 1.0f);
 	for (unsigned int i = 0; i < amount; i++)
 	{
 
-		//shaderBlur->setUniform1i("horizontal", horizontal);
 		glUniform1i(shaderBlur->Uniforms["horizontal"], horizontal);
-		
 		glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
-		
-		
+
+
 		glBindTexture(GL_TEXTURE_2D, first_iteration ? colorBuffers[1] : pingpongColorbuffers[!horizontal]);  // bind texture of other framebuffer (or scene if first iteration)
 		renderQuad();
 		horizontal = !horizontal;
@@ -108,34 +113,30 @@ void Bloom::renderWithBlurr(Shader* shaderBlur)
 			first_iteration = false;
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 }
 
 void Bloom::combineProcess(Shader* shaderBloomFinal)
-{	
+{
 	// 3. now render floating point color buffer to 2D quad and tonemap HDR colors to default framebuffer's (clamped) color range
 	//this->bloom = true;
-
-	
-	vec4 color = vec4(1.0f, 1.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	shaderBloomFinal->Use();
-	
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
 
-	/*shaderBloomFinal->setUniform1i("scene", 0);
-	shaderBloomFinal->setUniform1i("bloomBlur", 1);
-	shaderBloomFinal->setUniform1i("bloom", bloom);
-	shaderBloomFinal->setUniform1f("exposure", exposure);*/
 	glUniform1i(shaderBloomFinal->Uniforms["scene"], 0);
 	glUniform1i(shaderBloomFinal->Uniforms["bloomBlur"], 1);
+	//glUniform1i(shaderBloomFinal->Uniforms["bloom"], bloom);
 	glUniform1f(shaderBloomFinal->Uniforms["exposure"], exposure);
 	renderQuad();
-	
+
 	//std::cout << "bloom: " << (bloom ? "on" : "off") << "| exposure: " << exposure << std::endl;
 	glUseProgram(0);
+
 }
 
 
@@ -168,17 +169,13 @@ void Bloom::renderQuad()
 
 void Bloom::activateBloom(bool value)
 {
-	if (this->bloom != value) {//I added this so the console isn't filled with "Bloom:on" xD
-		this->exposure = 1.0f;
-		this->bloom = value;
-		std::cout << "bloom: " << (value? "on" : "off") << std::endl;
-	}	
+	this->exposure = 1.0f;
+	this->bloom = value;
 }
 
 void Bloom::increaseExpresure()
 {
 	exposure += 0.01f;
-	cout << "exposure: " << exposure << std::endl;
 }
 
 void Bloom::decreaseExpresure()
@@ -186,13 +183,19 @@ void Bloom::decreaseExpresure()
 	if (exposure > 0) {
 		exposure -= 0.01f;
 	}
-	cout << "exposure: " << exposure << std::endl;
+
 }
 
 void Bloom::setScreenSize(const unsigned int width, const unsigned int height) {
 	this->SCR_WIDTH = width;
 	this->SCR_HEIGHT = height;
 }
+
+
+
+
+
+
 
 
 

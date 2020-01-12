@@ -89,6 +89,7 @@ void  SceneNode::draw(Camera* cam) {
 	}
 	
 }
+
 void SceneNode::setInitialState(State& state) {
 		
 	this->stateI = state;

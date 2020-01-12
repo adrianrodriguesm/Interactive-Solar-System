@@ -1,1 +1,3 @@
-﻿
+﻿  Bloom.cpp
+C:\Users\adria\Desktop\IST\Interactive-Solar-System\Engine For Merging\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
+  CG4G - 3D Tangram.vcxproj -> C:\Users\adria\Desktop\IST\Interactive-Solar-System\Engine For Merging\PROJECT\\bin\Solar System.exe

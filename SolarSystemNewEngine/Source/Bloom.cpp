@@ -3,7 +3,8 @@
 #include <iostream>
 
 #include "../Include/Bloom.h"
-#include "../Include/matFactory.h"
+//#include "../Include/matFactory.h"
+
 
 
 Bloom::Bloom()
@@ -16,6 +17,7 @@ Bloom::Bloom()
 
 void Bloom::bindHDRBuffer()
 {
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -32,7 +34,7 @@ void Bloom::createBrightFilterBuffer()
 	{
 		glBindTexture(GL_TEXTURE_2D, colorBuffers[i]);
 		glTexImage2D(
-			GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL
+			GL_TEXTURE_2D, 0, GL_RGB8, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL
 		);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -122,9 +124,9 @@ void Bloom::combineProcess(Shader* shaderBloomFinal)
 	//this->bloom = true;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	shaderBloomFinal->Use();
-	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
+	//glBindTexture(GL_TEXTURE_2D, tex->GetId());
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
 
@@ -189,6 +191,11 @@ void Bloom::decreaseExpresure()
 void Bloom::setScreenSize(const unsigned int width, const unsigned int height) {
 	this->SCR_WIDTH = width;
 	this->SCR_HEIGHT = height;
+}
+
+void Bloom::setTex(Texture* tex)
+{
+	this->tex = tex;
 }
 
 

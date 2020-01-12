@@ -1,4 +1,6 @@
-#include "Shaders.h"
+//#include "Shaders.h"
+//#include "Texture.h"
+#include "SceneGraph.h"
 
 
 struct Bloom {
@@ -15,8 +17,9 @@ struct Bloom {
 	void increaseExpresure();
 	void decreaseExpresure();
 	void setScreenSize(const unsigned int width, const unsigned int height);
+	void setTex(Texture* tex);
 private:
-
+	Texture* tex;
 	///SCREEN
 	unsigned int SCR_WIDTH;
 	unsigned int SCR_HEIGHT;

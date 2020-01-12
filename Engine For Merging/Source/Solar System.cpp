@@ -21,8 +21,8 @@
 ////////////////////////////////////////////////// VARIABLES
 
 //General
-const int screenWidth = 1920 / 2;
-const int screenHeight = 1920 / 2;
+const float screenWidth = 1920 / 2;
+const float screenHeight = 1920 / 2;
 float aspect = (float)screenWidth / screenHeight;
 vec4 xAxis = vec4(1, 0, 0, 1);
 vec4 yAxis = vec4(0, 1, 0, 1);
@@ -140,9 +140,12 @@ void createTextures() {
 
 	SunTex = new Texture("../../Textures/yellow.jpg");
 	bloomShader->Use();
-	SunTex->Bind(SunTex->GetId());
-	glUniform1i(bloomShader->Uniforms["u_Texture"], SunTex->GetId());
+	SunTex->Bind(0);
+	glUniform1i(bloomShader->Uniforms["u_Texture"], 0);
 	glUseProgram(0);
+
+
+
 	
 }
 
@@ -226,6 +229,7 @@ void initBloom() {
 	bloom->createBrightFilterBuffer();
 	bloom->createAttachBuffer();
 	bloom->createBlurBuffer();
+	bloom->activateBloom(true);///Activate default
 }
 /////////////////////////////////////////////////////////////////////// SCENE
 
@@ -249,11 +253,11 @@ void createScene(SceneGraph* scenegraph) {
 	sun->setTexture(SunTex);
 	sun->setShader(bloomShader);
 
-	earthNode = sun->createNode();
+	earthNode = base->createNode();
 	earthNode->setMesh(&sphereMesh);
 	earthNode->setShader(earthShader);
 	earthNode->setTexture(EarthColorMap);
-	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(4.0f, 0, 0)));
+	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(1, 0, 0)));
 }
 
 void createSceneGraph(Camera& cam) {
@@ -295,14 +299,21 @@ void updateAnimation() {
 
 void drawScene() {
 	//updateAnimation();
-
 	
-	//bloom->bindHDRBuffer();	
+	bloom->bindHDRBuffer();	
 
-	scenegraph->draw();
-	/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	EarthHeightMap->Bind(EarthHeightMap->GetId());
+	EarthColorMap->Bind(EarthColorMap->GetId());
+	earthNode->draw(&cam);
+
+	SunTex->Bind(0);
+	sun->draw(&cam);
+
+	//scenegraph->draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
-	bloom->combineProcess(bloomMergeShader);*/
+	bloom->combineProcess(bloomMergeShader);
+	
 	
 	
 }
@@ -575,17 +586,19 @@ GLFWwindow* setup(int major, int minor,
 	initialize_inputs();
 	mouse_initialize(win);
 
+
 	///Init Bloom frameBuffers:
 	initBloom();
-	
 	//Meshes:
 	createMeshes();
 	//Shader:
 	createShaders();
 	//Texture:
 	createTextures();
+	
 	//Scene Setup
 	createSceneGraph(cam);
+
 
 	return win;
 }

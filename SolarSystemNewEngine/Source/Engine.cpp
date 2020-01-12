@@ -1,6 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "../Include/SceneGraph.h"
+//#include "../Include/SceneGraph.h"
 #include "../Include/Bloom.h"
 
 ///General
@@ -178,14 +178,14 @@ void createTextures()
 	EarthNightMap = new Texture("../../Textures/earthlights2k.jpg");
 
 	bloomShader->Use();
-	texSun->Bind(texSun->GetId());
-	glUniform1i(bloomShader->Uniforms["u_Texture"], texSun->GetId());
+	texSun->Bind(0);
+	glUniform1i(bloomShader->Uniforms["u_Texture"], 0);
 	glUseProgram(0);
 
 	earthShader->Use();
-	EarthHeightMap->Bind(EarthHeightMap->GetId());
+	//EarthHeightMap->Bind(EarthHeightMap->GetId());
 	glUniform1i(earthShader->Uniforms["HeightMap"], EarthHeightMap->GetId());
-	EarthColorMap->Bind(EarthColorMap->GetId());
+	//EarthColorMap->Bind(EarthColorMap->GetId());
 	glUniform1i(earthShader->Uniforms["ColorMap"], EarthColorMap->GetId());
 	glUseProgram(0);
 
@@ -279,6 +279,7 @@ void destroyBufferObjects()
 /////////////////////////////////////////////////////////////////////// INIT BLOOM
 void initBloom() {
 	bloom = new Bloom();
+	bloom->setTex(texSun);
 	bloom->setScreenSize(screenWidth, screenHeight);
 	bloom->createBrightFilterBuffer();
 	bloom->createAttachBuffer();
@@ -296,7 +297,7 @@ float skyBoxSize = 10000;
 mat4 skyBoxScale = matFactory::createScaleMat4(vec3(skyBoxSize));
 
 void drawSkyBox() {
-	vec4 color = vec4(1, 1, 1);
+	/*vec4 color = vec4(1, 1, 1);
 
 	glFrontFace(GL_CW);
 	glDepthFunc(GL_LEQUAL);
@@ -305,22 +306,22 @@ void drawSkyBox() {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTex->GetId());
 	starBoxMesh->draw(starBoxShader, mainCamera, color, skyBoxScale);
 	glDepthFunc(GL_LESS);
-	glFrontFace(GL_CCW);
+	glFrontFace(GL_CCW);*/
 }
 
 void drawScene()
 {
-	//makeAnimation();
-	//bloom->bindHDRBuffer();
+	makeAnimation();
+	bloom->bindHDRBuffer();
 	
-	//texSun->Bind(0);
+	texSun->Bind(0);
 	
-	//sun_Node->draw(mainCamera);
-	//scene->draw();
-	earthNode->draw(mainCamera);
 	sun_Node->draw(mainCamera);
-	//bloom->renderWithBlurr(blurrShader);
-	//bloom->combineProcess(bloomMergeShader);
+	//scene->draw();
+	//earthNode->draw(mainCamera);
+	//sun_Node->draw(mainCamera);
+	bloom->renderWithBlurr(blurrShader);
+	bloom->combineProcess(bloomMergeShader);
 
 	//glClear( GL_DEPTH_BUFFER_BIT);
 	//scene->draw();
@@ -573,7 +574,6 @@ void setupOpenGL(int winx, int winy)
 	checkOpenGLInfo();
 #endif
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glDepthMask(GL_TRUE);
@@ -595,8 +595,7 @@ GLFWwindow* setup(int major, int minor,
 
 	//Camera:
 	initCamera();
-	//Bloom:
-	initBloom();
+	
 	//Meshes:
 	createModels();
 
@@ -606,6 +605,8 @@ GLFWwindow* setup(int major, int minor,
 	createBufferObjects();
 	//Textures :
 	createTextures();
+	//Bloom:
+	initBloom();
 	//Scene:
 	createSceneGraph();
 
