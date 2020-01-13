@@ -4,12 +4,14 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <string>
+#include <vector>
 #include "stb_image.h"
 
 struct Texture {
 	
 	Texture();
 	Texture(const std::string& m_FilePath);
+	Texture(std::vector<std::string> faces); //For skybox / cubemap
 	~Texture();		
 
 	void Bind(unsigned int slot = 0) const;

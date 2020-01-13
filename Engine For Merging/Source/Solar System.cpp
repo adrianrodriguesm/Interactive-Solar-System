@@ -40,10 +40,12 @@ mat4 cameraTranslation;
 Texture* EarthColorMap;
 Texture* EarthHeightMap;
 Texture* SunTex;
+Texture* skyBoxTex;
 /////////////////
 
 //Declaration of meshes:
 Mesh sphereMesh;
+Mesh* skyBoxMesh;
 /////////////////
 
 //Declaration of Shaders:
@@ -51,6 +53,7 @@ Shader* earthShader = new Shader();
 Shader* bloomShader = new Shader();
 Shader* blurrShader = new Shader();
 Shader* bloomMergeShader = new Shader();
+Shader* skyBoxShader = new Shader();
 /////////////////
 
 ///Bloom
@@ -123,9 +126,28 @@ void setupErrorCallback()
 
 /////////////////////////////////////////////////////////////////////// TEXTURES
 
+void createskyBoxTextures() {
+	std::string skyDir = "../../Textures/Skybox/";
+	std::vector<std::string> faces{
+		skyDir + "bkg1_right.png",
+		skyDir + "bkg1_left.png",
+		skyDir + "bkg1_top.png",
+		skyDir + "bkg1_bot.png",
+		skyDir + "bkg1_front.png",
+		skyDir + "bkg1_back.png"
+	};
 
+	skyBoxTex = new Texture(faces);
+	//skyBoxMesh->setTexture(skyBoxTex);
+}
 
 void createTextures() {
+
+	createskyBoxTextures();
+	skyBoxShader->Use();
+	glUniform1i(skyBoxShader->Uniforms["SkyBox"], skyBoxTex->GetId());
+	glUseProgram(0);
+
 	//Example on how to initialize texture and bind to shader: 	
 	EarthColorMap = new Texture("../../Textures/earthmap2k.jpg");
 	EarthHeightMap = new Texture("../../Textures/earthbump2k.jpg");
@@ -143,10 +165,9 @@ void createTextures() {
 	SunTex->Bind(0);
 	glUniform1i(bloomShader->Uniforms["u_Texture"], 0);
 	glUseProgram(0);
-
-
-
 	
+
+
 }
 
 /////////////////////////////////////////////////////////////////////// MESHES
@@ -156,6 +177,9 @@ void createMeshes() {
 
 	std::string spherePath = mesh_dir + "smoothSphere.obj"; // Just add your mesh.obj in the folder "Blender Objects, and put the file name here
 	sphereMesh = Mesh(spherePath);							//Create it by using the constructor of the mesh class
+
+	std::string cube_dir = mesh_dir + "Cube.obj";
+	skyBoxMesh = new Mesh(cube_dir);
 }
 
 //Add your mesh.destroy here afterwards:
@@ -178,6 +202,16 @@ void createEarthShader() {
 	earthShader->AddUniform("HeightMap");
 	earthShader->AddUniform("ColorMap");
 	earthShader->Create();
+}
+
+void createskyBoxShader() {
+	skyBoxShader->Load("Skybox_vert.glsl", "Skybox_frag.glsl");
+	skyBoxShader->AddAttribute(0, "inPosition");
+	skyBoxShader->AddUniform("ModelMatrix");
+	skyBoxShader->AddUniform("ProjectionMatrix");
+	skyBoxShader->AddUniform("ViewMatrix");
+	skyBoxShader->AddUniform("SkyBox");
+	skyBoxShader->Create();
 }
 
 void createBloomShader() {
@@ -208,6 +242,7 @@ void createBloomShader() {
 
 //Then add your function to this createShaders function which is called in the "Setup" function.
 void createShaders() {
+	createskyBoxShader();
 	createEarthShader();
 	createBloomShader();
 }
@@ -221,6 +256,7 @@ void deleteShaders() {
 	blurrShader->Delete();
 	bloomMergeShader->Delete();
 
+	skyBoxShader->Delete();
 }
 /////////////////////////////////////////////////////////////////////// INIT BLOOM
 void initBloom() {
@@ -238,26 +274,37 @@ SceneGraph* scenegraph;
 //Initialize nodes here:
 
 SceneNode* base;
-SceneNode* sun;
+SceneNode* skyBoxNode;
+SceneNode* sunNode;
 SceneNode* earthNode;
 
 ///////////////////
 
+///SKYBOX
+float skyBoxSize = 200;
+mat4 skyBoxScale = MatrixFactory::createScaleMat4(vec3(skyBoxSize));
+///
 
 void createScene(SceneGraph* scenegraph) {
 	
 	base = scenegraph->createNode();
 	
-	sun = base->createNode();
-	sun->setMesh(&sphereMesh);
-	sun->setTexture(SunTex);
-	sun->setShader(bloomShader);
+	skyBoxNode = base->createNode();
+	skyBoxNode->setMesh(skyBoxMesh);
+	skyBoxNode->setTexture(skyBoxTex);
+	skyBoxNode->setShader(skyBoxShader);
+	skyBoxNode->setScaleMatrix(skyBoxScale);
+
+	sunNode = base->createNode();
+	sunNode->setMesh(&sphereMesh);
+	sunNode->setTexture(SunTex);
+	sunNode->setShader(bloomShader);
 
 	earthNode = base->createNode();
 	earthNode->setMesh(&sphereMesh);
 	earthNode->setShader(earthShader);
 	earthNode->setTexture(EarthColorMap);
-	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(1, 0, 0)));
+	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(4, 0, 0)));
 }
 
 void createSceneGraph(Camera& cam) {
@@ -265,7 +312,7 @@ void createSceneGraph(Camera& cam) {
 	//Initialization of the scenegraph:
 	scenegraph = new SceneGraph();
 	scenegraph->setCamera(cam);
-	scenegraph->getCamera()->ProjectionMatrix = MatrixFactory::createPerspectiveProjectionMatrix(30, aspect, 1, 500);
+	scenegraph->getCamera()->ProjectionMatrix = MatrixFactory::createPerspectiveProjectionMatrix(30, aspect, 1, 1000);
 	SceneNode* n = scenegraph->getRoot();
 	//////////////////////
 
@@ -297,25 +344,45 @@ void updateAnimation() {
 
 /////////////////////////////////////////////////////////////////////// DRAW SCENE
 
+void drawSkyBox() {
+
+	glFrontFace(GL_CW);
+	glDepthFunc(GL_LEQUAL);
+
+	glActiveTexture(GL_TEXTURE0 + skyBoxTex->GetId());
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTex->GetId());
+	Camera camCopy = cam;// I copy the camera to remove translation part so that the distance to the universe does not depend on camera
+	camCopy.ViewMatrix = MatrixFactory::createMat4FromMat3(MatrixFactory::createMat3FromMat4(camCopy.ViewMatrix));
+	skyBoxNode->draw(&cam);
+
+	glDepthFunc(GL_LESS);
+	glFrontFace(GL_CCW);
+}
+///
+
 void drawScene() {
 	//updateAnimation();
-	
-	bloom->bindHDRBuffer();	
 
+	bloom->bindHDRBuffer();
+	
+	//We have to draw everything but the bloom in here (skybox last for performance reasons):
 	EarthHeightMap->Bind(EarthHeightMap->GetId());
 	EarthColorMap->Bind(EarthColorMap->GetId());
 	earthNode->draw(&cam);
 
+	drawSkyBox();
+	/////////////
+
 	SunTex->Bind(0);
-	sun->draw(&cam);
+	sunNode->draw(&cam);
 
 	//scenegraph->draw();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
-	bloom->combineProcess(bloomMergeShader);
+	bloom->combineProcess(bloomMergeShader);	
+
 	
-	
-	
+
 }
 
 /////////////////////////////////////////////////////////////////////// WINDOW CALLBACKS

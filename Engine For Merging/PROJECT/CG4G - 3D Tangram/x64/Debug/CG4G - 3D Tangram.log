@@ -1,3 +1,10 @@
-﻿  Bloom.cpp
-C:\Users\adria\Desktop\IST\Interactive-Solar-System\Engine For Merging\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
-  CG4G - 3D Tangram.vcxproj -> C:\Users\adria\Desktop\IST\Interactive-Solar-System\Engine For Merging\PROJECT\\bin\Solar System.exe
+﻿  Solar System.cpp
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(264,36): warning C4244:  'argument': conversion from 'const float' to 'const unsigned int', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(264,23): warning C4244:  'argument': conversion from 'const float' to 'const unsigned int', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(511,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(512,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(532,47): warning C4244:  '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(716,16): warning C4244:  'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(716,3): warning C4244:  'argument': conversion from 'const float' to 'int', possible loss of data
+  CG4G - 3D Tangram.vcxproj -> C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\PROJECT\\bin\Solar System.exe

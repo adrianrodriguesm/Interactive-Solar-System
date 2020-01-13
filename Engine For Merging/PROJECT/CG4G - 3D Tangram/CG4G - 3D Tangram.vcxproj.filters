@@ -124,5 +124,11 @@
     <None Include="..\..\Shaders\blurrV.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="..\..\Shaders\Skybox_frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\Skybox_vert.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

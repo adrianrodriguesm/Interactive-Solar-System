@@ -148,8 +148,8 @@ vec3::vec3() {
 
 vec3::vec3(const float xval) {
 	x = xval;
-	y = 0.f;
-	z = 0.f;
+	y = xval;
+	z = xval;
 }
 
 vec3::vec3(const float xval, const float yval) {
