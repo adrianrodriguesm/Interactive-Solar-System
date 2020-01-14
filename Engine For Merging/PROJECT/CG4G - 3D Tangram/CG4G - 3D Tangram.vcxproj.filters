@@ -130,5 +130,11 @@
     <None Include="..\..\Shaders\Skybox_vert.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="..\..\Shaders\Displacement_Mapping_frag_V2.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\Displacement_Mapping_vert_V2.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

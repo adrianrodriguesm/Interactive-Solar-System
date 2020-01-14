@@ -20,9 +20,9 @@ void main()
 	vec2 dw = vec2(length(vec2(E.x, E.y))/max_iter);
 	for (int i=0; i<max_iter; i++)
 	{
-		h += h==0? 3*dh *E.z : dh * E.z;
+		h += dh * E.z;
 		UV_temp += dw * E.xy;
-		th = texture(HeightMap, UV_temp).r;
+		th = min(texture(HeightMap, UV_temp).r, 0.1) * 3; 
 
 		if (inside && h>th)
 		{

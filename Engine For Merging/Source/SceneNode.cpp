@@ -29,7 +29,7 @@ void SceneNode::draw(Camera* cam) {
 		}
 		shader->Use();
 
-		if (this->texture != nullptr) this->texture->Bind();
+		//if (this->texture != nullptr) this->texture->Bind();
 
 		mat4 totalMatrix = parent->modelMatrix * this->modelMatrix * this->scaleMatrix;
 		glUniformMatrix4fv(shader->Uniforms["ModelMatrix"], 1, GL_TRUE, totalMatrix.data);
@@ -55,6 +55,9 @@ void SceneNode::setMatrix(mat4 M) {
 	this->modelMatrix = M;
 }
 
+mat4 SceneNode::getMatrix() {
+	return this->modelMatrix;
+}
 
 void SceneNode::setScaleMatrix(mat4 M) {
 	this->scaleMatrix = M;

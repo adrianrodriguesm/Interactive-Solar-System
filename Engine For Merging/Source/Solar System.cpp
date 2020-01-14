@@ -41,22 +41,27 @@ Texture* EarthColorMapLowResu;
 Texture* EarthColorMapHighResu;
 Texture* EarthHeightMapLowResu;
 Texture* EarthHeightMapHighResu;
+Texture* EarthSpecularMap;
 Texture* SunTex;
 Texture* skyBoxTex;
 /////////////////
 
+bool highResu = false; // Bool for resolution change
+
 //Declaration of meshes:
-Mesh sphereMesh;
+Mesh* sphereMesh;
 Mesh* skyBoxMesh;
 /////////////////
 
 //Declaration of Shaders:
 Shader* earthShader = new Shader();
+Shader* earthShaderV2 = new Shader();
 Shader* bloomShader = new Shader();
 Shader* blurrShader = new Shader();
 Shader* bloomMergeShader = new Shader();
 Shader* skyBoxShader = new Shader();
 /////////////////
+
 
 ///Bloom
 Bloom* bloom;
@@ -144,31 +149,37 @@ void createskyBoxTextures() {
 
 void createTextures() {
 
+	//Stars
 	createskyBoxTextures();
 	skyBoxShader->Use();
 	glUniform1i(skyBoxShader->Uniforms["SkyBox"], 0);
 	glUseProgram(0);
+	///
 
+	//Earth
 	EarthColorMapLowResu = new Texture("../../Textures/Earth/earthmap1k.jpg");
 	EarthHeightMapLowResu = new Texture("../../Textures/Earth/earthbump1k.jpg");
-
-	//Example on how to initialize texture and bind to shader: 	
-	EarthColorMapHighResu = new Texture("../../Textures/Earth/earthmap4k.jpg");
-	EarthHeightMapHighResu = new Texture("../../Textures/Earth/earthbump4k.jpg");
+	EarthColorMapHighResu = new Texture("../../Textures/Earth/earthmap2k.jpg");
+	EarthHeightMapHighResu = new Texture("../../Textures/Earth/earthbump2k.jpg");
+	EarthSpecularMap = new Texture("../../Textures/Earth/earthspec1k.jpg");
 
 	earthShader->Use();
-	glUniform1i(earthShader->Uniforms["HeightMap"],1);
 	glUniform1i(earthShader->Uniforms["ColorMap"], 0);
+	glUniform1i(earthShader->Uniforms["HeightMap"],1);
+
+	earthShaderV2->Use();
+	glUniform1i(earthShaderV2->Uniforms["ColorMap"], 0);
+	glUniform1i(earthShaderV2->Uniforms["HeightMap"], 1);
+	glUniform1i(earthShaderV2->Uniforms["SpecularMap"], 2);
 	glUseProgram(0);
 	///
 
+	//Sun
 	SunTex = new Texture("../../Textures/yellow.jpg");
 	bloomShader->Use();
-	glUniform1i(bloomShader->Uniforms["u_Texture"], 0);
+	glUniform1i(bloomShader->Uniforms["u_Texture"], 10);
 	glUseProgram(0);
-	
-
-
+	///
 }
 
 /////////////////////////////////////////////////////////////////////// MESHES
@@ -177,7 +188,7 @@ void createMeshes() {
 	std::string mesh_dir = "../../Blender Objects/";		// This is the working mesh dir relative to this main
 
 	std::string spherePath = mesh_dir + "smoothSphere.obj"; // Just add your mesh.obj in the folder "Blender Objects, and put the file name here
-	sphereMesh = Mesh(spherePath);							//Create it by using the constructor of the mesh class
+	sphereMesh = new Mesh(spherePath);							//Create it by using the constructor of the mesh class
 
 	std::string cube_dir = mesh_dir + "Cube.obj";
 	skyBoxMesh = new Mesh(cube_dir);
@@ -185,7 +196,8 @@ void createMeshes() {
 
 //Add your mesh.destroy here afterwards:
 void destroyMeshes() {
-	sphereMesh.destroy();
+	sphereMesh->destroy();
+	skyBoxMesh->destroy();
 }
 
 /////////////////////////////////////////////////////////////////////// SHADER
@@ -203,6 +215,20 @@ void createEarthShader() {
 	earthShader->AddUniform("HeightMap");
 	earthShader->AddUniform("ColorMap");
 	earthShader->Create();
+
+	//Temporary V2 to test specular shading (Victor do your thing! :P )
+	earthShaderV2->Load("Displacement_Mapping_vert_V2.glsl", "Displacement_Mapping_frag_V2.glsl"); //  SHADER FILES MUST BE IN SHADER FOLDER !!
+	earthShaderV2->AddAttribute(0, "inPosition");
+	earthShaderV2->AddAttribute(1, "inTexcoord");
+	earthShaderV2->AddAttribute(2, "inNormal");
+	earthShaderV2->AddUniform("SunPosition");
+	earthShaderV2->AddUniform("ModelMatrix");
+	earthShaderV2->AddUniform("ProjectionMatrix");
+	earthShaderV2->AddUniform("ViewMatrix");
+	earthShaderV2->AddUniform("HeightMap");
+	earthShaderV2->AddUniform("ColorMap");
+	earthShaderV2->AddUniform("SpecularMap");
+	earthShaderV2->Create();
 }
 
 void createskyBoxShader() {
@@ -280,6 +306,7 @@ SceneNode* sunNode;
 SceneNode* earthNode;
 
 ///////////////////
+void createAnimationObjects();
 
 ///SKYBOX
 float skyBoxSize = 200;
@@ -293,18 +320,22 @@ void createScene(SceneGraph* scenegraph) {
 	skyBoxNode = base->createNode();
 	skyBoxNode->setMesh(skyBoxMesh);
 	skyBoxNode->setShader(skyBoxShader);
+	skyBoxNode->setTexture(skyBoxTex);
 	skyBoxNode->setScaleMatrix(skyBoxScale);
 
 	sunNode = base->createNode();
-	sunNode->setMesh(&sphereMesh);
+	sunNode->setMesh(sphereMesh);
 	sunNode->setTexture(SunTex);
 	sunNode->setShader(bloomShader);
 
 	earthNode = base->createNode();
-	earthNode->setMesh(&sphereMesh);
-	earthNode->setShader(earthShader);
+	earthNode->setMesh(sphereMesh);
+	//earthNode->setShader(earthShader);
+	earthNode->setShader(earthShaderV2);
 	earthNode->setTexture(EarthColorMapLowResu);
 	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(4, 0, 0)));
+
+	createAnimationObjects();
 }
 
 void createSceneGraph(Camera& cam) {
@@ -329,7 +360,10 @@ void createSceneGraph(Camera& cam) {
 //In the "animationObject" struct we have to fill in all information that is relative to the animation.
 typedef struct {
 	SceneNode* node;
-
+	float selfRotateSpeed; //The speed at which the planet rotates around itself
+	float orbitSpeed; //The speed of the orbit around the sun
+	qtrn currentSelfRoation;
+	qtrn currentOrbitRotation;
 } animationObject;
 ////////////////////////
 
@@ -337,41 +371,81 @@ typedef struct {
 vector<animationObject> animationObjects = vector<animationObject>(); 
 ////////////////////////
 
+void createAnimationObjects() {
+
+	//Example on how to set an animationobject:
+	animationObject earthAnimObj = animationObject{
+		earthNode,
+		5,
+		1,
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, yAxis)
+
+	};
+
+	animationObjects.push_back(earthAnimObj);
+	////
+}
+
+float animationSpeed = 0.1;
 
 void updateAnimation() {
-	//TO BE IMPLEMENTED BASED ON OUR NEEDS
+	for (animationObject obj : animationObjects) {
+		//Self Rotation:
+		obj.currentSelfRoation = obj.currentSelfRoation * qtrn::qFromAngleAxis(animationSpeed * obj.selfRotateSpeed, yAxis);
+		mat4 selfRot = matrixFromQtrn(obj.currentSelfRoation);
+		obj.node->setMatrix(obj.node->getMatrix() * selfRot);
+		///
+
+		//Orbit:
+		obj.currentOrbitRotation = obj.currentOrbitRotation * qtrn::qFromAngleAxis(animationSpeed * obj.orbitSpeed, yAxis);
+		mat4 orbitRot = matrixFromQtrn(obj.currentOrbitRotation);
+		obj.node->setMatrix(orbitRot * obj.node->getMatrix());
+		///
+	}
 }
 
 /////////////////////////////////////////////////////////////////////// DRAW SCENE
 
 void drawSkyBox() {
 
-	glFrontFace(GL_CW);
-	glDepthFunc(GL_LEQUAL);
+	glFrontFace(GL_CW);//To make the faces drawn towards us (inside the cube)
+	glDepthFunc(GL_LEQUAL);//The depth in clip space is set to 1, so we need to change the depth test from less to less or equal for it to be drawn
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTex->GetId());
-	Camera camCopy = cam;// I copy the camera to remove translation part so that the distance to the universe does not depend on camera
+
+	// I am copying the camera to remove its translation part so that the distance to the 'universe' does not depend on the camera position
+	Camera camCopy = cam;
 	camCopy.ViewMatrix = MatrixFactory::createMat4FromMat3(MatrixFactory::createMat3FromMat4(camCopy.ViewMatrix));
+
 	skyBoxNode->draw(&cam);
 
 	glDepthFunc(GL_LESS);
 	glFrontFace(GL_CCW);
 }
-///
 
 void drawScene() {
-	//updateAnimation();
+	updateAnimation();
 
 	bloom->bindHDRBuffer();
 	
 	//We have to draw everything but the bloom in here (skybox last for performance reasons):
-	EarthHeightMapLowResu->Bind(1);
+	EarthSpecularMap->Bind(2);
+	if (highResu) {
+		EarthColorMapHighResu->Bind();
+		EarthHeightMapHighResu->Bind(1);
+	}
+	else {
+		EarthColorMapLowResu->Bind();
+		EarthHeightMapLowResu->Bind(1);
+	}	
 	earthNode->draw(&cam);
 
 	drawSkyBox();
 	/////////////
 
+	SunTex->Bind(10);
 	sunNode->draw(&cam);
 
 	//scenegraph->draw();
@@ -490,6 +564,7 @@ void process_keyboard_input(GLFWwindow* win) {
 	);
 	/////////////////////////
 
+	if (keyP) highResu = !highResu; //Change resolution
 }
 
 void mouse_callback(GLFWwindow* win, double xpos, double ypos) {

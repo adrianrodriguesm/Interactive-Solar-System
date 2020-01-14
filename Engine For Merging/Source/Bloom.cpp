@@ -98,7 +98,7 @@ void Bloom::renderWithBlurr(Shader* shaderBlur)
 	shaderBlur->Use();
 
 
-	glUniform1i(shaderBlur->Uniforms["image"], 0);
+	glUniform1i(shaderBlur->Uniforms["image"], 10);
 	for (unsigned int i = 0; i < amount; i++)
 	{
 
@@ -123,13 +123,13 @@ void Bloom::combineProcess(Shader* shaderBloomFinal)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	shaderBloomFinal->Use();
 
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE10);
 	glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
-	glActiveTexture(GL_TEXTURE1);
+	glActiveTexture(GL_TEXTURE11);
 	glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
 
-	glUniform1i(shaderBloomFinal->Uniforms["scene"], 0);
-	glUniform1i(shaderBloomFinal->Uniforms["bloomBlur"], 1);
+	glUniform1i(shaderBloomFinal->Uniforms["scene"], 10);
+	glUniform1i(shaderBloomFinal->Uniforms["bloomBlur"], 11);
 	//glUniform1i(shaderBloomFinal->Uniforms["bloom"], bloom);
 	glUniform1f(shaderBloomFinal->Uniforms["exposure"], exposure);
 	renderQuad();
