@@ -21,12 +21,14 @@
 ////////////////////////////////////////////////// VARIABLES
 
 //General
+const float earthTilt = 23.5;
 const float screenWidth = 1920 / 2;
 const float screenHeight = 1920 / 2;
 float aspect = (float)screenWidth / screenHeight;
 vec4 xAxis = vec4(1, 0, 0, 1);
 vec4 yAxis = vec4(0, 1, 0, 1);
 vec4 zAxis = vec4(0, 0, -1, 1);
+vec4 earthAxis = normalize(yAxis * cos(earthTilt * DEGREES_TO_RADIANS) + xAxis * sin(earthTilt * DEGREES_TO_RADIANS));
 
 //Camera
 bool mouseChange = true; //Boolean for mouse input
@@ -333,7 +335,8 @@ void createScene(SceneGraph* scenegraph) {
 	//earthNode->setShader(earthShader);
 	earthNode->setShader(earthShaderV2);
 	earthNode->setTexture(EarthColorMapLowResu);
-	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(4, 0, 0)));
+	//Distance from sun and tilt of the earth:
+	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(4, 0, 0)) * MatrixFactory::createRoationMat4(earthTilt, zAxis));
 
 	createAnimationObjects();
 }
@@ -376,11 +379,10 @@ void createAnimationObjects() {
 	//Example on how to set an animationobject:
 	animationObject earthAnimObj = animationObject{
 		earthNode,
+		20,
 		5,
-		1,
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, yAxis)
-
 	};
 
 	animationObjects.push_back(earthAnimObj);
@@ -392,15 +394,17 @@ float animationSpeed = 0.1;
 void updateAnimation() {
 	for (animationObject obj : animationObjects) {
 		//Self Rotation:
-		obj.currentSelfRoation = obj.currentSelfRoation * qtrn::qFromAngleAxis(animationSpeed * obj.selfRotateSpeed, yAxis);
-		mat4 selfRot = matrixFromQtrn(obj.currentSelfRoation);
-		obj.node->setMatrix(obj.node->getMatrix() * selfRot);
+		//obj.currentSelfRoation = obj.currentSelfRoation * qtrn::qFromAngleAxis(animationSpeed * obj.selfRotateSpeed, earthAxis);
+		//mat4 selfRot = matrixFromQtrn(obj.currentSelfRoation);
+		//obj.node->setMatrix(obj.node->getMatrix() * selfRot);
+		obj.node->setMatrix(obj.node->getMatrix() * matrixFromQtrn(qtrn::qFromAngleAxis(animationSpeed * obj.selfRotateSpeed, yAxis)));
 		///
 
 		//Orbit:
-		obj.currentOrbitRotation = obj.currentOrbitRotation * qtrn::qFromAngleAxis(animationSpeed * obj.orbitSpeed, yAxis);
-		mat4 orbitRot = matrixFromQtrn(obj.currentOrbitRotation);
-		obj.node->setMatrix(orbitRot * obj.node->getMatrix());
+		//obj.currentOrbitRotation = obj.currentOrbitRotation * qtrn::qFromAngleAxis(animationSpeed * obj.orbitSpeed, yAxis);
+		//mat4 orbitRot = matrixFromQtrn(obj.currentOrbitRotation);
+		//obj.node->setMatrix(orbitRot * obj.node->getMatrix());
+		obj.node->setMatrix(matrixFromQtrn(qtrn::qFromAngleAxis(animationSpeed * obj.orbitSpeed, yAxis)) * obj.node->getMatrix());
 		///
 	}
 }
