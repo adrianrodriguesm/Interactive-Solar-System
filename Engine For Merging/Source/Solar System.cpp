@@ -37,8 +37,10 @@ mat4 cameraRotation;
 mat4 cameraTranslation;
 
 //Declaration of Textures:
-Texture* EarthColorMap;
-Texture* EarthHeightMap;
+Texture* EarthColorMapLowResu;
+Texture* EarthColorMapHighResu;
+Texture* EarthHeightMapLowResu;
+Texture* EarthHeightMapHighResu;
 Texture* SunTex;
 Texture* skyBoxTex;
 /////////////////
@@ -138,31 +140,30 @@ void createskyBoxTextures() {
 	};
 
 	skyBoxTex = new Texture(faces);
-	//skyBoxMesh->setTexture(skyBoxTex);
 }
 
 void createTextures() {
 
 	createskyBoxTextures();
 	skyBoxShader->Use();
-	glUniform1i(skyBoxShader->Uniforms["SkyBox"], skyBoxTex->GetId());
+	glUniform1i(skyBoxShader->Uniforms["SkyBox"], 0);
 	glUseProgram(0);
+
+	EarthColorMapLowResu = new Texture("../../Textures/Earth/earthmap1k.jpg");
+	EarthHeightMapLowResu = new Texture("../../Textures/Earth/earthbump1k.jpg");
 
 	//Example on how to initialize texture and bind to shader: 	
-	EarthColorMap = new Texture("../../Textures/earthmap2k.jpg");
-	EarthHeightMap = new Texture("../../Textures/earthbump2k.jpg");
-	//sphereEarth->setTexture(EarthHeightMap);
+	EarthColorMapHighResu = new Texture("../../Textures/Earth/earthmap4k.jpg");
+	EarthHeightMapHighResu = new Texture("../../Textures/Earth/earthbump4k.jpg");
 
 	earthShader->Use();
-	EarthHeightMap->Bind(EarthHeightMap->GetId());
-	glUniform1i(earthShader->Uniforms["HeightMap"], EarthHeightMap->GetId());
-	EarthColorMap->Bind(EarthColorMap->GetId());
-	glUniform1i(earthShader->Uniforms["ColorMap"], EarthColorMap->GetId());
+	glUniform1i(earthShader->Uniforms["HeightMap"],1);
+	glUniform1i(earthShader->Uniforms["ColorMap"], 0);
 	glUseProgram(0);
+	///
 
 	SunTex = new Texture("../../Textures/yellow.jpg");
 	bloomShader->Use();
-	SunTex->Bind(0);
 	glUniform1i(bloomShader->Uniforms["u_Texture"], 0);
 	glUseProgram(0);
 	
@@ -291,7 +292,6 @@ void createScene(SceneGraph* scenegraph) {
 	
 	skyBoxNode = base->createNode();
 	skyBoxNode->setMesh(skyBoxMesh);
-	skyBoxNode->setTexture(skyBoxTex);
 	skyBoxNode->setShader(skyBoxShader);
 	skyBoxNode->setScaleMatrix(skyBoxScale);
 
@@ -303,7 +303,7 @@ void createScene(SceneGraph* scenegraph) {
 	earthNode = base->createNode();
 	earthNode->setMesh(&sphereMesh);
 	earthNode->setShader(earthShader);
-	earthNode->setTexture(EarthColorMap);
+	earthNode->setTexture(EarthColorMapLowResu);
 	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(4, 0, 0)));
 }
 
@@ -349,7 +349,7 @@ void drawSkyBox() {
 	glFrontFace(GL_CW);
 	glDepthFunc(GL_LEQUAL);
 
-	glActiveTexture(GL_TEXTURE0 + skyBoxTex->GetId());
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, skyBoxTex->GetId());
 	Camera camCopy = cam;// I copy the camera to remove translation part so that the distance to the universe does not depend on camera
 	camCopy.ViewMatrix = MatrixFactory::createMat4FromMat3(MatrixFactory::createMat3FromMat4(camCopy.ViewMatrix));
@@ -366,23 +366,18 @@ void drawScene() {
 	bloom->bindHDRBuffer();
 	
 	//We have to draw everything but the bloom in here (skybox last for performance reasons):
-	EarthHeightMap->Bind(EarthHeightMap->GetId());
-	EarthColorMap->Bind(EarthColorMap->GetId());
+	EarthHeightMapLowResu->Bind(1);
 	earthNode->draw(&cam);
 
 	drawSkyBox();
 	/////////////
 
-	SunTex->Bind(0);
 	sunNode->draw(&cam);
 
 	//scenegraph->draw();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);	
-
-	
-
 }
 
 /////////////////////////////////////////////////////////////////////// WINDOW CALLBACKS
