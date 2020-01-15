@@ -387,6 +387,12 @@ void createScene(SceneGraph* scenegraph) {
 	//Distance from sun and tilt of the earth:
 	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(4, 0, 0)) * MatrixFactory::createRoationMat4(earthTilt, zAxis));
 
+	jupiterNode = base->createNode();
+	jupiterNode->setMesh(sphereMesh);
+	jupiterNode->setShader(jupiterShader);
+	jupiterNode->setTexture(JupiterTex);
+	jupiterNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(8, 0, 0)));
+
 	createAnimationObjects();
 }
 

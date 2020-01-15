@@ -1,13 +1,17 @@
 ﻿  Solar System.cpp
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Headers\Matrices.h(15,30): warning C4305:  'initializing': truncation from 'double' to 'float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(31,39): warning C4244:  'argument': conversion from 'double' to 'const float', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(31,85): warning C4244:  'argument': conversion from 'double' to 'const float', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(293,36): warning C4244:  'argument': conversion from 'const float' to 'const unsigned int', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(293,23): warning C4244:  'argument': conversion from 'const float' to 'const unsigned int', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(392,27): warning C4305:  'initializing': truncation from 'double' to 'float'
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(587,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(588,16): warning C4244:  'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(608,47): warning C4244:  '-=': conversion from 'double' to 'float', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(792,16): warning C4244:  'argument': conversion from 'const float' to 'int', possible loss of data
-C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(792,3): warning C4244:  'argument': conversion from 'const float' to 'int', possible loss of data
-  CG4G - 3D Tangram.vcxproj -> C:\Users\TLNes\OneDrive\Dokumenter\GitHub\Interactive-Solar-System\Engine For Merging\PROJECT\\bin\Solar System.exe
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Headers\Matrices.h(15,30): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(32,39): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(32,85): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(328,36): warning C4244: 'argument': conversion from 'const float' to 'const unsigned int', possible loss of data
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(328,23): warning C4244: 'argument': conversion from 'const float' to 'const unsigned int', possible loss of data
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(447,27): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(653,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(654,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(674,47): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(861,16): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+  stb_image.cpp
+  Vectors.cpp
+  Generating Code...
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(861,3): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  CG4G - 3D Tangram.vcxproj -> C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\PROJECT\\bin\Solar System.exe
