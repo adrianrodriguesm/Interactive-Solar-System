@@ -1,1 +1,14 @@
+<<<<<<< Updated upstream
 ﻿
+=======
+﻿  Solar System.cpp
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Headers\Matrices.h(15,30): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(32,39): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(32,85): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(510,27): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(730,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(731,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\Source\Solar System.cpp(751,47): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  CG4G - 3D Tangram.vcxproj -> C:\Users\Victor Gomes\Desktop\Universidad\IST\CG\Interactive-Solar-System\Engine For Merging\PROJECT\\bin\Solar System.exe
+>>>>>>> Stashed changes

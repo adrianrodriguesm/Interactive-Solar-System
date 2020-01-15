@@ -39,7 +39,7 @@ void main(void)
     vec4 chocolate = vec4(0.961, 0.871, 0.702, 1.0f);
     vec4 brown = vec4(0.741, 0.718, 0.420, 1.0f);
     
-    float shininess = 64.0f;
+    float shininess = 32.0f;
     vec3 normal = normalize(v_Normals);
     vec4 lightDirection = normalize(v_lightPosition - v_FragPos);
     vec4 viewDir = normalize(v_FragPos - v_CameraPos);
@@ -51,7 +51,7 @@ void main(void)
     mat2 rot = rotate2d(radians(90.0));
     
     //AMBIENT LIGHT
-    float ambientStrength = 0.2f;
+    float ambientStrength = 0.1f;
     vec4 ambientLight = lightColor * ambientStrength * attenuationValue;
     
     //DIFFUSE LIGHT
@@ -59,7 +59,7 @@ void main(void)
     vec4 diffuseLight = lightColor * diff * attenuationValue;
     
     //SPECULAR LIGHT
-    float specularStrength = 0.3;
+    float specularStrength = 0.2;
     vec3 halfwayVector = normalize(lightDirection + viewDir).xyz;
     
     float spec =  pow(max(dot(normal, halfwayVector), 0.0), shininess);
@@ -68,7 +68,7 @@ void main(void)
     
     vec4 firstTexColor = texture(u_Texture, rot * vec2((1.0 - v_TexCoord.x), v_TexCoord.y + sin(rand) / 30.0));
     vec4 secondTexColor = texture(u_Texture,v_TexCoord);
-    vec4 finalColor = mix(firstTexColor, secondTexColor, 0.4) * 0.6f;
+    vec4 finalColor = mix(firstTexColor, secondTexColor, 0.4) * 0.8f;
     
     
     //COLOR SELECTION
@@ -97,6 +97,6 @@ void main(void)
         finalColor = mix(finalColor,darkOrange, 0.3f);
     }
     
-    out_Color = finalColor * (ambientLight + diffuseLight +  specularLight); ;
+    out_Color = finalColor * (ambientLight + diffuseLight +  specularLight);
 
 }
