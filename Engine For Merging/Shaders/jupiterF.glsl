@@ -68,7 +68,7 @@ void main(void)
     
     vec4 firstTexColor = texture(u_Texture, rot * vec2((1.0 - v_TexCoord.x), v_TexCoord.y + sin(rand) / 30.0));
     vec4 secondTexColor = texture(u_Texture,v_TexCoord);
-    vec4 finalColor = mix(firstTexColor, secondTexColor, 0.4) * 0.8f;
+    vec4 finalColor = mix(firstTexColor, secondTexColor, 0.4);
     
     
     //COLOR SELECTION

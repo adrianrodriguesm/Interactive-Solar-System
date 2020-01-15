@@ -52,6 +52,7 @@ Texture* SunTex;
 Texture* skyBoxTex;
 Texture* JupiterTex;
 Texture* LensTex1; Texture* LensTex2; Texture* LensTex3;
+Texture* MercuryTex;
 /////////////////
 
 ///LensFlare
@@ -76,6 +77,7 @@ Shader* blurrShader = new Shader();
 Shader* bloomMergeShader = new Shader();
 Shader* skyBoxShader = new Shader();
 Shader* jupiterShader = new Shader();
+Shader* blinnPhongShader = new Shader();
 Shader* lensFlareShader = new Shader();
 /////////////////
 
@@ -252,6 +254,9 @@ void createTextures() {
 	glUniform1i(jupiterShader->Uniforms["u_Texture"], JupiterTex->GetId());
 	glUseProgram(0);
 
+
+	//Mercury
+	MercuryTex = new Texture("../../Textures/Mercury.jpg");
 	createLensTextures();
 
 }
@@ -372,6 +377,25 @@ void createJupiterShader()
 	jupiterShader->Create();
 }
 
+void createBlinnPhongShader()
+{
+	blinnPhongShader->Load("blinnPhongV.glsl", "blinnPhongF.glsl");
+	blinnPhongShader->AddAttribute(0, "in_Position");
+	blinnPhongShader->AddAttribute(1, "texCoord");
+	blinnPhongShader->AddAttribute(2, "normals");
+	blinnPhongShader->AddUniform("ModelMatrix");
+	blinnPhongShader->AddUniform("ViewMatrix");
+	blinnPhongShader->AddUniform("ProjectionMatrix");
+	blinnPhongShader->AddUniform("lightPosition");
+	blinnPhongShader->AddUniform("cameraValue");
+	blinnPhongShader->AddUniform("u_Texture");
+	blinnPhongShader->AddUniform("lightColor");
+	blinnPhongShader->AddUniform("att.constant");
+	blinnPhongShader->AddUniform("att.linear");
+	blinnPhongShader->AddUniform("att.quadratic");
+	blinnPhongShader->Create();
+}
+
 void createLensFlareShader() {
 	lensFlareShader->Load("flareV.glsl", "flaref.glsl");
 	lensFlareShader->AddAttribute(0, "in_position");
@@ -389,6 +413,7 @@ void createShaders() {
 	createEarthShader();
 	createBloomShader();
 	createJupiterShader();
+	createBlinnPhongShader();
 	createLensFlareShader();
 }
 
