@@ -45,7 +45,7 @@ void main(void)
     vec4 viewDir = normalize(v_FragPos - v_CameraPos);
     float distance = length(v_lightPosition - v_FragPos);
     float attenuationValue = 1.0f / (att.constant + att.linear * distance + 
-    		    att.quadratic * (distance * distance)); ;
+    		    att.quadratic * (distance * distance)); 
     
     float rand = random(v_TexCoord);
     mat2 rot = rotate2d(radians(90.0));

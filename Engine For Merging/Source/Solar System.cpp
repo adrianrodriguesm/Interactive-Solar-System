@@ -243,6 +243,13 @@ void createEarthShader() {
 	earthShaderV2->AddUniform("HeightMap");
 	earthShaderV2->AddUniform("ColorMap");
 	earthShaderV2->AddUniform("SpecularMap");
+
+	earthShaderV2->AddUniform("lightPosition");
+	earthShaderV2->AddUniform("cameraValue");
+	earthShaderV2->AddUniform("lightColor");
+	earthShaderV2->AddUniform("att.constant");
+	earthShaderV2->AddUniform("att.linear");
+	earthShaderV2->AddUniform("att.quadratic");
 	earthShaderV2->Create();
 }
 
@@ -333,14 +340,21 @@ void initBloom() {
 	bloom->activateBloom(true);///Activate default
 }
 
-void lightingSetUp() 
+void lightingSetUp(Shader *shader) 
 {
-	jupiterShader->Use();
-	glUniform4f(jupiterShader->Uniforms["lightPosition"], 0.0f, 0.0f, 0.0f, 1.0f);
-	glUniform4f(jupiterShader->Uniforms["lightColor"], 1.0f,1.0f,1.0f,1.0f);
-	glUniform1f(jupiterShader->Uniforms["att.constant"], 1.0f);
-	glUniform1f(jupiterShader->Uniforms["att.linear"], 0.07f);
-	glUniform1f(jupiterShader->Uniforms["att.quadratic"], 0.017f);
+	shader->Use();
+	glUniform4f(shader->Uniforms["lightPosition"], 0.0f, 0.0f, 0.0f, 1.0f);
+	glUniform4f(shader->Uniforms["lightColor"], 1.0f,1.0f,1.0f,1.0f);
+	glUniform1f(shader->Uniforms["att.constant"], 1.0f);
+	glUniform1f(shader->Uniforms["att.linear"], 0.07f);
+	glUniform1f(shader->Uniforms["att.quadratic"], 0.017f);
+	glUseProgram(0);
+}
+
+void updateCameraInShader(Shader* shader)
+{
+	shader->Use();
+	glUniform1f(shader->Uniforms["cameraValue"], cameraDistance);
 	glUseProgram(0);
 }
 /////////////////////////////////////////////////////////////////////// SCENE
@@ -365,7 +379,8 @@ mat4 skyBoxScale = MatrixFactory::createScaleMat4(vec3(skyBoxSize));
 
 void createScene(SceneGraph* scenegraph) {
 	
-	lightingSetUp();
+	lightingSetUp(jupiterShader);
+	lightingSetUp(earthShaderV2);
 	base = scenegraph->createNode();
 	
 	skyBoxNode = base->createNode();
@@ -525,12 +540,10 @@ void drawScene() {
 		EarthColorMapLowResu->Bind();
 		EarthHeightMapLowResu->Bind(1);
 	}	
+	updateCameraInShader(earthShaderV2);
 	earthNode->draw(&cam);
 
-
-	jupiterShader->Use();
-	glUniform1f(jupiterShader->Uniforms["cameraValue"], cameraDistance);
-	glUseProgram(0);
+	updateCameraInShader(jupiterShader);
 	JupiterTex->Bind(JupiterTex->GetId());
 	jupiterNode->draw(&cam);
 
