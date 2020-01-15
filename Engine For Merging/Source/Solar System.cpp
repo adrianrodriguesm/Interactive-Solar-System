@@ -728,6 +728,7 @@ void drawLensFlare() {
 
 	}
 	
+	
 }
 
 void drawScene() {
