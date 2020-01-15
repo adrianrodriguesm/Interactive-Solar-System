@@ -36,7 +36,7 @@ const int cameraMaxDistance = 1000;
 bool mouseChange = true; //Boolean for mouse input
 bool scrollChange = true; //Boolean for scroll input
 Camera cam = Camera(vec3(0,0,1), vec3(0,0,0), vec3(0,1,0)); //Initial camera center and up vector
-float cameraDistance = 10;									//Initial camera distance from center defined in the line above
+float cameraDistance = 20;									//Initial camera distance from center defined in the line above
 mat4 cameraRotation;
 mat4 cameraTranslation;
 
@@ -379,6 +379,7 @@ void createScene(SceneGraph* scenegraph) {
 	sunNode->setTexture(SunTex);
 	sunNode->setShader(bloomShader);
 	sunNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(0, 0, 0)));
+	sunNode->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(5)));
 
 	earthNode = base->createNode();
 	earthNode->setMesh(sphereMesh);
@@ -392,6 +393,7 @@ void createScene(SceneGraph* scenegraph) {
 	jupiterNode->setShader(jupiterShader);
 	jupiterNode->setTexture(JupiterTex);
 	jupiterNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(8, 0, 0)));
+	jupiterNode->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(2)));
 
 	createAnimationObjects();
 }
@@ -441,7 +443,7 @@ void createAnimationObjects() {
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(earthTilt, zAxis),
-		MatrixFactory::createTranslationMat4(vec3(4,0,0))
+		MatrixFactory::createTranslationMat4(vec3(10 + 4,0,0))
 	};
 
 	animationObjects.push_back(earthAnimObj);
@@ -455,7 +457,7 @@ void createAnimationObjects() {
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, zAxis),
-	MatrixFactory::createTranslationMat4(vec3(8,0,0))
+	MatrixFactory::createTranslationMat4(vec3(10 + 10,0,0))
 	};
 
 	animationObjects.push_back(jupiterAnimObj);
@@ -883,7 +885,7 @@ void run(GLFWwindow* win)
 int main(int argc, char* argv[])
 {
 	int gl_major = 4, gl_minor = 3;
-	int is_fullscreen = 1;
+	int is_fullscreen = 0;
 	int is_vsync = 1;
 	GLFWwindow* win = setup(gl_major, gl_minor,
 		screenWidth, screenHeight, "Interactive Solar System", is_fullscreen, is_vsync);
