@@ -39,7 +39,7 @@ void main(void)
     vec4 chocolate = vec4(0.961, 0.871, 0.702, 1.0f);
     vec4 brown = vec4(0.741, 0.718, 0.420, 1.0f);
     
-    float shininess = 32.0f;
+    float shininess = 64.0f;
     vec3 normal = normalize(v_Normals);
     vec4 lightDirection = normalize(v_lightPosition - v_FragPos);
     vec4 viewDir = normalize(v_FragPos - v_CameraPos);
@@ -68,34 +68,35 @@ void main(void)
     
     vec4 firstTexColor = texture(u_Texture, rot * vec2((1.0 - v_TexCoord.x), v_TexCoord.y + sin(rand) / 30.0));
     vec4 secondTexColor = texture(u_Texture,v_TexCoord);
-    vec4 finalColor = mix(firstTexColor, secondTexColor, 0.4) * (ambientLight + diffuseLight +  specularLight);
-    
+    vec4 finalColor = mix(firstTexColor, secondTexColor, 0.4) * 0.6f;
     
     
     //COLOR SELECTION
     if(firstTexColor.r < 0.20f && firstTexColor.g < 0.20f && firstTexColor.b < 0.20f)
     {
-        out_Color = mix(finalColor,darkOrange,0.5f); 
+        finalColor = mix(finalColor,darkOrange,0.5f); 
     }
     else if(firstTexColor.r < 0.35f && firstTexColor.g < 0.35f && firstTexColor.b < 0.35f)
     {
-        out_Color = mix(mix(finalColor,orange,0.5f), cream, 0.2);
+        finalColor = mix(mix(finalColor,orange,0.5f), cream, 0.2);
     }
     else if(firstTexColor.r < 0.50f && firstTexColor.g < 0.50f && firstTexColor.b < 0.50f)
     {
-        out_Color = mix(mix(finalColor,chocolate,0.4f), orange, 0.05);
+        finalColor = mix(mix(finalColor,chocolate,0.4f), orange, 0.05);
     }
     else if(firstTexColor.r < 0.70f && firstTexColor.g < 0.70f && firstTexColor.b < 0.70f)
     {
-        out_Color = mix(finalColor,cream,0.4f);
+        finalColor = mix(finalColor,cream,0.4f);
     }
     else if(firstTexColor.r < 0.90f && firstTexColor.g < 0.90f && firstTexColor.b < 0.90f)
     {
-        out_Color = mix(finalColor,brown,0.4f);
+        finalColor = mix(finalColor,brown,0.4f);
     }
     else
     {
-        out_Color = mix(finalColor,darkOrange, 0.3f);
+        finalColor = mix(finalColor,darkOrange, 0.3f);
     }
+    
+    out_Color = finalColor * (ambientLight + diffuseLight +  specularLight); ;
 
 }

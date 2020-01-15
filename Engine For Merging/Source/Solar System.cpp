@@ -350,9 +350,6 @@ void lightingSetUp(Shader *shader)
 	shader->Use();
 	glUniform4f(shader->Uniforms["lightPosition"], 0.0f, 0.0f, 0.0f, 1.0f);
 	glUniform4f(shader->Uniforms["lightColor"], 1.0f,1.0f,1.0f,1.0f);
-	glUniform1f(shader->Uniforms["att.constant"], 1.0f);
-	glUniform1f(shader->Uniforms["att.linear"], 0.07f);
-	glUniform1f(shader->Uniforms["att.quadratic"], 0.017f);
 	glUseProgram(0);
 }
 
@@ -363,6 +360,14 @@ void updateCameraInShader(Shader* shader)
 	glUseProgram(0);
 }
 
+void attenuationSetUp(Shader* shader, float linear, float quadratic)
+{
+	shader->Use();
+	glUniform1f(shader->Uniforms["att.constant"], 1.0f);
+	glUniform1f(shader->Uniforms["att.linear"], linear);
+	glUniform1f(shader->Uniforms["att.quadratic"],quadratic);
+	glUseProgram(0);
+}
 /////////////////////////////////////////////////////////////////////// SCENE
 
 SceneGraph* scenegraph;
@@ -386,7 +391,9 @@ mat4 skyBoxScale = MatrixFactory::createScaleMat4(vec3(skyBoxSize));
 void createScene(SceneGraph* scenegraph) {
 	
 	lightingSetUp(jupiterShader);
+	attenuationSetUp(jupiterShader, 0.014f, 0.0007f);
 	lightingSetUp(earthShaderV2);
+	attenuationSetUp(earthShaderV2, 0.014f, 0.0007f);
 	base = scenegraph->createNode();
 	
 	skyBoxNode = base->createNode();
