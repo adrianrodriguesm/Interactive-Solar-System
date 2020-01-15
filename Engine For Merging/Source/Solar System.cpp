@@ -22,10 +22,9 @@
 ////////////////////////////////////////////////// VARIABLES
 
 //General
-const int cameraMaxDistance = 1000;
 const float earthTilt = 23.5;
-const float screenWidth = 1920 / 2;
-const float screenHeight = 1920 / 2;
+int screenWidth = 1920;
+int screenHeight = 1080;
 float aspect = (float)screenWidth / screenHeight;
 vec4 xAxis = vec4(1, 0, 0, 1);
 vec4 yAxis = vec4(0, 1, 0, 1);
@@ -33,6 +32,7 @@ vec4 zAxis = vec4(0, 0, -1, 1);
 vec4 earthAxis = normalize(yAxis * cos(earthTilt * DEGREES_TO_RADIANS) + xAxis * sin(earthTilt * DEGREES_TO_RADIANS));
 
 //Camera
+const int cameraMaxDistance = 1000;
 bool mouseChange = true; //Boolean for mouse input
 bool scrollChange = true; //Boolean for scroll input
 Camera cam = Camera(vec3(0,0,1), vec3(0,0,0), vec3(0,1,0)); //Initial camera center and up vector
@@ -446,6 +446,19 @@ void createAnimationObjects() {
 
 	animationObjects.push_back(earthAnimObj);
 	////
+
+	//Jupiter:
+	animationObject jupiterAnimObj = animationObject{
+	jupiterNode,
+	5,
+	3,
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, zAxis),
+	MatrixFactory::createTranslationMat4(vec3(8,0,0))
+	};
+
+	animationObjects.push_back(jupiterAnimObj);
 }
 
 float animationSpeed = 0.1;
@@ -549,6 +562,8 @@ void window_size_callback(GLFWwindow* win, int winx, int winy)
 	glViewport(0, 0, winx, winy);
 	bloom->setScreenSize(winx, winy);
 	aspect = (float)winx / (float)winy;
+	screenHeight = winy;
+	screenWidth = winx;
 	cout << "aspect: " << aspect << " | width : " << winx << " | height : " << winy << std::endl;
 	scenegraph->getCamera()->ProjectionMatrix = MatrixFactory::createPerspectiveProjectionMatrix(45, aspect, 1, cameraMaxDistance);
 }
@@ -868,7 +883,7 @@ void run(GLFWwindow* win)
 int main(int argc, char* argv[])
 {
 	int gl_major = 4, gl_minor = 3;
-	int is_fullscreen = 0;
+	int is_fullscreen = 1;
 	int is_vsync = 1;
 	GLFWwindow* win = setup(gl_major, gl_minor,
 		screenWidth, screenHeight, "Interactive Solar System", is_fullscreen, is_vsync);
