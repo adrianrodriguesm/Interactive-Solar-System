@@ -23,8 +23,8 @@
 
 //General
 const float earthTilt = 23.5;
-const float screenWidth = 1920 / 2;
-const float screenHeight = 1920 / 2;
+int screenWidth = 1920;
+int screenHeight = 1080;
 float aspect = (float)screenWidth / screenHeight;
 vec4 xAxis = vec4(1, 0, 0, 1);
 vec4 yAxis = vec4(0, 1, 0, 1);
@@ -32,6 +32,7 @@ vec4 zAxis = vec4(0, 0, -1, 1);
 vec4 earthAxis = normalize(yAxis * cos(earthTilt * DEGREES_TO_RADIANS) + xAxis * sin(earthTilt * DEGREES_TO_RADIANS));
 
 //Camera
+const int cameraMaxDistance = 1000;
 bool mouseChange = true; //Boolean for mouse input
 bool scrollChange = true; //Boolean for scroll input
 Camera cam = Camera(vec3(0,0,1), vec3(0,0,0), vec3(0,1,0)); //Initial camera center and up vector
@@ -399,8 +400,7 @@ void createScene(SceneGraph* scenegraph) {
 	//earthNode->setShader(earthShader);
 	earthNode->setShader(earthShaderV2);
 	earthNode->setTexture(EarthColorMapLowResu);
-	//Distance from sun and tilt of the earth:
-	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(4, 0, 0)) * MatrixFactory::createRoationMat4(earthTilt, zAxis));
+	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(4, 0, 0)));
 
 	jupiterNode = base->createNode();
 	jupiterNode->setMesh(sphereMesh);
@@ -416,7 +416,7 @@ void createSceneGraph(Camera& cam) {
 	//Initialization of the scenegraph:
 	scenegraph = new SceneGraph();
 	scenegraph->setCamera(cam);
-	scenegraph->getCamera()->ProjectionMatrix = MatrixFactory::createPerspectiveProjectionMatrix(30, aspect, 1, 1000);
+	scenegraph->getCamera()->ProjectionMatrix = MatrixFactory::createPerspectiveProjectionMatrix(30, aspect, 1, cameraMaxDistance);
 	SceneNode* n = scenegraph->getRoot();
 	//////////////////////
 
@@ -437,6 +437,8 @@ typedef struct {
 	float orbitSpeed; //The speed of the orbit around the sun
 	qtrn currentSelfRoation;
 	qtrn currentOrbitRotation;
+	qtrn tilt; 
+	mat4 sunDistance;
 } animationObject;
 ////////////////////////
 
@@ -452,30 +454,54 @@ void createAnimationObjects() {
 		20,
 		5,
 		qtrn::qFromAngleAxis(0, yAxis),
-		qtrn::qFromAngleAxis(0, yAxis)
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(earthTilt, zAxis),
+		MatrixFactory::createTranslationMat4(vec3(4,0,0))
 	};
 
 	animationObjects.push_back(earthAnimObj);
 	////
+
+	//Jupiter:
+	animationObject jupiterAnimObj = animationObject{
+	jupiterNode,
+	5,
+	3,
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, zAxis),
+	MatrixFactory::createTranslationMat4(vec3(8,0,0))
+	};
+
+	animationObjects.push_back(jupiterAnimObj);
 }
 
 float animationSpeed = 0.1;
 
 void updateAnimation() {
+	int i = 0;
 	for (animationObject obj : animationObjects) {
+
 		//Self Rotation:
-		//obj.currentSelfRoation = obj.currentSelfRoation * qtrn::qFromAngleAxis(animationSpeed * obj.selfRotateSpeed, earthAxis);
-		//mat4 selfRot = matrixFromQtrn(obj.currentSelfRoation);
-		//obj.node->setMatrix(obj.node->getMatrix() * selfRot);
-		obj.node->setMatrix(obj.node->getMatrix() * matrixFromQtrn(qtrn::qFromAngleAxis(animationSpeed * obj.selfRotateSpeed, yAxis)));
+		obj.currentSelfRoation = obj.currentSelfRoation * qtrn::qFromAngleAxis(animationSpeed * obj.selfRotateSpeed, yAxis);
+		mat4 selfRot = matrixFromQtrn(obj.currentSelfRoation);
 		///
 
 		//Orbit:
-		//obj.currentOrbitRotation = obj.currentOrbitRotation * qtrn::qFromAngleAxis(animationSpeed * obj.orbitSpeed, yAxis);
-		//mat4 orbitRot = matrixFromQtrn(obj.currentOrbitRotation);
-		//obj.node->setMatrix(orbitRot * obj.node->getMatrix());
-		obj.node->setMatrix(matrixFromQtrn(qtrn::qFromAngleAxis(animationSpeed * obj.orbitSpeed, yAxis)) * obj.node->getMatrix());
+		obj.currentOrbitRotation = obj.currentOrbitRotation * qtrn::qFromAngleAxis(animationSpeed * obj.orbitSpeed, yAxis);
+		mat4 orbitRot = matrixFromQtrn(obj.currentOrbitRotation);
 		///
+
+		//Tilt:
+		mat4 compensatedTilt = matrixFromQtrn(inverse(obj.currentOrbitRotation) * obj.tilt);
+		///
+
+		//Set the transformation matrix (This will overwrite anything else in the transformation):
+		obj.node->setMatrix(orbitRot * obj.sunDistance * compensatedTilt * selfRot);
+
+		//Update the actual animation object with the copy:
+		animationObjects[i] = obj;
+		i++;
 	}
 }
 
@@ -549,8 +575,10 @@ void window_size_callback(GLFWwindow* win, int winx, int winy)
 	glViewport(0, 0, winx, winy);
 	bloom->setScreenSize(winx, winy);
 	aspect = (float)winx / (float)winy;
+	screenHeight = winy;
+	screenWidth = winx;
 	cout << "aspect: " << aspect << " | width : " << winx << " | height : " << winy << std::endl;
-	scenegraph->getCamera()->ProjectionMatrix = MatrixFactory::createPerspectiveProjectionMatrix(45, aspect, 1, 500);
+	scenegraph->getCamera()->ProjectionMatrix = MatrixFactory::createPerspectiveProjectionMatrix(45, aspect, 1, cameraMaxDistance);
 }
 
 ////////////////////////////////////////////////////////////////////////// INPUT
@@ -868,7 +896,7 @@ void run(GLFWwindow* win)
 int main(int argc, char* argv[])
 {
 	int gl_major = 4, gl_minor = 3;
-	int is_fullscreen = 0;
+	int is_fullscreen = 1;
 	int is_vsync = 1;
 	GLFWwindow* win = setup(gl_major, gl_minor,
 		screenWidth, screenHeight, "Interactive Solar System", is_fullscreen, is_vsync);
