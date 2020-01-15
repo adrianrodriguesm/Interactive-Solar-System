@@ -167,8 +167,13 @@ void createTextures() {
 	//Earth
 	EarthColorMapLowResu = new Texture("../../Textures/Earth/earthmap1k.jpg");
 	EarthHeightMapLowResu = new Texture("../../Textures/Earth/earthbump1k.jpg");
-	EarthColorMapHighResu = new Texture("../../Textures/Earth/earthmap2k.jpg");
+	//EarthColorMapHighResu = new Texture("../../Textures/Earth/earthmap2k.jpg");
 	EarthHeightMapHighResu = new Texture("../../Textures/Earth/earthbump2k.jpg");
+
+	//test
+	EarthColorMapHighResu = new Texture("../../Textures/yellow.jpg");
+	//
+
 	EarthSpecularMap = new Texture("../../Textures/Earth/earthspec1k.jpg");
 
 	earthShader->Use();
@@ -357,6 +362,7 @@ void updateCameraInShader(Shader* shader)
 	glUniform1f(shader->Uniforms["cameraValue"], cameraDistance);
 	glUseProgram(0);
 }
+
 /////////////////////////////////////////////////////////////////////// SCENE
 
 SceneGraph* scenegraph;
@@ -508,6 +514,10 @@ void updateAnimation() {
 }
 
 /////////////////////////////////////////////////////////////////////// DRAW SCENE
+void checkResolution() {
+	vec3 earthPos = vec3(earthNode->getMatrix() * vec4(0, 0, 0, 1));
+	highResu = fabs((earthPos - cam.Eye).MagnitudeSqrd()) < 100? true : false;
+}
 
 void drawSkyBox() {
 
@@ -534,6 +544,7 @@ void drawScene() {
 	
 	//We have to draw everything but the bloom in here (skybox last for performance reasons):
 	EarthSpecularMap->Bind(2);
+	checkResolution();
 	if (highResu) {
 		EarthColorMapHighResu->Bind();
 		EarthHeightMapHighResu->Bind(1);
@@ -727,6 +738,8 @@ void mouse_update(GLFWwindow* win) {
 	cameraTranslation = MatrixFactory::createTranslationMat4(vec3(0, 0, -cameraDistance));
 	cameraRotation = matrixFromQtrn(rotQtrn);
 	cam.ViewMatrix = cameraTranslation * cameraRotation;
+	mat4 inv = inverse(cam.ViewMatrix);
+	cam.Eye = vec3(inv.data[11], inv.data[12], inv.data[13]);
 }
 
 ///////////////////////////////////////////////////////////////////////// SETUP

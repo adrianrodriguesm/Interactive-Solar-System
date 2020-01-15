@@ -29,4 +29,3 @@ void Camera::update(vec3 eye, vec3 center, vec3 up) {
 	Right = normalize(Cross(View, Up));
 	Up = normalize(Cross(Right, View));
 }
-
