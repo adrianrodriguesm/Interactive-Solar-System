@@ -177,7 +177,9 @@
     <None Include="..\..\Shaders\blurrF.glsl" />
     <None Include="..\..\Shaders\blurrV.glsl" />
     <None Include="..\..\Shaders\Displacement_Mapping_frag.glsl" />
+    <None Include="..\..\Shaders\Displacement_Mapping_frag_V2.glsl" />
     <None Include="..\..\Shaders\Displacement_Mapping_vert.glsl" />
+    <None Include="..\..\Shaders\Displacement_Mapping_vert_V2.glsl" />
     <None Include="..\..\Shaders\fShader_basic.glsl" />
     <None Include="..\..\Shaders\Skybox_frag.glsl" />
     <None Include="..\..\Shaders\Skybox_vert.glsl" />

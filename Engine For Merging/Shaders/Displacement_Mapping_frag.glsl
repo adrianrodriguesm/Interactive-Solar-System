@@ -22,7 +22,7 @@ void main()
 	{
 		h += dh * E.z;
 		UV_temp += dw * E.xy;
-		th = texture(HeightMap, UV_temp).r;
+		th = min(texture(HeightMap, UV_temp).r, 0.1) * 3; 
 
 		if (inside && h>th)
 		{

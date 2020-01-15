@@ -35,6 +35,7 @@ public:
 
 	void setScaleMatrix(mat4 M);	//Set the scale matrix
 	void setMatrix(mat4 m);			//Set the model matrix
+	mat4 getMatrix();
 
 	void setParent(SceneNode* parent);
 	void addChild(SceneNode* child);
