@@ -139,6 +139,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\Headers\Bloom.h" />
     <ClInclude Include="..\..\Headers\Camera.h" />
+    <ClInclude Include="..\..\Headers\FlareManager.h" />
+    <ClInclude Include="..\..\Headers\FlareTexture.h" />
     <ClInclude Include="..\..\Headers\Matrices.h" />
     <ClInclude Include="..\..\Headers\Mesh.h" />
     <ClInclude Include="..\..\Headers\PerlinNoise.h" />
@@ -155,6 +157,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Bloom.cpp" />
     <ClCompile Include="..\..\Source\Camera.cpp" />
+    <ClCompile Include="..\..\Source\FlareManager.cpp" />
     <ClCompile Include="..\..\Source\Matrices.cpp" />
     <ClCompile Include="..\..\Source\Mesh.cpp" />
     <ClCompile Include="..\..\Source\PerlinNoise.cpp" />
@@ -180,6 +183,8 @@
     <None Include="..\..\Shaders\Displacement_Mapping_frag_V2.glsl" />
     <None Include="..\..\Shaders\Displacement_Mapping_vert.glsl" />
     <None Include="..\..\Shaders\Displacement_Mapping_vert_V2.glsl" />
+    <None Include="..\..\Shaders\flareF.glsl" />
+    <None Include="..\..\Shaders\flareV.glsl" />
     <None Include="..\..\Shaders\fShader_basic.glsl" />
     <None Include="..\..\Shaders\Skybox_frag.glsl" />
     <None Include="..\..\Shaders\Skybox_vert.glsl" />

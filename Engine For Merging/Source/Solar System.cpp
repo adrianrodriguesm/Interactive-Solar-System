@@ -14,9 +14,11 @@
 #include "Texture.h"
 #include "Bloom.h"
 #include "snapshot.h"
+#include "FlareManager.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 
 
 ////////////////////////////////////////////////// VARIABLES
@@ -49,13 +51,21 @@ Texture* EarthSpecularMap;
 Texture* SunTex;
 Texture* skyBoxTex;
 Texture* JupiterTex;
+Texture* LensTex1; Texture* LensTex2; Texture* LensTex3;
 /////////////////
+
+///LensFlare
+FlareTexture* flare1; FlareTexture* flare2; FlareTexture* flare3; FlareTexture* flare4; FlareTexture* flare5;
+FlareTexture* flare6;
+FlareTexture* flareTex[6];
+FlareManager* flareManager;
 
 bool highResu = false; // Bool for resolution change
 
 //Declaration of meshes:
 Mesh* sphereMesh;
 Mesh* skyBoxMesh;
+Mesh* quadMesh;
 /////////////////
 
 //Declaration of Shaders:
@@ -66,6 +76,7 @@ Shader* blurrShader = new Shader();
 Shader* bloomMergeShader = new Shader();
 Shader* skyBoxShader = new Shader();
 Shader* jupiterShader = new Shader();
+Shader* lensFlareShader = new Shader();
 /////////////////
 
 
@@ -154,7 +165,48 @@ void createskyBoxTextures() {
 
 	skyBoxTex = new Texture(faces);
 }
+void createLensTextures() {
 
+	LensTex1 = new Texture("../../Textures/tex10.png");
+	LensTex2 = new Texture("../../Textures/tex11.png");
+	LensTex3 = new Texture("../../Textures/tex12.png");
+
+	flare1 = new FlareTexture();
+	flare1->tex = LensTex1;
+	flare1->scale = 0.3f;
+	flareTex[0] = flare1;
+
+	flare2 = new FlareTexture();
+	flare2->tex = LensTex2;
+	flare2->scale = 0.4f;
+	flareTex[1] = flare2;
+
+
+	flare3 = new FlareTexture();
+	flare3->scale = 0.5f;
+	flare3->tex = LensTex2;
+	flareTex[2] = flare3;
+
+
+	flare4 = new FlareTexture();
+	flare4->scale = 0.6f;
+	flare4->tex = LensTex3;
+	flareTex[3] = flare4;
+
+
+	flare5 = new FlareTexture();
+	flare5->scale = 0.6f;
+	flare5->tex = LensTex3;
+	flareTex[4] = flare5;
+
+
+	flare6 = new FlareTexture();
+	flare6->scale = 0.55f;
+	flare6->tex = LensTex3;
+	flareTex[5] = flare6;
+
+	flareManager = new FlareManager(flareTex, 0.2f);
+}
 void createTextures() {
 
 	//Stars
@@ -200,6 +252,8 @@ void createTextures() {
 	glUniform1i(jupiterShader->Uniforms["u_Texture"], JupiterTex->GetId());
 	glUseProgram(0);
 
+	createLensTextures();
+
 }
 
 /////////////////////////////////////////////////////////////////////// MESHES
@@ -212,12 +266,16 @@ void createMeshes() {
 
 	std::string cube_dir = mesh_dir + "Cube.obj";
 	skyBoxMesh = new Mesh(cube_dir);
+
+	std::string quadPath = mesh_dir + "quad.obj";
+	quadMesh = new Mesh(quadPath);
 }
 
 //Add your mesh.destroy here afterwards:
 void destroyMeshes() {
 	sphereMesh->destroy();
 	skyBoxMesh->destroy();
+	quadMesh->destroy();
 }
 
 /////////////////////////////////////////////////////////////////////// SHADER
@@ -313,12 +371,25 @@ void createJupiterShader()
 	jupiterShader->AddUniform("att.quadratic");
 	jupiterShader->Create();
 }
+
+void createLensFlareShader() {
+	lensFlareShader->Load("flareV.glsl", "flaref.glsl");
+	lensFlareShader->AddAttribute(0, "in_position");
+	lensFlareShader->AddUniform("ModelMatrix");
+	lensFlareShader->AddUniform("ProjectionMatrix");
+	lensFlareShader->AddUniform("ViewMatrix");
+	lensFlareShader->AddUniform("u_Texture");
+	lensFlareShader->AddUniform("transform");
+	lensFlareShader->AddUniform("brightness");
+	lensFlareShader->Create();
+}
 //Then add your function to this createShaders function which is called in the "Setup" function.
 void createShaders() {
 	createskyBoxShader();
 	createEarthShader();
 	createBloomShader();
 	createJupiterShader();
+	createLensFlareShader();
 }
 
 // Also add the delete function for your shader here:
@@ -379,6 +450,7 @@ SceneNode* skyBoxNode;
 SceneNode* sunNode;
 SceneNode* earthNode;
 SceneNode* jupiterNode;
+SceneNode* lensFlare;
 
 ///////////////////
 void createAnimationObjects();
@@ -422,6 +494,10 @@ void createScene(SceneGraph* scenegraph) {
 	jupiterNode->setTexture(JupiterTex);
 	jupiterNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(8, 0, 0)));
 	jupiterNode->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(2)));
+
+	lensFlare = base->createNode();
+	lensFlare->setMesh(quadMesh);
+	lensFlare->setShader(lensFlareShader);
 
 	createAnimationObjects();
 }
@@ -544,9 +620,33 @@ void drawSkyBox() {
 	glFrontFace(GL_CCW);
 }
 
+void drawLensFlare() {
+	//glClear(GL_DEPTH_BUFFER_BIT);
+
+	if (cameraDistance > 0) {
+		flareManager->render(&cam, vec4(0, 0, 0.9f, 1));
+
+		for (int i = 0; i < 6; i++)
+		{
+			lensFlareShader->Use();
+			flareTex[i]->tex->Bind(flareTex[i]->tex->GetId());
+			float x = flareTex[i]->pos.x;
+			float y = flareTex[i]->pos.y;
+			float scaleX = flareTex[i]->scale;
+			float scaleY = flareTex[i]->scale * aspect;
+			glUniform1i(lensFlareShader->Uniforms["u_Texture"], flareTex[i]->tex->GetId());
+			glUniform4f(lensFlareShader->Uniforms["transform"], x, y, scaleX, scaleY);
+			glUniform1f(lensFlareShader->Uniforms["brightness"], flareTex[i]->brightness);
+			glUseProgram(0);
+			lensFlare->draw(&cam);
+		}
+	}
+}
+
 void drawScene() {
 	updateAnimation();
-
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	bloom->bindHDRBuffer();
 	
 	//We have to draw everything but the bloom in here (skybox last for performance reasons):
@@ -578,6 +678,7 @@ void drawScene() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);	
+	drawLensFlare();
 }
 
 /////////////////////////////////////////////////////////////////////// WINDOW CALLBACKS

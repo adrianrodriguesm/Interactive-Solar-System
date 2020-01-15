@@ -63,6 +63,12 @@
     <ClInclude Include="..\..\Headers\PerlinNoise.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Headers\FlareManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Headers\FlareTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Camera.cpp">
@@ -110,6 +116,9 @@
     <ClCompile Include="..\..\Source\PerlinNoise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\FlareManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Shaders\fShader_basic.glsl">
@@ -152,6 +161,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\..\Shaders\Displacement_Mapping_vert_V2.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\flareF.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\flareV.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
