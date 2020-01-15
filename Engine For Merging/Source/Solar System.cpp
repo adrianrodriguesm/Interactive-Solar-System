@@ -643,7 +643,8 @@ void drawSkyBox() {
 
 void drawLensFlare() {
 	//glClear(GL_DEPTH_BUFFER_BIT);
-
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	if (cameraDistance > 0) {
 		flareManager->render(&cam, vec4(0, 0, 0.9f, 1));
 
@@ -661,13 +662,13 @@ void drawLensFlare() {
 			glUseProgram(0);
 			lensFlare->draw(&cam);
 		}
+
 	}
+	
 }
 
 void drawScene() {
 	updateAnimation();
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	bloom->bindHDRBuffer();
 	
 	//We have to draw everything but the bloom in here (skybox last for performance reasons):
