@@ -56,6 +56,7 @@ Texture* MercuryTex;
 Texture* VenusTex;
 Texture* MarsTex;
 Texture* SaturnTex;
+Texture* SaturnRingTex;
 Texture* NeptuneTex;
 Texture* UranusTex;
 /////////////////
@@ -72,6 +73,7 @@ bool highResu = false; // Bool for resolution change
 Mesh* sphereMesh;
 Mesh* skyBoxMesh;
 Mesh* quadMesh;
+Mesh* torusMesh;
 /////////////////
 
 //Declaration of Shaders:
@@ -262,17 +264,14 @@ void createTextures() {
 
 	//Mercury
 	MercuryTex = new Texture("../../Textures/Mercury.jpg");
-	//blinnPhongShader->Use();
-	//MercuryTex->Bind(MercuryTex->GetId());
-	//glUniform1i(blinnPhongShader->Uniforms["Texture"], MercuryTex->GetId());
-	//glUseProgram(0);
-
 	//Venus
 	VenusTex = new Texture("../../Textures/Venus.jpg");
 	//Mars
 	MarsTex = new Texture("../../Textures/Mars.jpg");
 	//Saturn
 	SaturnTex = new Texture("../../Textures/Saturn.jpg");
+	//Saturn Ring
+	SaturnRingTex = new Texture("../../Textures/SaturnRing.png");
 	//Neptune
 	NeptuneTex = new Texture("../../Textures/Neptune.jpg");
 	//Uranus
@@ -305,6 +304,9 @@ void createMeshes() {
 
 	std::string quadPath = mesh_dir + "quad.obj";
 	quadMesh = new Mesh(quadPath);
+
+	std::string torusPath = mesh_dir + "torusHQ.obj";
+	torusMesh = new Mesh(torusPath);
 }
 
 //Add your mesh.destroy here afterwards:
@@ -312,6 +314,7 @@ void destroyMeshes() {
 	sphereMesh->destroy();
 	skyBoxMesh->destroy();
 	quadMesh->destroy();
+	torusMesh->destroy();
 }
 
 /////////////////////////////////////////////////////////////////////// SHADER
@@ -508,6 +511,7 @@ SceneNode* mercuryNode;
 SceneNode* venusNode;
 SceneNode* marsNode;
 SceneNode* saturnNode;
+SceneNode* saturnRingNode;
 SceneNode* uranusNode;
 SceneNode* neptuneNode;
 SceneNode* lensFlare;
@@ -572,6 +576,10 @@ void createScene(SceneGraph* scenegraph) {
 
 	saturnNode = base->createNode();
 	createPlanetNode(saturnNode, sphereMesh, blinnPhongShader, SaturnTex, vec3(35, 0, 0), 2.0f);
+
+	saturnRingNode = saturnNode->createNode();
+	createPlanetNode(saturnRingNode, torusMesh, blinnPhongShader, SaturnRingTex, vec3(0, 0, 0), 1.0f);
+	saturnRingNode->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(0.2f, 0.01f, 0.2f)));
 
 	uranusNode = base->createNode();
 	createPlanetNode(uranusNode, sphereMesh, blinnPhongShader, UranusTex, vec3(40, 0, 0), 1.5f);
@@ -766,6 +774,9 @@ void drawScene() {
 
 	bindTextureToShader(SaturnTex, blinnPhongShader);
 	saturnNode->draw(&cam);
+
+	bindTextureToShader(SaturnRingTex, blinnPhongShader);
+	saturnRingNode->draw(&cam);
 
 	bindTextureToShader(UranusTex, blinnPhongShader);
 	uranusNode->draw(&cam);
