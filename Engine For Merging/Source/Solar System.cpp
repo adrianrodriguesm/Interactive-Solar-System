@@ -13,6 +13,7 @@
 #include "SceneNode.h"
 #include "Texture.h"
 #include "Bloom.h"
+#include "snapshot.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -46,6 +47,7 @@ Texture* EarthHeightMapHighResu;
 Texture* EarthSpecularMap;
 Texture* SunTex;
 Texture* skyBoxTex;
+Texture* JupiterTex;
 /////////////////
 
 bool highResu = false; // Bool for resolution change
@@ -62,12 +64,15 @@ Shader* bloomShader = new Shader();
 Shader* blurrShader = new Shader();
 Shader* bloomMergeShader = new Shader();
 Shader* skyBoxShader = new Shader();
+Shader* jupiterShader = new Shader();
 /////////////////
 
 
 ///Bloom
 Bloom* bloom;
 
+//Snapshot 
+Snapshot snapshot;
 ////////////////////////////////////////////////// ERROR CALLBACK (OpenGL 4.3+)
 
 static const std::string errorSource(GLenum source)
@@ -181,7 +186,14 @@ void createTextures() {
 	bloomShader->Use();
 	glUniform1i(bloomShader->Uniforms["u_Texture"], 10);
 	glUseProgram(0);
-	///
+
+	JupiterTex = new Texture();
+	JupiterTex->createPerlinNoiseTexture();
+	jupiterShader->Use();
+	JupiterTex->Bind(JupiterTex->GetId());
+	glUniform1i(jupiterShader->Uniforms["u_Texture"], JupiterTex->GetId());
+	glUseProgram(0);
+
 }
 
 /////////////////////////////////////////////////////////////////////// MESHES
@@ -269,11 +281,31 @@ void createBloomShader() {
 	bloomMergeShader->Create();
 }
 
+void createJupiterShader() 
+{
+	jupiterShader->Load("jupiterV.glsl", "jupiterF.glsl");
+	jupiterShader->AddAttribute(0, "in_Position");
+	jupiterShader->AddAttribute(1, "texCoord");
+	jupiterShader->AddAttribute(2, "normals");
+
+	jupiterShader->AddUniform("ModelMatrix");
+	jupiterShader->AddUniform("ViewMatrix");
+	jupiterShader->AddUniform("ProjectionMatrix");
+	jupiterShader->AddUniform("lightPosition");
+	jupiterShader->AddUniform("cameraValue");
+	jupiterShader->AddUniform("u_Texture");
+	jupiterShader->AddUniform("lightColor");
+	jupiterShader->AddUniform("att.constant");
+	jupiterShader->AddUniform("att.linear");
+	jupiterShader->AddUniform("att.quadratic");
+	jupiterShader->Create();
+}
 //Then add your function to this createShaders function which is called in the "Setup" function.
 void createShaders() {
 	createskyBoxShader();
 	createEarthShader();
 	createBloomShader();
+	createJupiterShader();
 }
 
 // Also add the delete function for your shader here:
@@ -286,6 +318,9 @@ void deleteShaders() {
 	bloomMergeShader->Delete();
 
 	skyBoxShader->Delete();
+
+	//Jupiter
+	jupiterShader->Delete();
 }
 /////////////////////////////////////////////////////////////////////// INIT BLOOM
 void initBloom() {
@@ -295,6 +330,17 @@ void initBloom() {
 	bloom->createAttachBuffer();
 	bloom->createBlurBuffer();
 	bloom->activateBloom(true);///Activate default
+}
+
+void lightingSetUp() 
+{
+	jupiterShader->Use();
+	glUniform4f(jupiterShader->Uniforms["lightPosition"], 0.0f, 0.0f, 0.0f, 1.0f);
+	glUniform4f(jupiterShader->Uniforms["lightColor"], 1.0f,1.0f,1.0f,1.0f);
+	glUniform1f(jupiterShader->Uniforms["att.constant"], 1.0f);
+	glUniform1f(jupiterShader->Uniforms["att.linear"], 0.07f);
+	glUniform1f(jupiterShader->Uniforms["att.quadratic"], 0.017f);
+	glUseProgram(0);
 }
 /////////////////////////////////////////////////////////////////////// SCENE
 
@@ -306,6 +352,7 @@ SceneNode* base;
 SceneNode* skyBoxNode;
 SceneNode* sunNode;
 SceneNode* earthNode;
+SceneNode* jupiterNode;
 
 ///////////////////
 void createAnimationObjects();
@@ -317,6 +364,7 @@ mat4 skyBoxScale = MatrixFactory::createScaleMat4(vec3(skyBoxSize));
 
 void createScene(SceneGraph* scenegraph) {
 	
+	lightingSetUp();
 	base = scenegraph->createNode();
 	
 	skyBoxNode = base->createNode();
@@ -329,6 +377,7 @@ void createScene(SceneGraph* scenegraph) {
 	sunNode->setMesh(sphereMesh);
 	sunNode->setTexture(SunTex);
 	sunNode->setShader(bloomShader);
+	sunNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(0, 0, 0)));
 
 	earthNode = base->createNode();
 	earthNode->setMesh(sphereMesh);
@@ -337,6 +386,12 @@ void createScene(SceneGraph* scenegraph) {
 	earthNode->setTexture(EarthColorMapLowResu);
 	//Distance from sun and tilt of the earth:
 	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(4, 0, 0)) * MatrixFactory::createRoationMat4(earthTilt, zAxis));
+
+	jupiterNode = base->createNode();
+	jupiterNode->setMesh(sphereMesh);
+	jupiterNode->setShader(jupiterShader);
+	jupiterNode->setTexture(JupiterTex);
+	jupiterNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(8, 0, 0)));
 
 	createAnimationObjects();
 }
@@ -446,13 +501,21 @@ void drawScene() {
 	}	
 	earthNode->draw(&cam);
 
+
+	jupiterShader->Use();
+	glUniform1f(jupiterShader->Uniforms["cameraValue"], cameraDistance);
+	glUseProgram(0);
+	JupiterTex->Bind(JupiterTex->GetId());
+	jupiterNode->draw(&cam);
+
+
 	drawSkyBox();
 	/////////////
 
 	SunTex->Bind(10);
 	sunNode->draw(&cam);
 
-	//scenegraph->draw();
+	scenegraph->draw();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);	
@@ -551,6 +614,9 @@ void get_keyboard_input(GLFWwindow* win) {
 	if (glfwGetKey(win, GLFW_KEY_V) == GLFW_PRESS) { bloom->activateBloom(false); }
 	if (glfwGetKey(win, GLFW_KEY_N) == GLFW_PRESS) { bloom->increaseExpresure(); }
 	if (glfwGetKey(win, GLFW_KEY_M) == GLFW_PRESS) { bloom->decreaseExpresure(); }
+
+	//Snapshot
+	if (glfwGetKey(win, GLFW_KEY_Z) == GLFW_PRESS) { snapshot.captureSnapshot(); }
 }
 
 void process_keyboard_input(GLFWwindow* win) {
@@ -727,6 +793,8 @@ GLFWwindow* setup(int major, int minor,
 	initialize_inputs();
 	mouse_initialize(win);
 
+	//Snapshot:
+	snapshot = Snapshot();
 
 	///Init Bloom frameBuffers:
 	initBloom();
@@ -740,6 +808,7 @@ GLFWwindow* setup(int major, int minor,
 	//Scene Setup
 	createSceneGraph(cam);
 
+	
 
 	return win;
 }
