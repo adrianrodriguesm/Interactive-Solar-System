@@ -94,6 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)/../Headers;$(SolutionDir)/../External Libraries/GLFW/include;$(SolutionDir)/../External Libraries/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,6 +126,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)/../Headers;$(SolutionDir)/../External Libraries/GLFW/include;$(SolutionDir)/../External Libraries/GLEW/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,11 +141,14 @@
     <ClInclude Include="..\..\Headers\Camera.h" />
     <ClInclude Include="..\..\Headers\Matrices.h" />
     <ClInclude Include="..\..\Headers\Mesh.h" />
+    <ClInclude Include="..\..\Headers\PerlinNoise.h" />
     <ClInclude Include="..\..\Headers\Quaternions.h" />
     <ClInclude Include="..\..\Headers\Scenegraph.h" />
     <ClInclude Include="..\..\Headers\SceneNode.h" />
     <ClInclude Include="..\..\Headers\Shader.h" />
+    <ClInclude Include="..\..\Headers\snapshot.h" />
     <ClInclude Include="..\..\Headers\stb_image.h" />
+    <ClInclude Include="..\..\Headers\stb_image_write.h" />
     <ClInclude Include="..\..\Headers\Texture.h" />
     <ClInclude Include="..\..\Headers\Vectors.h" />
   </ItemGroup>
@@ -152,12 +157,15 @@
     <ClCompile Include="..\..\Source\Camera.cpp" />
     <ClCompile Include="..\..\Source\Matrices.cpp" />
     <ClCompile Include="..\..\Source\Mesh.cpp" />
+    <ClCompile Include="..\..\Source\PerlinNoise.cpp" />
     <ClCompile Include="..\..\Source\Quaternions.cpp" />
     <ClCompile Include="..\..\Source\Scenegraph.cpp" />
     <ClCompile Include="..\..\Source\SceneNode.cpp" />
     <ClCompile Include="..\..\Source\Shader.cpp" />
+    <ClCompile Include="..\..\Source\snapshot.cpp" />
     <ClCompile Include="..\..\Source\Solar System.cpp" />
     <ClCompile Include="..\..\Source\stb_image.cpp" />
+    <ClCompile Include="..\..\Source\stb_image_write.cpp" />
     <ClCompile Include="..\..\Source\Texture.cpp" />
     <ClCompile Include="..\..\Source\Vectors.cpp" />
   </ItemGroup>

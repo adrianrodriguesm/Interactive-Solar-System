@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include "stb_image.h"
+#include "PerlinNoise.h"
 
 struct Texture {
 	
@@ -14,6 +15,7 @@ struct Texture {
 	Texture(std::vector<std::string> faces); //For skybox / cubemap
 	~Texture();		
 
+	void createPerlinNoiseTexture();
 	void Bind(unsigned int slot = 0) const;
 	void Unbind() const;
 
