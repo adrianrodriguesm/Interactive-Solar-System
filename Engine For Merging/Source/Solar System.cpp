@@ -864,10 +864,12 @@ void drawScene() {
 	SunTex->Bind(10);
 	sunNode->draw(&cam);
 
-	scenegraph->draw();
+	//scenegraph->draw();
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
-	bloom->combineProcess(bloomMergeShader);	
+	bloom->combineProcess(bloomMergeShader);
+
 	drawLensFlare();
 }
 
@@ -972,50 +974,69 @@ void get_keyboard_input(GLFWwindow* win) {
 }
 
 void process_keyboard_input(GLFWwindow* win) {
-	if (keyA) shapeMovementX -= movStep;
-	if (keyD) shapeMovementX += movStep;
-	if (keyS) shapeMovementY -= movStep;
-	if (keyW) shapeMovementY += movStep;
-	if (keyQ) shapeRotation -= angStep;
-	if (keyE) shapeRotation += angStep;
+	vec3 mvmt = vec3();
+	if (keyW) { mvmt += cam.View * movStep; }
+	if (keyS) { mvmt -= cam.View * movStep; }
+	if (keyA) { mvmt -= cam.Right * movStep; }
+	if (keyD) { mvmt += cam.Right * movStep; }
 
-	// THIS WILL MOVE THE ENTIRE SOLAR SYSTEM
-	base->setMatrix(
-		MatrixFactory::createRoationMat4(shapeRotation, zAxis) * 
-		MatrixFactory::createTranslationMat4(vec3(shapeMovementX, shapeMovementY, 0))
-	);
-	/////////////////////////
+	cam.update(cam.Eye + mvmt,
+		cam.Center + Dot(mvmt, cam.Right) * cam.Right,
+		cam.Up);
 
 	if (keyP) animationInProgress = !animationInProgress; //Change resolution
 }
-
+//
 void mouse_callback(GLFWwindow* win, double xpos, double ypos) {
-
-	if (!mouseClicked) {
-		firstMouseCall = true;
-		return;
-	}
-
 	if (firstMouseCall) {
 		lastX = xpos;
 		lastY = ypos;
 		firstMouseCall = false;
 	}
 
-	float xoffset = xpos- lastX;
-	float yoffset = ypos - lastY;
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
 	lastX = xpos;
 	lastY = ypos;
 
 	xoffset *= sensitivity;
 	yoffset *= sensitivity;
 
-	qtrn q1 = qtrn::qFromAngleAxis(yoffset, xAxis);
-	qtrn q2 = qtrn::qFromAngleAxis(xoffset, yAxis);
-	rotQtrn = q1 * q2 * rotQtrn;
+	vec3 viewChange = vec3();
+	viewChange += xoffset * cam.Right;
+	viewChange += yoffset * cam.Up;
 
-	mouseChange = true;
+	cam.Center += viewChange;
+	cam.update();
 }
+//
+//void mouse_callback(GLFWwindow* win, double xpos, double ypos) {
+//
+//	if (!mouseClicked) {
+//		firstMouseCall = true;
+//		return;
+//	}
+//
+//	if (firstMouseCall) {
+//		lastX = xpos;
+//		lastY = ypos;
+//		firstMouseCall = false;
+//	}
+//
+//	float xoffset = xpos- lastX;
+//	float yoffset = ypos - lastY;
+//	lastX = xpos;
+//	lastY = ypos;
+//
+//	xoffset *= sensitivity;
+//	yoffset *= sensitivity;
+//
+//	qtrn q1 = qtrn::qFromAngleAxis(yoffset, xAxis);
+//	qtrn q2 = qtrn::qFromAngleAxis(xoffset, yAxis);
+//	rotQtrn = q1 * q2 * rotQtrn;
+//
+//	mouseChange = true;
+//}
 
 void mouse_button_callback(GLFWwindow* win, int button, int action, int mods) {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) mouseClicked = true;
@@ -1023,23 +1044,23 @@ void mouse_button_callback(GLFWwindow* win, int button, int action, int mods) {
 }
 
 void scroll_callback(GLFWwindow* win, double xOffset, double yOffset) {
-	cameraDistance -= yOffset * scrollSensitivity;
-	scrollChange = true;
+	//cameraDistance -= yOffset * scrollSensitivity;
+	//cam.Eye += cam.View * yOffset * scrollSensitivity;
 }
 
 
 void mouse_initialize(GLFWwindow* win) {
-	glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
 void mouse_update(GLFWwindow* win) {
-	cameraTranslation = MatrixFactory::createTranslationMat4(vec3(0, 0, -cameraDistance));
-	cameraRotation = matrixFromQtrn(rotQtrn);
-	cam.ViewMatrix = cameraTranslation * cameraRotation;
-	mat4 inv = inverse(cam.ViewMatrix);
-	cam.Eye = vec3(inv.data[11], inv.data[12], inv.data[13]);
+	//cameraTranslation = MatrixFactory::createTranslationMat4(vec3(0, 0, -cameraDistance));
+	//cameraRotation = matrixFromQtrn(rotQtrn);
+	//cam.ViewMatrix = cameraTranslation * cameraRotation;
+	//mat4 inv = inverse(cam.ViewMatrix);
+	//cam.Eye = vec3(inv.data[11], inv.data[12], inv.data[13]);
 }
-
 ///////////////////////////////////////////////////////////////////////// SETUP
 
 void glfw_error_callback(int error, const char* description)
