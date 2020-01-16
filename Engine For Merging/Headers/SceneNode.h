@@ -16,6 +16,7 @@ private:
 	Texture* texture;
 	Shader* shader;
 	vec4 color;
+	std::string name;
 
 	//The Scene Node has a seperate Scale and model matrix!!!!!
 	mat4 scaleMatrix;
@@ -32,6 +33,7 @@ public:
 	void setMesh(Mesh* m);
 	void setTexture(Texture* t);
 	void setShader(Shader* s);
+	void setName(std::string name);
 
 	void setScaleMatrix(mat4 M);	//Set the scale matrix
 	void setMatrix(mat4 m);			//Set the model matrix

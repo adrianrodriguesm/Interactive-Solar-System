@@ -14,9 +14,13 @@
 #include "Texture.h"
 #include "Bloom.h"
 #include "snapshot.h"
+#include "FlareManager.h"
+#include "Loader.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+
 
 
 ////////////////////////////////////////////////// VARIABLES
@@ -36,7 +40,7 @@ const int cameraMaxDistance = 1000;
 bool mouseChange = true; //Boolean for mouse input
 bool scrollChange = true; //Boolean for scroll input
 Camera cam = Camera(vec3(0,0,1), vec3(0,0,0), vec3(0,1,0)); //Initial camera center and up vector
-float cameraDistance = 10;									//Initial camera distance from center defined in the line above
+float cameraDistance = 20;									//Initial camera distance from center defined in the line above
 mat4 cameraRotation;
 mat4 cameraTranslation;
 
@@ -49,13 +53,29 @@ Texture* EarthSpecularMap;
 Texture* SunTex;
 Texture* skyBoxTex;
 Texture* JupiterTex;
+Texture* LensTex1; Texture* LensTex2; Texture* LensTex3;
+Texture* MercuryTex;
+Texture* VenusTex;
+Texture* MarsTex;
+Texture* SaturnTex;
+Texture* SaturnRingTex;
+Texture* NeptuneTex;
+Texture* UranusTex;
 /////////////////
+
+///LensFlare
+FlareTexture* flare1; FlareTexture* flare2; FlareTexture* flare3; FlareTexture* flare4; FlareTexture* flare5;
+FlareTexture* flare6;
+FlareTexture* flareTex[6];
+FlareManager* flareManager;
 
 bool highResu = false; // Bool for resolution change
 
 //Declaration of meshes:
 Mesh* sphereMesh;
 Mesh* skyBoxMesh;
+Mesh* quadMesh;
+Mesh* torusMesh;
 /////////////////
 
 //Declaration of Shaders:
@@ -66,8 +86,9 @@ Shader* blurrShader = new Shader();
 Shader* bloomMergeShader = new Shader();
 Shader* skyBoxShader = new Shader();
 Shader* jupiterShader = new Shader();
+Shader* blinnPhongShader = new Shader();
+Shader* lensFlareShader = new Shader();
 /////////////////
-
 
 ///Bloom
 Bloom* bloom;
@@ -154,7 +175,48 @@ void createskyBoxTextures() {
 
 	skyBoxTex = new Texture(faces);
 }
+void createLensTextures() {
 
+	LensTex1 = new Texture("../../Textures/tex10.png");
+	LensTex2 = new Texture("../../Textures/tex11.png");
+	LensTex3 = new Texture("../../Textures/tex12.png");
+
+	flare1 = new FlareTexture();
+	flare1->tex = LensTex1;
+	flare1->scale = 0.3f;
+	flareTex[0] = flare1;
+
+	flare2 = new FlareTexture();
+	flare2->tex = LensTex2;
+	flare2->scale = 0.4f;
+	flareTex[1] = flare2;
+
+
+	flare3 = new FlareTexture();
+	flare3->scale = 0.5f;
+	flare3->tex = LensTex2;
+	flareTex[2] = flare3;
+
+
+	flare4 = new FlareTexture();
+	flare4->scale = 0.6f;
+	flare4->tex = LensTex3;
+	flareTex[3] = flare4;
+
+
+	flare5 = new FlareTexture();
+	flare5->scale = 0.6f;
+	flare5->tex = LensTex3;
+	flareTex[4] = flare5;
+
+
+	flare6 = new FlareTexture();
+	flare6->scale = 0.55f;
+	flare6->tex = LensTex3;
+	flareTex[5] = flare6;
+
+	flareManager = new FlareManager(flareTex, 0.2f);
+}
 void createTextures() {
 
 	//Stars
@@ -167,8 +229,13 @@ void createTextures() {
 	//Earth
 	EarthColorMapLowResu = new Texture("../../Textures/Earth/earthmap1k.jpg");
 	EarthHeightMapLowResu = new Texture("../../Textures/Earth/earthbump1k.jpg");
-	EarthColorMapHighResu = new Texture("../../Textures/Earth/earthmap2k.jpg");
+	//EarthColorMapHighResu = new Texture("../../Textures/Earth/earthmap2k.jpg");
 	EarthHeightMapHighResu = new Texture("../../Textures/Earth/earthbump2k.jpg");
+
+	//test
+	EarthColorMapHighResu = new Texture("../../Textures/yellow.jpg");
+	//
+
 	EarthSpecularMap = new Texture("../../Textures/Earth/earthspec1k.jpg");
 
 	earthShader->Use();
@@ -188,11 +255,40 @@ void createTextures() {
 	glUniform1i(bloomShader->Uniforms["u_Texture"], 10);
 	glUseProgram(0);
 
+	//Jupiter, uses Perlin Noise
 	JupiterTex = new Texture();
 	JupiterTex->createPerlinNoiseTexture();
 	jupiterShader->Use();
 	JupiterTex->Bind(JupiterTex->GetId());
 	glUniform1i(jupiterShader->Uniforms["u_Texture"], JupiterTex->GetId());
+	glUseProgram(0);
+
+
+	//Mercury
+	MercuryTex = new Texture("../../Textures/Mercury.jpg");
+	//Venus
+	VenusTex = new Texture("../../Textures/Venus.jpg");
+	//Mars
+	MarsTex = new Texture("../../Textures/Mars.jpg");
+	//Saturn
+	SaturnTex = new Texture("../../Textures/Saturn.jpg");
+	//Saturn Ring
+	SaturnRingTex = new Texture("../../Textures/SaturnRing.png");
+	//Neptune
+	NeptuneTex = new Texture("../../Textures/Neptune.jpg");
+	//Uranus
+	UranusTex = new Texture("../../Textures/Uranus.jpg");
+
+
+	createLensTextures();
+
+}
+
+void bindTextureToShader(Texture* tex, Shader* shader) 
+{
+	shader->Use();
+	tex->Bind(tex->GetId());
+	glUniform1i(shader->Uniforms["Texture"], tex->GetId());
 	glUseProgram(0);
 
 }
@@ -207,12 +303,20 @@ void createMeshes() {
 
 	std::string cube_dir = mesh_dir + "Cube.obj";
 	skyBoxMesh = new Mesh(cube_dir);
+
+	std::string quadPath = mesh_dir + "quad.obj";
+	quadMesh = new Mesh(quadPath);
+
+	std::string torusPath = mesh_dir + "torusHQ.obj";
+	torusMesh = new Mesh(torusPath);
 }
 
 //Add your mesh.destroy here afterwards:
 void destroyMeshes() {
 	sphereMesh->destroy();
 	skyBoxMesh->destroy();
+	quadMesh->destroy();
+	torusMesh->destroy();
 }
 
 /////////////////////////////////////////////////////////////////////// SHADER
@@ -308,12 +412,45 @@ void createJupiterShader()
 	jupiterShader->AddUniform("att.quadratic");
 	jupiterShader->Create();
 }
+
+void createBlinnPhongShader()
+{
+	blinnPhongShader->Load("blinnPhongV.glsl", "blinnPhongF.glsl");
+	blinnPhongShader->AddAttribute(0, "in_Position");
+	blinnPhongShader->AddAttribute(1, "texCoord");
+	blinnPhongShader->AddAttribute(2, "normals");
+	blinnPhongShader->AddUniform("ModelMatrix");
+	blinnPhongShader->AddUniform("ViewMatrix");
+	blinnPhongShader->AddUniform("ProjectionMatrix");
+	blinnPhongShader->AddUniform("lightPosition");
+	blinnPhongShader->AddUniform("cameraValue");
+	blinnPhongShader->AddUniform("Texture");
+	blinnPhongShader->AddUniform("lightColor");
+	blinnPhongShader->AddUniform("att.constant");
+	blinnPhongShader->AddUniform("att.linear");
+	blinnPhongShader->AddUniform("att.quadratic");
+	blinnPhongShader->Create();
+}
+
+void createLensFlareShader() {
+	lensFlareShader->Load("flareV.glsl", "flaref.glsl");
+	lensFlareShader->AddAttribute(0, "in_position");
+	lensFlareShader->AddUniform("ModelMatrix");
+	lensFlareShader->AddUniform("ProjectionMatrix");
+	lensFlareShader->AddUniform("ViewMatrix");
+	lensFlareShader->AddUniform("u_Texture");
+	lensFlareShader->AddUniform("transform");
+	lensFlareShader->AddUniform("brightness");
+	lensFlareShader->Create();
+}
 //Then add your function to this createShaders function which is called in the "Setup" function.
 void createShaders() {
 	createskyBoxShader();
 	createEarthShader();
 	createBloomShader();
 	createJupiterShader();
+	createBlinnPhongShader();
+	createLensFlareShader();
 }
 
 // Also add the delete function for your shader here:
@@ -329,6 +466,9 @@ void deleteShaders() {
 
 	//Jupiter
 	jupiterShader->Delete();
+
+	//Blinn Phong
+	blinnPhongShader->Delete();
 }
 /////////////////////////////////////////////////////////////////////// INIT BLOOM
 void initBloom() {
@@ -346,8 +486,8 @@ void lightingSetUp(Shader *shader)
 	glUniform4f(shader->Uniforms["lightPosition"], 0.0f, 0.0f, 0.0f, 1.0f);
 	glUniform4f(shader->Uniforms["lightColor"], 1.0f,1.0f,1.0f,1.0f);
 	glUniform1f(shader->Uniforms["att.constant"], 1.0f);
-	glUniform1f(shader->Uniforms["att.linear"], 0.07f);
-	glUniform1f(shader->Uniforms["att.quadratic"], 0.017f);
+	glUniform1f(shader->Uniforms["att.linear"], 0.014f);
+	glUniform1f(shader->Uniforms["att.quadratic"], 0.0007f);
 	glUseProgram(0);
 }
 
@@ -357,6 +497,7 @@ void updateCameraInShader(Shader* shader)
 	glUniform1f(shader->Uniforms["cameraValue"], cameraDistance);
 	glUseProgram(0);
 }
+
 /////////////////////////////////////////////////////////////////////// SCENE
 
 SceneGraph* scenegraph;
@@ -368,6 +509,14 @@ SceneNode* skyBoxNode;
 SceneNode* sunNode;
 SceneNode* earthNode;
 SceneNode* jupiterNode;
+SceneNode* mercuryNode;
+SceneNode* venusNode;
+SceneNode* marsNode;
+SceneNode* saturnNode;
+SceneNode* saturnRingNode;
+SceneNode* uranusNode;
+SceneNode* neptuneNode;
+SceneNode* lensFlare;
 
 ///////////////////
 void createAnimationObjects();
@@ -377,10 +526,22 @@ float skyBoxSize = 200;
 mat4 skyBoxScale = MatrixFactory::createScaleMat4(vec3(skyBoxSize));
 ///
 
+//Thus helps create the planet's node
+void createPlanetNode(SceneNode* node, Mesh* mesh, Shader* shader, Texture* tex, vec3 translationVector, float scaleValue)
+{
+	
+	node->setMesh(mesh);
+	node->setShader(shader);
+	node->setTexture(tex);
+	node->setMatrix(MatrixFactory::createTranslationMat4(translationVector));
+	node->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(scaleValue)));
+}
+
 void createScene(SceneGraph* scenegraph) {
 	
 	lightingSetUp(jupiterShader);
 	lightingSetUp(earthShaderV2);
+	lightingSetUp(blinnPhongShader);
 	base = scenegraph->createNode();
 	
 	skyBoxNode = base->createNode();
@@ -394,19 +555,43 @@ void createScene(SceneGraph* scenegraph) {
 	sunNode->setTexture(SunTex);
 	sunNode->setShader(bloomShader);
 	sunNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(0, 0, 0)));
+	sunNode->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(5)));
 
 	earthNode = base->createNode();
 	earthNode->setMesh(sphereMesh);
 	//earthNode->setShader(earthShader);
 	earthNode->setShader(earthShaderV2);
 	earthNode->setTexture(EarthColorMapLowResu);
-	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(4, 0, 0)));
+	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(20, 0, 0)));
+
+	mercuryNode = base->createNode();
+	createPlanetNode(mercuryNode, sphereMesh, blinnPhongShader, MercuryTex, vec3(10, 0, 0), 0.5f);
+
+	venusNode = base->createNode();
+	createPlanetNode(venusNode, sphereMesh, blinnPhongShader, VenusTex, vec3(15, 0, 0), 0.8f);
+
+	marsNode = base->createNode();
+	createPlanetNode(marsNode, sphereMesh, blinnPhongShader, MarsTex, vec3(25, 0, 0), 0.6f);
 
 	jupiterNode = base->createNode();
-	jupiterNode->setMesh(sphereMesh);
-	jupiterNode->setShader(jupiterShader);
-	jupiterNode->setTexture(JupiterTex);
-	jupiterNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(8, 0, 0)));
+	createPlanetNode(jupiterNode, sphereMesh, jupiterShader, JupiterTex, vec3(30, 0, 0), 2.5f);
+
+	saturnNode = base->createNode();
+	createPlanetNode(saturnNode, sphereMesh, blinnPhongShader, SaturnTex, vec3(35, 0, 0), 2.0f);
+
+	saturnRingNode = saturnNode->createNode();
+	createPlanetNode(saturnRingNode, torusMesh, blinnPhongShader, SaturnRingTex, vec3(0, 0, 0), 1.0f);
+	saturnRingNode->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(0.2f, 0.01f, 0.2f)));
+
+	uranusNode = base->createNode();
+	createPlanetNode(uranusNode, sphereMesh, blinnPhongShader, UranusTex, vec3(40, 0, 0), 1.5f);
+
+	neptuneNode = base->createNode();
+	createPlanetNode(neptuneNode, sphereMesh, blinnPhongShader, NeptuneTex, vec3(45, 0, 0), 1.5f);
+
+	lensFlare = base->createNode();
+	lensFlare->setMesh(quadMesh);
+	lensFlare->setShader(lensFlareShader);
 
 	createAnimationObjects();
 }
@@ -428,7 +613,7 @@ void createSceneGraph(Camera& cam) {
 
 
 /////////////////////////////////////////////////////////////////////// ANIMATION
-
+bool animationInProgress = true;
 
 //In the "animationObject" struct we have to fill in all information that is relative to the animation.
 typedef struct {
@@ -449,34 +634,106 @@ vector<animationObject> animationObjects = vector<animationObject>();
 void createAnimationObjects() {
 
 	//Example on how to set an animationobject:
+
+	//Mercury
+	animationObject mercuryAnimObj = animationObject{
+		mercuryNode,
+		30,
+		17,
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, zAxis),
+		MatrixFactory::createTranslationMat4(vec3(10 + 10,0,0))
+	};
+	animationObjects.push_back(mercuryAnimObj);
+
+	//Venus
+	animationObject venusAnimObj = animationObject{
+		venusNode,
+		25,
+		15,
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, zAxis),
+		MatrixFactory::createTranslationMat4(vec3(10 + 15,0,0))
+	};
+	animationObjects.push_back(venusAnimObj);
+
+	//Earth
 	animationObject earthAnimObj = animationObject{
 		earthNode,
 		20,
-		5,
+		11,
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(earthTilt, zAxis),
-		MatrixFactory::createTranslationMat4(vec3(4,0,0))
+		MatrixFactory::createTranslationMat4(vec3(10 + 20,0,0))
 	};
-
 	animationObjects.push_back(earthAnimObj);
-	////
+
+	//Mars
+	animationObject marsAnimObj = animationObject{
+	marsNode,
+	22,
+	13,
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, zAxis),
+	MatrixFactory::createTranslationMat4(vec3(10 + 25,0,0))
+	};
+	animationObjects.push_back(marsAnimObj);
 
 	//Jupiter:
 	animationObject jupiterAnimObj = animationObject{
 	jupiterNode,
-	5,
+	17,
+	9,
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, zAxis),
+	MatrixFactory::createTranslationMat4(vec3(10 + 30,0,0))
+	};
+
+	animationObjects.push_back(jupiterAnimObj);
+
+	//Saturn:
+	animationObject saturnAnimObj = animationObject{
+	saturnNode,
+	14,
+	7,
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, zAxis),
+	MatrixFactory::createTranslationMat4(vec3(10 + 35,0,0))
+	};
+	animationObjects.push_back(saturnAnimObj);
+
+	//Uranus
+	animationObject uranusAnimObj = animationObject{
+		uranusNode,
+		11,
+		5,
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, zAxis),
+		MatrixFactory::createTranslationMat4(vec3(10 + 40,0,0))
+	};
+	animationObjects.push_back(uranusAnimObj);
+
+	//Neptune
+	animationObject neptuAnimObj = animationObject{
+	neptuneNode,
+	8,
 	3,
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, zAxis),
-	MatrixFactory::createTranslationMat4(vec3(8,0,0))
+	MatrixFactory::createTranslationMat4(vec3(10 + 45,0,0))
 	};
-
-	animationObjects.push_back(jupiterAnimObj);
+	animationObjects.push_back(neptuAnimObj);
 }
 
-float animationSpeed = 0.1;
+float animationSpeed = 0.01;
 
 void updateAnimation() {
 	int i = 0;
@@ -506,6 +763,10 @@ void updateAnimation() {
 }
 
 /////////////////////////////////////////////////////////////////////// DRAW SCENE
+void checkResolution() {
+	vec3 earthPos = vec3(earthNode->getMatrix() * vec4(0, 0, 0, 1));
+	highResu = fabs((earthPos - cam.Eye).MagnitudeSqrd()) < 100? true : false;
+}
 
 void drawSkyBox() {
 
@@ -521,17 +782,44 @@ void drawSkyBox() {
 
 	skyBoxNode->draw(&cam);
 
-	glDepthFunc(GL_LESS);
+	//glDepthFunc(GL_LESS);
 	glFrontFace(GL_CCW);
 }
 
-void drawScene() {
-	updateAnimation();
+void drawLensFlare() {
+	//glClear(GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	if (cameraDistance > 0) {
+		flareManager->render(&cam, vec4(0, 0, 0.9f, 1));
 
+		for (int i = 0; i < 6; i++)
+		{
+			lensFlareShader->Use();
+			flareTex[i]->tex->Bind(flareTex[i]->tex->GetId());
+			float x = flareTex[i]->pos.x;
+			float y = flareTex[i]->pos.y;
+			float scaleX = flareTex[i]->scale;
+			float scaleY = flareTex[i]->scale * aspect;
+			glUniform1i(lensFlareShader->Uniforms["u_Texture"], flareTex[i]->tex->GetId());
+			glUniform4f(lensFlareShader->Uniforms["transform"], x, y, scaleX, scaleY);
+			glUniform1f(lensFlareShader->Uniforms["brightness"], flareTex[i]->brightness);
+			glUseProgram(0);
+			lensFlare->draw(&cam);
+		}
+
+	}
+	
+	
+}
+
+void drawScene() {
+	if (animationInProgress) updateAnimation();
 	bloom->bindHDRBuffer();
 	
 	//We have to draw everything but the bloom in here (skybox last for performance reasons):
 	EarthSpecularMap->Bind(2);
+	checkResolution();
 	if (highResu) {
 		EarthColorMapHighResu->Bind();
 		EarthHeightMapHighResu->Bind(1);
@@ -547,6 +835,28 @@ void drawScene() {
 	JupiterTex->Bind(JupiterTex->GetId());
 	jupiterNode->draw(&cam);
 
+	updateCameraInShader(blinnPhongShader);
+
+	bindTextureToShader(MercuryTex, blinnPhongShader);
+	mercuryNode->draw(&cam);
+
+	bindTextureToShader(VenusTex, blinnPhongShader);
+	venusNode->draw(&cam);
+
+	bindTextureToShader(MarsTex, blinnPhongShader);
+	marsNode->draw(&cam);
+
+	bindTextureToShader(SaturnTex, blinnPhongShader);
+	saturnNode->draw(&cam);
+
+	bindTextureToShader(SaturnRingTex, blinnPhongShader);
+	saturnRingNode->draw(&cam);
+
+	bindTextureToShader(UranusTex, blinnPhongShader);
+	uranusNode->draw(&cam);
+
+	bindTextureToShader(NeptuneTex, blinnPhongShader);
+	neptuneNode->draw(&cam);
 
 	drawSkyBox();
 	/////////////
@@ -558,6 +868,7 @@ void drawScene() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);	
+	drawLensFlare();
 }
 
 /////////////////////////////////////////////////////////////////////// WINDOW CALLBACKS
@@ -675,7 +986,7 @@ void process_keyboard_input(GLFWwindow* win) {
 	);
 	/////////////////////////
 
-	if (keyP) highResu = !highResu; //Change resolution
+	if (keyP) animationInProgress = !animationInProgress; //Change resolution
 }
 
 void mouse_callback(GLFWwindow* win, double xpos, double ypos) {
@@ -725,6 +1036,8 @@ void mouse_update(GLFWwindow* win) {
 	cameraTranslation = MatrixFactory::createTranslationMat4(vec3(0, 0, -cameraDistance));
 	cameraRotation = matrixFromQtrn(rotQtrn);
 	cam.ViewMatrix = cameraTranslation * cameraRotation;
+	mat4 inv = inverse(cam.ViewMatrix);
+	cam.Eye = vec3(inv.data[11], inv.data[12], inv.data[13]);
 }
 
 ///////////////////////////////////////////////////////////////////////// SETUP
@@ -849,7 +1162,8 @@ GLFWwindow* setup(int major, int minor,
 	//Scene Setup
 	createSceneGraph(cam);
 
-	
+	Loader* load = new Loader(scenegraph);
+	//load->updateState();
 
 	return win;
 }
@@ -896,7 +1210,7 @@ void run(GLFWwindow* win)
 int main(int argc, char* argv[])
 {
 	int gl_major = 4, gl_minor = 3;
-	int is_fullscreen = 1;
+	int is_fullscreen = 0;
 	int is_vsync = 1;
 	GLFWwindow* win = setup(gl_major, gl_minor,
 		screenWidth, screenHeight, "Interactive Solar System", is_fullscreen, is_vsync);

@@ -105,6 +105,7 @@ struct mat4 {
 	void clean();
 	float determinant() const;
 	friend mat4 transpose(const mat4& m);
+	friend mat4 inverse(const mat4& m);
 	mat4& operator=(const mat4& m);
 	mat4& operator+=(const mat4& m);
 	mat4& operator-=(const mat4& m);

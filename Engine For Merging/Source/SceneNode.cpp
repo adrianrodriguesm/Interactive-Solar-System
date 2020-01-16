@@ -71,6 +71,11 @@ void SceneNode::setShader(Shader* s) {
 	this->shader = s;
 }
 
+void SceneNode::setName(std::string name)
+{
+	this->name = name;
+}
+
 void SceneNode::setParent(SceneNode* parent) {
 	this->parent = parent;
 }

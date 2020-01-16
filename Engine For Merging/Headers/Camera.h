@@ -20,5 +20,6 @@ public:
 
 	void update();
 	void update(vec3 eye, vec3 center, vec3 up);
+
 };
 

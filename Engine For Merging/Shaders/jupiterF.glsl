@@ -51,7 +51,7 @@ void main(void)
     mat2 rot = rotate2d(radians(90.0));
     
     //AMBIENT LIGHT
-    float ambientStrength = 0.2f;
+    float ambientStrength = 0.1f;
     vec4 ambientLight = lightColor * ambientStrength * attenuationValue;
     
     //DIFFUSE LIGHT
@@ -59,7 +59,7 @@ void main(void)
     vec4 diffuseLight = lightColor * diff * attenuationValue;
     
     //SPECULAR LIGHT
-    float specularStrength = 0.3;
+    float specularStrength = 0.2;
     vec3 halfwayVector = normalize(lightDirection + viewDir).xyz;
     
     float spec =  pow(max(dot(normal, halfwayVector), 0.0), shininess);
@@ -68,34 +68,35 @@ void main(void)
     
     vec4 firstTexColor = texture(u_Texture, rot * vec2((1.0 - v_TexCoord.x), v_TexCoord.y + sin(rand) / 30.0));
     vec4 secondTexColor = texture(u_Texture,v_TexCoord);
-    vec4 finalColor = mix(firstTexColor, secondTexColor, 0.4) * (ambientLight + diffuseLight +  specularLight);
-    
+    vec4 finalColor = mix(firstTexColor, secondTexColor, 0.4);
     
     
     //COLOR SELECTION
     if(firstTexColor.r < 0.20f && firstTexColor.g < 0.20f && firstTexColor.b < 0.20f)
     {
-        out_Color = mix(finalColor,darkOrange,0.5f); 
+        finalColor = mix(finalColor,darkOrange,0.5f); 
     }
     else if(firstTexColor.r < 0.35f && firstTexColor.g < 0.35f && firstTexColor.b < 0.35f)
     {
-        out_Color = mix(mix(finalColor,orange,0.5f), cream, 0.2);
+        finalColor = mix(mix(finalColor,orange,0.5f), cream, 0.2);
     }
     else if(firstTexColor.r < 0.50f && firstTexColor.g < 0.50f && firstTexColor.b < 0.50f)
     {
-        out_Color = mix(mix(finalColor,chocolate,0.4f), orange, 0.05);
+        finalColor = mix(mix(finalColor,chocolate,0.4f), orange, 0.05);
     }
     else if(firstTexColor.r < 0.70f && firstTexColor.g < 0.70f && firstTexColor.b < 0.70f)
     {
-        out_Color = mix(finalColor,cream,0.4f);
+        finalColor = mix(finalColor,cream,0.4f);
     }
     else if(firstTexColor.r < 0.90f && firstTexColor.g < 0.90f && firstTexColor.b < 0.90f)
     {
-        out_Color = mix(finalColor,brown,0.4f);
+        finalColor = mix(finalColor,brown,0.4f);
     }
     else
     {
-        out_Color = mix(finalColor,darkOrange, 0.3f);
+        finalColor = mix(finalColor,darkOrange, 0.3f);
     }
+    
+    out_Color = finalColor * (ambientLight + diffuseLight +  specularLight);
 
 }

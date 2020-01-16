@@ -74,7 +74,8 @@ void main()
     vec4 diffuseLight = lightColor * diff * attenuationValue;
     
     //SPECULAR LIGHT
-    float specularStrength = 0.3;
+	float water = texture(SpecularMap, texCoord).x; //I added the texture line that returns 0 if land and 1 if water
+    float specularStrength = 0.3 * water;
     vec3 halfwayVector = normalize(lightDirection + viewDir).xyz;
     float spec =  pow(max(dot(normal, halfwayVector), 0.0), shininess);
     vec4 specularLight = lightColor * specularStrength * spec * attenuationValue;
