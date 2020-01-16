@@ -632,31 +632,103 @@ vector<animationObject> animationObjects = vector<animationObject>();
 void createAnimationObjects() {
 
 	//Example on how to set an animationobject:
+
+	//Mercury
+	animationObject mercuryAnimObj = animationObject{
+		mercuryNode,
+		30,
+		17,
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, zAxis),
+		MatrixFactory::createTranslationMat4(vec3(10 + 10,0,0))
+	};
+	animationObjects.push_back(mercuryAnimObj);
+
+	//Venus
+	animationObject venusAnimObj = animationObject{
+		venusNode,
+		25,
+		15,
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, zAxis),
+		MatrixFactory::createTranslationMat4(vec3(10 + 15,0,0))
+	};
+	animationObjects.push_back(venusAnimObj);
+
+	//Mars
+	animationObject marsAnimObj = animationObject{
+	marsNode,
+	22,
+	13,
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, zAxis),
+	MatrixFactory::createTranslationMat4(vec3(10 + 20,0,0))
+	};
+	animationObjects.push_back(marsAnimObj);
+
 	animationObject earthAnimObj = animationObject{
 		earthNode,
 		20,
-		5,
+		11,
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(earthTilt, zAxis),
-		MatrixFactory::createTranslationMat4(vec3(10 + 4,0,0))
+		MatrixFactory::createTranslationMat4(vec3(10 + 25,0,0))
 	};
-
 	animationObjects.push_back(earthAnimObj);
 	////
 
 	//Jupiter:
 	animationObject jupiterAnimObj = animationObject{
 	jupiterNode,
-	5,
+	17,
+	9,
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, zAxis),
+	MatrixFactory::createTranslationMat4(vec3(10 + 30,0,0))
+	};
+
+	animationObjects.push_back(jupiterAnimObj);
+
+	//Saturn:
+	animationObject saturnAnimObj = animationObject{
+	saturnNode,
+	14,
+	7,
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, yAxis),
+	qtrn::qFromAngleAxis(0, zAxis),
+	MatrixFactory::createTranslationMat4(vec3(10 + 35,0,0))
+	};
+	animationObjects.push_back(saturnAnimObj);
+
+	//Uranus
+	animationObject uranusAnimObj = animationObject{
+		uranusNode,
+		11,
+		5,
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, zAxis),
+		MatrixFactory::createTranslationMat4(vec3(10 + 40,0,0))
+	};
+	animationObjects.push_back(uranusAnimObj);
+
+	//Neptune
+	animationObject neptuAnimObj = animationObject{
+	neptuneNode,
+	8,
 	3,
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, zAxis),
-	MatrixFactory::createTranslationMat4(vec3(10 + 10,0,0))
+	MatrixFactory::createTranslationMat4(vec3(10 + 45,0,0))
 	};
-
-	animationObjects.push_back(jupiterAnimObj);
+	animationObjects.push_back(neptuAnimObj);
 }
 
 float animationSpeed = 0.1;
