@@ -141,6 +141,7 @@
     <ClInclude Include="..\..\Headers\Camera.h" />
     <ClInclude Include="..\..\Headers\FlareManager.h" />
     <ClInclude Include="..\..\Headers\FlareTexture.h" />
+    <ClInclude Include="..\..\Headers\Loader.h" />
     <ClInclude Include="..\..\Headers\Matrices.h" />
     <ClInclude Include="..\..\Headers\Mesh.h" />
     <ClInclude Include="..\..\Headers\PerlinNoise.h" />
@@ -158,6 +159,7 @@
     <ClCompile Include="..\..\Source\Bloom.cpp" />
     <ClCompile Include="..\..\Source\Camera.cpp" />
     <ClCompile Include="..\..\Source\FlareManager.cpp" />
+    <ClCompile Include="..\..\Source\Loader.cpp" />
     <ClCompile Include="..\..\Source\Matrices.cpp" />
     <ClCompile Include="..\..\Source\Mesh.cpp" />
     <ClCompile Include="..\..\Source\PerlinNoise.cpp" />
