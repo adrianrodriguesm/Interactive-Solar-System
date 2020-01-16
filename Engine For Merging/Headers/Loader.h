@@ -4,7 +4,8 @@
 struct Loader {
 	SceneGraph* scene;
 	Loader(SceneGraph* scene);
-	std::string file;
+	fstream file;
 
 	void updateState();
+	void readState();
 };

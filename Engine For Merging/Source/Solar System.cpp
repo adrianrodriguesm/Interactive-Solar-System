@@ -15,9 +15,11 @@
 #include "Bloom.h"
 #include "snapshot.h"
 #include "FlareManager.h"
+#include "Loader.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 
 
 
@@ -1160,7 +1162,8 @@ GLFWwindow* setup(int major, int minor,
 	//Scene Setup
 	createSceneGraph(cam);
 
-	
+	Loader* load = new Loader(scenegraph);
+	//load->updateState();
 
 	return win;
 }

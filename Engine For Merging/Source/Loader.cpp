@@ -11,16 +11,22 @@ Loader::Loader(SceneGraph* scene)
 void Loader::updateState()
 {
 	char text[200];
-	fstream file;
+	
 	file.open(".\\..\\..\\FILE\\State.txt", ios::out | ios::in);
 	
 
-	cout << "Camera:" << endl;
+	//cout << "Camera:" << endl;
 	//cin.getline(text, sizeof(text));
 	
 
 	// Writing on file
+	file <<  "View Matrix:" << endl;
 	file << scene->getCamera()->ViewMatrix << endl;
+
+
+	// Writing on file
+	file << "Projection Matrix:" << endl;
+	file << scene->getCamera()->ProjectionMatrix << endl;
 
 	// Reding from file
 	file >> text;
@@ -28,6 +34,12 @@ void Loader::updateState()
 
 	//closing the file
 	file.close();
+}
+
+void Loader::readState()
+{
+	file.open(".\\..\\..\\FILE\\State.txt", ios::in);
+
 }
 
 
