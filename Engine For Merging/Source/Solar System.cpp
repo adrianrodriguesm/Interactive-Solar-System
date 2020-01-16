@@ -613,7 +613,7 @@ void createSceneGraph(Camera& cam) {
 
 
 /////////////////////////////////////////////////////////////////////// ANIMATION
-
+bool animationInProgress = true;
 
 //In the "animationObject" struct we have to fill in all information that is relative to the animation.
 typedef struct {
@@ -659,6 +659,18 @@ void createAnimationObjects() {
 	};
 	animationObjects.push_back(venusAnimObj);
 
+	//Earth
+	animationObject earthAnimObj = animationObject{
+		earthNode,
+		20,
+		11,
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(0, yAxis),
+		qtrn::qFromAngleAxis(earthTilt, zAxis),
+		MatrixFactory::createTranslationMat4(vec3(10 + 20,0,0))
+	};
+	animationObjects.push_back(earthAnimObj);
+
 	//Mars
 	animationObject marsAnimObj = animationObject{
 	marsNode,
@@ -667,21 +679,9 @@ void createAnimationObjects() {
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, zAxis),
-	MatrixFactory::createTranslationMat4(vec3(10 + 20,0,0))
+	MatrixFactory::createTranslationMat4(vec3(10 + 25,0,0))
 	};
 	animationObjects.push_back(marsAnimObj);
-
-	animationObject earthAnimObj = animationObject{
-		earthNode,
-		20,
-		11,
-		qtrn::qFromAngleAxis(0, yAxis),
-		qtrn::qFromAngleAxis(0, yAxis),
-		qtrn::qFromAngleAxis(earthTilt, zAxis),
-		MatrixFactory::createTranslationMat4(vec3(10 + 25,0,0))
-	};
-	animationObjects.push_back(earthAnimObj);
-	////
 
 	//Jupiter:
 	animationObject jupiterAnimObj = animationObject{
@@ -733,7 +733,7 @@ void createAnimationObjects() {
 	animationObjects.push_back(neptuAnimObj);
 }
 
-float animationSpeed = 0.1;
+float animationSpeed = 0.01;
 
 void updateAnimation() {
 	int i = 0;
@@ -782,7 +782,7 @@ void drawSkyBox() {
 
 	skyBoxNode->draw(&cam);
 
-	glDepthFunc(GL_LESS);
+	//glDepthFunc(GL_LESS);
 	glFrontFace(GL_CCW);
 }
 
@@ -814,7 +814,7 @@ void drawLensFlare() {
 }
 
 void drawScene() {
-	updateAnimation();
+	if (animationInProgress) updateAnimation();
 	bloom->bindHDRBuffer();
 	
 	//We have to draw everything but the bloom in here (skybox last for performance reasons):
@@ -868,7 +868,7 @@ void drawScene() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);	
-	//drawLensFlare();
+	drawLensFlare();
 }
 
 /////////////////////////////////////////////////////////////////////// WINDOW CALLBACKS
@@ -986,7 +986,7 @@ void process_keyboard_input(GLFWwindow* win) {
 	);
 	/////////////////////////
 
-	if (keyP) highResu = !highResu; //Change resolution
+	if (keyP) animationInProgress = !animationInProgress; //Change resolution
 }
 
 void mouse_callback(GLFWwindow* win, double xpos, double ypos) {
