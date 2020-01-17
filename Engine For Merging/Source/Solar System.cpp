@@ -346,16 +346,6 @@ void destroyMeshes() {
 //Make a "createYOURShader" function for each of your shaders like this:
 
 void createEarthShader() {
-	earthShader->Load("Displacement_Mapping_vert.glsl", "Displacement_Mapping_frag.glsl"); //  SHADER FILES MUST BE IN SHADER FOLDER !!
-	earthShader->AddAttribute(0, "inPosition");
-	earthShader->AddAttribute(1, "inTexcoord");
-	earthShader->AddAttribute(2, "inNormal");
-	earthShader->AddUniform("ModelMatrix");
-	earthShader->AddUniform("ProjectionMatrix");
-	earthShader->AddUniform("ViewMatrix");
-	earthShader->AddUniform("HeightMap");
-	earthShader->AddUniform("ColorMap");
-	earthShader->Create();
 
 	//Temporary V2 to test specular shading (Victor do your thing! :P )
 	earthShaderV2->Load("Displacement_Mapping_vert_V2.glsl", "Displacement_Mapping_frag_V2.glsl"); //  SHADER FILES MUST BE IN SHADER FOLDER !!
@@ -480,7 +470,7 @@ void createShaders() {
 
 // Also add the delete function for your shader here:
 void deleteShaders() {
-	earthShader->Delete();
+	
 
 	////Bloom
 	bloomShader->Delete();
@@ -1242,7 +1232,6 @@ void mouse_callback(GLFWwindow* win, double xpos, double ypos) {
 	rotQtrn = q1 * q2 * rotQtrn;
 
 
-	mouseChange = true;
 
 
 }
@@ -1269,7 +1258,7 @@ void mouse_button_callback(GLFWwindow* win, int button, int action, int mods) {
 
 void scroll_callback(GLFWwindow* win, double xOffset, double yOffset) {
 	cameraDistance -= yOffset * scrollSensitivity;
-	scrollChange = true;
+	
 }
 
 
