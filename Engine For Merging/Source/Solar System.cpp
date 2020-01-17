@@ -37,10 +37,8 @@ vec4 earthAxis = normalize(yAxis * cos(earthTilt * DEGREES_TO_RADIANS) + xAxis *
 
 //Camera
 const int cameraMaxDistance = 1000;
-bool mouseChange = true; //Boolean for mouse input
-bool scrollChange = true; //Boolean for scroll input
 Camera cam = Camera(vec3(0,0,1), vec3(0,0,0), vec3(0,1,0)); //Initial camera center and up vector
-float cameraDistance = 50;									//Initial camera distance from center defined in the line above
+float cameraDistance = 50;									//Initial camera distance from the center defined in the line above
 mat4 cameraRotation;
 mat4 cameraTranslation;
 mat4 cameraTargetRotation = MatrixFactory::createRoationMat4(0, yAxis);
@@ -84,7 +82,6 @@ Mesh* torusMesh;
 /////////////////
 
 //Declaration of Shaders:
-Shader* earthShader = new Shader();
 Shader* earthShaderV2 = new Shader();
 Shader* bloomShader = new Shader();
 Shader* blurrShader = new Shader();
@@ -196,9 +193,9 @@ void createskyBoxTextures() {
 		skyDir + "bkg1_front.png",
 		skyDir + "bkg1_back.png"
 	};
-
 	skyBoxTex = new Texture(faces);
 }
+
 void createLensTextures() {
 
 	LensTex1 = new Texture("../../Textures/tex10.png");
@@ -241,6 +238,7 @@ void createLensTextures() {
 
 	flareManager = new FlareManager(flareTex, 0.0000000001f);
 }
+
 void createTextures() {
 
 	//Stars
@@ -261,11 +259,6 @@ void createTextures() {
 	EarthClouds = new Texture("../../Textures/Earth/earthcloudmap.jpg");
 	EarthCloudTransparacy = new Texture("../../Textures/Earth/earthcloudmaptrans.jpg");
 
-
-	earthShader->Use();
-	glUniform1i(earthShader->Uniforms["ColorMap"], 0);
-	glUniform1i(earthShader->Uniforms["HeightMap"],1);
-
 	earthShaderV2->Use();
 	glUniform1i(earthShaderV2->Uniforms["ColorMap"], 0);
 	glUniform1i(earthShaderV2->Uniforms["HeightMap"], 1);
@@ -273,7 +266,6 @@ void createTextures() {
 	glUniform1i(earthShaderV2->Uniforms["Clouds"], 3);
 	glUniform1i(earthShaderV2->Uniforms["CloudTransparancy"], 4);
 	glUniform1i(earthShaderV2->Uniforms["NightMap"], 5);
-
 
 	glUseProgram(0);
 	///
