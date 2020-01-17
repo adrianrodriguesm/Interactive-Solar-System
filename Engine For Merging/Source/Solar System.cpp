@@ -1124,39 +1124,16 @@ float shapeMovementX = 0, shapeMovementY = 0;
 float shapeRotation = 0;
 
 void initialize_inputs() {
-	keyW = false;
-	keyD = false;
-	keyS = false;
-	keyA = false;
 	keyR = false;
-	keyP = false;
 	keyG = false;
 	keyE = false;
-	keyQ = false;
 	keyESC = false;
 }
 
 void get_keyboard_input(GLFWwindow* win) {
-	//if (glfwGetKey(win, GLFW_KEY_W) == GLFW_PRESS) { keyW = true; }
-	//else if (glfwGetKey(win, GLFW_KEY_W) == GLFW_RELEASE) { keyW = false; }
-
-	//if (glfwGetKey(win, GLFW_KEY_S) == GLFW_PRESS) { keyS = true; }
-	//else if (glfwGetKey(win, GLFW_KEY_S) == GLFW_RELEASE) { keyS = false; }
-
-	//if (glfwGetKey(win, GLFW_KEY_A) == GLFW_PRESS) { keyA = true; }
-	//else if (glfwGetKey(win, GLFW_KEY_A) == GLFW_RELEASE) { keyA = false; }
-
-	//if (glfwGetKey(win, GLFW_KEY_D) == GLFW_PRESS) { keyD = true; }
-	//else if (glfwGetKey(win, GLFW_KEY_D) == GLFW_RELEASE) { keyD = false; }
 
 	if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_PRESS) { keyESC = true; }
 	else if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_RELEASE) { keyESC = false; }
-
-	if (glfwGetKey(win, GLFW_KEY_Q) == GLFW_PRESS) { keyQ = true; }
-	else if (glfwGetKey(win, GLFW_KEY_Q) == GLFW_RELEASE) { keyQ = false; }
-
-	if (glfwGetKey(win, GLFW_KEY_E) == GLFW_PRESS) { keyE = true; }
-	else if (glfwGetKey(win, GLFW_KEY_E) == GLFW_RELEASE) { keyE = false; }
 
 	//This is a toggle key, it has a timer so that it doesn't "spam" itself when you press it:
 	if ((glfwGetKey(win, GLFW_KEY_P) == GLFW_PRESS) && (timeoutKeyP <= 0)) {
@@ -1168,23 +1145,11 @@ void get_keyboard_input(GLFWwindow* win) {
 		timeoutKeyP = fmaxf(--timeoutKeyP, -0.1f);
 	}
 
-	/////BLOOM
-	/*if (glfwGetKey(win, GLFW_KEY_B) == GLFW_PRESS) { bloom->activateBloom(true); }
-	if (glfwGetKey(win, GLFW_KEY_V) == GLFW_PRESS) { bloom->activateBloom(false); }
-	if (glfwGetKey(win, GLFW_KEY_N) == GLFW_PRESS) { bloom->increaseExpresure(); }
-	if (glfwGetKey(win, GLFW_KEY_M) == GLFW_PRESS) { bloom->decreaseExpresure(); }*/
-
 	//Snapshot. Press Z to create one
 	if (glfwGetKey(win, GLFW_KEY_Z) == GLFW_PRESS) { snapshot->captureSnapshot(); }
 }
 
 void process_keyboard_input(GLFWwindow* win) {
-	if (keyA) shapeMovementX -= movStep;
-	if (keyD) shapeMovementX += movStep;
-	if (keyS) shapeMovementY -= movStep;
-	if (keyW) shapeMovementY += movStep;
-	if (keyQ) shapeRotation -= angStep;
-	if (keyE) shapeRotation += angStep;
 
 	// THIS WILL MOVE THE ENTIRE SOLAR SYSTEM
 	base->setMatrix(
