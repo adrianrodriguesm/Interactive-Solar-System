@@ -35,6 +35,6 @@ void main()
     exFragmentPosition = ViewMatrix * ModelMatrix * vec4(inPosition,1.0f);
     //Light position is calculated in View Space
     exLightPosition = ViewMatrix * lightPosition;
-    //We need the camera position for calculations
+    //We need the camera position for lighting calculations
     exCameraPosition = vec4(0.0f,0.0f,-cameraValue,1.0f); 
 }

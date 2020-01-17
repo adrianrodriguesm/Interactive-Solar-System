@@ -47,7 +47,9 @@ void main(void)
     float attenuationValue = 1.0f / (att.constant + att.linear * distance + 
     		    att.quadratic * (distance * distance)); 
     
+    //Rand created to be used later with a sine function, used to create the strange graffiti effect.
     float rand = random(v_TexCoord);
+    //Rotation matrix, used to rotate texCoords
     mat2 rot = rotate2d(radians(90.0));
     
     //AMBIENT LIGHT
@@ -68,6 +70,7 @@ void main(void)
     
     vec4 firstTexColor = texture(u_Texture, rot * vec2((1.0 - v_TexCoord.x), v_TexCoord.y + sin(rand) / 30.0));
     vec4 secondTexColor = texture(u_Texture,v_TexCoord);
+    //Blending of modified perlin noise texture with original perlin noise texture
     vec4 finalColor = mix(firstTexColor, secondTexColor, 0.4);
     
     

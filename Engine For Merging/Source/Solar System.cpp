@@ -96,7 +96,7 @@ Shader* lensFlareShader = new Shader();
 Bloom* bloom;
 
 //Snapshot 
-Snapshot snapshot;
+Snapshot* snapshot;
 
 ///Loader
 Loader load;
@@ -305,6 +305,7 @@ void createTextures() {
 
 }
 
+//Refactor that's used by all the planets using the BlinnPhong Shader
 void bindTextureToShader(Texture* tex, Shader* shader) 
 {
 	shader->Use();
@@ -328,7 +329,7 @@ void createMeshes() {
 	std::string quadPath = mesh_dir + "quad.obj";
 	quadMesh = new Mesh(quadPath);
 
-	std::string torusPath = mesh_dir + "torusHQ.obj";
+	std::string torusPath = mesh_dir + "torusHQ.obj"; //Torus used for the ring in Saturn
 	torusMesh = new Mesh(torusPath);
 }
 
@@ -504,17 +505,20 @@ void initBloom() {
 	bloom->activateBloom(true);///Activate default
 }
 
+//Sets up attenuation values, point light and light color.
 void lightingSetUp(Shader *shader) 
 {
 	shader->Use();
-	glUniform4f(shader->Uniforms["lightPosition"], 0.0f, 0.0f, 0.0f, 1.0f);
-	glUniform4f(shader->Uniforms["lightColor"], 1.0f,1.0f,1.0f,1.0f);
+	glUniform4f(shader->Uniforms["lightPosition"], 0.0f, 0.0f, 0.0f, 1.0f); //Point light that represents the Sun
+	glUniform4f(shader->Uniforms["lightColor"], 1.0f,1.0f,1.0f,1.0f); // White light
+	//Attenuation values
 	glUniform1f(shader->Uniforms["att.constant"], 1.0f);
 	glUniform1f(shader->Uniforms["att.linear"], 0.0014f);
 	glUniform1f(shader->Uniforms["att.quadratic"], 0.000007f);
 	glUseProgram(0);
 }
 
+//Updates camera position in shaders
 void updateCameraInShader(Shader* shader)
 {
 	shader->Use();
@@ -553,7 +557,6 @@ mat4 skyBoxScale = MatrixFactory::createScaleMat4(vec3(skyBoxSize));
 //Thus helps create the planet's node
 void createPlanetNode(SceneNode* node, Mesh* mesh, Shader* shader, Texture* tex, vec3 translationVector, float scaleValue)
 {
-	
 	node->setMesh(mesh);
 	node->setShader(shader);
 	node->setTexture(tex);
@@ -619,6 +622,7 @@ void createScene(SceneGraph* scenegraph) {
 	base = scenegraph->createNode();
 	base->setName("base");
 	
+	//Skybox
 	skyBoxNode = base->createNode();
 	skyBoxNode->setMesh(skyBoxMesh);
 	skyBoxNode->setShader(skyBoxShader);
@@ -626,6 +630,7 @@ void createScene(SceneGraph* scenegraph) {
 	skyBoxNode->setScaleMatrix(skyBoxScale);
 	skyBoxNode->setName("skyboxNode");
 
+	//Sun
 	sunNode = base->createNode();
 	sunNode->setMesh(sphereMesh);
 	sunNode->setTexture(SunTex);
@@ -634,6 +639,7 @@ void createScene(SceneGraph* scenegraph) {
 	sunNode->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(5)));
 	sunNode->setName("sunNode");
 
+	//Earth
 	earthNode = base->createNode();
 	earthNode->setMesh(sphereMesh);
 	//earthNode->setShader(earthShader);
@@ -642,39 +648,48 @@ void createScene(SceneGraph* scenegraph) {
 	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(20, 0, 0)));
 	earthNode->setName("earthNode");
 
+	//Mercury
 	mercuryNode = base->createNode();
 	createPlanetNode(mercuryNode, sphereMesh, blinnPhongShader, MercuryTex, vec3(10, 0, 0), 0.5f);
 	mercuryNode->setName("mercuryNode");
 
+	//Venus
 	venusNode = base->createNode();
 	createPlanetNode(venusNode, sphereMesh, blinnPhongShader, VenusTex, vec3(15, 0, 0), 0.8f);
 	venusNode->setName("venusNode");
 
+	//Mars
 	marsNode = base->createNode();
 	createPlanetNode(marsNode, sphereMesh, blinnPhongShader, MarsTex, vec3(25, 0, 0), 0.6f);
 	marsNode->setName("marsNode");
 
+	//Jupiter
 	jupiterNode = base->createNode();
 	createPlanetNode(jupiterNode, sphereMesh, jupiterShader, JupiterTex, vec3(30, 0, 0), 2.5f);
 	jupiterNode->setName("jupiterNode");
 
+	//Saturn
 	saturnNode = base->createNode();
 	createPlanetNode(saturnNode, sphereMesh, blinnPhongShader, SaturnTex, vec3(35, 0, 0), 2.0f);
 	saturnNode->setName("saturnNode");
 
+	//Saturn Ring
 	saturnRingNode = saturnNode->createNode();
 	createPlanetNode(saturnRingNode, torusMesh, blinnPhongShader, SaturnRingTex, vec3(0, 0, 0), 1.0f);
 	saturnRingNode->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(0.2f, 0.01f, 0.2f)));
 	saturnRingNode->setName("saturnRingNode");
 
+	//Uranus
 	uranusNode = base->createNode();
 	createPlanetNode(uranusNode, sphereMesh, blinnPhongShader, UranusTex, vec3(40, 0, 0), 1.5f);
 	uranusNode->setName("uranusNode");
 
+	//Neptune
 	neptuneNode = base->createNode();
 	createPlanetNode(neptuneNode, sphereMesh, blinnPhongShader, NeptuneTex, vec3(45, 0, 0), 1.5f);
 	neptuneNode->setName("neptuneNode");
 
+	//Lens Flare
 	lensFlare = base->createNode();
 	lensFlare->setMesh(quadMesh);
 	lensFlare->setShader(lensFlareShader);
@@ -729,7 +744,7 @@ typedef struct {
 	qtrn currentSelfRoation;
 	qtrn currentOrbitRotation;
 	qtrn tilt; 
-	mat4 sunDistance;
+	mat4 sunDistance; //Position relative to the Sun
 	unsigned int stencilId;
 } animationObject;
 ////////////////////////
@@ -1025,32 +1040,34 @@ void drawScene() {
 
 	updateCameraInShader(earthShaderV2);
 	earthNode->draw(&cam);
-	///
-
+	
+	//Jupiter
 	updateCameraInShader(jupiterShader);
 	JupiterTex->Bind(JupiterTex->GetId());
 	jupiterNode->draw(&cam);
 
+	//This update affects all other planets
 	updateCameraInShader(blinnPhongShader);
 
+	//Mercury
 	bindTextureToShader(MercuryTex, blinnPhongShader);
 	mercuryNode->draw(&cam);
-
+	//Venus
 	bindTextureToShader(VenusTex, blinnPhongShader);
 	venusNode->draw(&cam);
-
+	//Mars
 	bindTextureToShader(MarsTex, blinnPhongShader);
 	marsNode->draw(&cam);
-
+	//Saturn
 	bindTextureToShader(SaturnTex, blinnPhongShader);
 	saturnNode->draw(&cam);
-
+	//Saturn Ring
 	bindTextureToShader(SaturnRingTex, blinnPhongShader);
 	saturnRingNode->draw(&cam);
-
+	//Uranus
 	bindTextureToShader(UranusTex, blinnPhongShader);
 	uranusNode->draw(&cam);
-
+	//Neptune
 	bindTextureToShader(NeptuneTex, blinnPhongShader);
 	neptuneNode->draw(&cam);
 
@@ -1127,17 +1144,17 @@ void initialize_inputs() {
 }
 
 void get_keyboard_input(GLFWwindow* win) {
-	if (glfwGetKey(win, GLFW_KEY_W) == GLFW_PRESS) { keyW = true; }
-	else if (glfwGetKey(win, GLFW_KEY_W) == GLFW_RELEASE) { keyW = false; }
+	//if (glfwGetKey(win, GLFW_KEY_W) == GLFW_PRESS) { keyW = true; }
+	//else if (glfwGetKey(win, GLFW_KEY_W) == GLFW_RELEASE) { keyW = false; }
 
-	if (glfwGetKey(win, GLFW_KEY_S) == GLFW_PRESS) { keyS = true; }
-	else if (glfwGetKey(win, GLFW_KEY_S) == GLFW_RELEASE) { keyS = false; }
+	//if (glfwGetKey(win, GLFW_KEY_S) == GLFW_PRESS) { keyS = true; }
+	//else if (glfwGetKey(win, GLFW_KEY_S) == GLFW_RELEASE) { keyS = false; }
 
-	if (glfwGetKey(win, GLFW_KEY_A) == GLFW_PRESS) { keyA = true; }
-	else if (glfwGetKey(win, GLFW_KEY_A) == GLFW_RELEASE) { keyA = false; }
+	//if (glfwGetKey(win, GLFW_KEY_A) == GLFW_PRESS) { keyA = true; }
+	//else if (glfwGetKey(win, GLFW_KEY_A) == GLFW_RELEASE) { keyA = false; }
 
-	if (glfwGetKey(win, GLFW_KEY_D) == GLFW_PRESS) { keyD = true; }
-	else if (glfwGetKey(win, GLFW_KEY_D) == GLFW_RELEASE) { keyD = false; }
+	//if (glfwGetKey(win, GLFW_KEY_D) == GLFW_PRESS) { keyD = true; }
+	//else if (glfwGetKey(win, GLFW_KEY_D) == GLFW_RELEASE) { keyD = false; }
 
 	if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_PRESS) { keyESC = true; }
 	else if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_RELEASE) { keyESC = false; }
@@ -1164,8 +1181,8 @@ void get_keyboard_input(GLFWwindow* win) {
 	if (glfwGetKey(win, GLFW_KEY_N) == GLFW_PRESS) { bloom->increaseExpresure(); }
 	if (glfwGetKey(win, GLFW_KEY_M) == GLFW_PRESS) { bloom->decreaseExpresure(); }*/
 
-	//Snapshot
-	if (glfwGetKey(win, GLFW_KEY_Z) == GLFW_PRESS) { snapshot.captureSnapshot(); }
+	//Snapshot. Press Z to create one
+	if (glfwGetKey(win, GLFW_KEY_Z) == GLFW_PRESS) { snapshot->captureSnapshot(); }
 }
 
 void process_keyboard_input(GLFWwindow* win) {
@@ -1381,7 +1398,7 @@ GLFWwindow* setup(int major, int minor,
 	mouse_initialize(win);
 
 	//Snapshot:
-	snapshot = Snapshot();
+	snapshot = new Snapshot();
 
 	///SceneLoader:
 	load = Loader();
