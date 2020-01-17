@@ -613,8 +613,7 @@ void loadScene() {
 	scenegraph->getCamera()->ViewMatrix = load.Matrices["View"];
 	scenegraph->getCamera()->ProjectionMatrix = load.Matrices["Projection"];
 	cameraDistance = load.camDist;	
-
-	qtrn rotQtrn = qtrn(load.rot.t, load.rot.x, load.rot.y, load.rot.z);
+	
 
 	
 }
@@ -712,6 +711,8 @@ void createSceneGraph(Camera& cam) {
 	// if they don't have a shader assigned to themselves.
 
 	createScene(scenegraph);
+
+	
 }
 
 //////////////////////////////////////////////////////////////////////// LOADER
@@ -1266,6 +1267,10 @@ void mouse_initialize(GLFWwindow* win) {
 
 void mouse_update(GLFWwindow* win) {
 	//cam.ViewMatrix = cameraTranslation * cameraRotation;
+	if (!isEmpty && justOnce) {
+		justOnce = false;
+		rotQtrn = load.rot * rotQtrn;
+	}
 	cameraTranslation = MatrixFactory::createTranslationMat4(vec3(0, 0, cameraDistance));
 	cameraRotation = matrixFromQtrn(rotQtrn);
 
