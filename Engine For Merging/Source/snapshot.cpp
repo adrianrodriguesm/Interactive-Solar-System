@@ -38,18 +38,20 @@ int Snapshot::saveSnapshot(const char* filename)
 
 	char* data = (char*)malloc((size_t)(width * height * 3)); // 3 components (R, G, B)
 	
-	
 	if (!data)
 		return 0;
+	
+	//Necessary in order to get to correct picture.
 	glReadBuffer(GL_FRONT);
+	//Necessary for reading the pixels
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	//We'll read all the pixels from the framebuffer and save them in data.
 	glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
-
+	// This is done toavoid getting the picture upside down
 	flipVertically(width, height, data);
-
+	//We save the picture in a png format.
 	int saved = stbi_write_png(filename, width, height, 3, data, 0);
 
-	
 	free(data);
 
 	return saved;
@@ -60,6 +62,7 @@ const char* Snapshot::createSnapshotBasename()
 	static char basename[30];
 
 	time_t t = time(NULL);
+	//Format is: YearMonthDay_HourMinuteSecond
 	strftime(basename, 30, "%Y%m%d_%H%M%S.png", localtime(&t));
 
 	return basename;

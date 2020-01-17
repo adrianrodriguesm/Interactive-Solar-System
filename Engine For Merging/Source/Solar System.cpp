@@ -91,7 +91,7 @@ Shader* lensFlareShader = new Shader();
 ///Bloom
 Bloom* bloom;
 
-//Snapshot 
+//Snapshot
 Snapshot* snapshot;
 
 ///Loader
@@ -302,7 +302,7 @@ void createTextures() {
 }
 
 //Refactor that's used by all the planets using the BlinnPhong Shader
-void bindTextureToShader(Texture* tex, Shader* shader) 
+void bindTextureToShader(Texture* tex, Shader* shader)
 {
 	shader->Use();
 	tex->Bind(tex->GetId());
@@ -402,7 +402,7 @@ void createBloomShader() {
 	bloomMergeShader->Create();
 }
 
-void createJupiterShader() 
+void createJupiterShader()
 {
 	jupiterShader->Load("jupiterV.glsl", "jupiterF.glsl");
 	jupiterShader->AddAttribute(0, "in_Position");
@@ -464,7 +464,7 @@ void createShaders() {
 
 // Also add the delete function for your shader here:
 void deleteShaders() {
-	earthShader->Delete();
+
 
 	////Bloom
 	bloomShader->Delete();
@@ -490,7 +490,7 @@ void initBloom() {
 }
 
 //Sets up attenuation values, point light and light color.
-void lightingSetUp(Shader *shader) 
+void lightingSetUp(Shader *shader)
 {
 	shader->Use();
 	glUniform4f(shader->Uniforms["lightPosition"], 0.0f, 0.0f, 0.0f, 1.0f); //Point light that represents the Sun
@@ -591,21 +591,21 @@ void loadScene() {
 
 	scenegraph->getCamera()->ViewMatrix = load.Matrices["View"];
 	scenegraph->getCamera()->ProjectionMatrix = load.Matrices["Projection"];
-	cameraDistance = load.camDist;	
-	
+	cameraDistance = load.camDist;
 
-	
+
+
 }
 /////////////////////////////////////////////////////////////////
 
 void createScene(SceneGraph* scenegraph) {
-	
+
 	lightingSetUp(jupiterShader);
 	lightingSetUp(earthShader);
 	lightingSetUp(blinnPhongShader);
 	base = scenegraph->createNode();
 	base->setName("base");
-	
+
 	//Skybox
 	skyBoxNode = base->createNode();
 	skyBoxNode->setMesh(skyBoxMesh);
@@ -697,12 +697,12 @@ void createSceneGraph(Camera& cam) {
 	SceneNode* n = scenegraph->getRoot();
 	//////////////////////
 
-	// n->setShader(&earthShader); //Set the base shader here (if any). The child nodes will use the parent's shader 
+	// n->setShader(&earthShader); //Set the base shader here (if any). The child nodes will use the parent's shader
 	// if they don't have a shader assigned to themselves.
 
 	createScene(scenegraph);
 
-	
+
 }
 
 //////////////////////////////////////////////////////////////////////// LOADER
@@ -726,14 +726,14 @@ typedef struct {
 	float orbitSpeed;			//The speed of its orbit around the sun
 	qtrn currentSelfRoation;
 	qtrn currentOrbitRotation;
-	qtrn tilt; 
+	qtrn tilt;
 	mat4 sunDistance;			//Distance relative to the Sun
 	unsigned int stencilId;		//Stencil ID for identification
 } animationObject;
 ////////////////////////
 
 //We have to fill this vector with animationObjects when we create the sceneNodes:
-vector<animationObject> animationObjects = vector<animationObject>(); 
+vector<animationObject> animationObjects = vector<animationObject>();
 ////////////////////////
 
 void createAnimationObjects() {
@@ -944,8 +944,8 @@ void drawLensFlare() {
 		}
 
 	}
-	
-	
+
+
 }
 
 //We are drawing the 'real' scene to the HDR buffer so we need to an extra draw to the main framebuffer in which we store the stencil buffer results
@@ -1003,7 +1003,7 @@ void drawScene() {
 	drawStencilBuffer();
 
 	bloom->bindHDRBuffer();
-	
+
 	//We have to draw everything but the bloom in here (skybox last for performance reasons):
 
 	//Earth
@@ -1025,7 +1025,7 @@ void drawScene() {
 
 	updateCameraInShader(earthShader);
 	earthNode->draw(&cam);
-	
+
 	//Jupiter
 	updateCameraInShader(jupiterShader);
 	JupiterTex->Bind(JupiterTex->GetId());
@@ -1064,8 +1064,11 @@ void drawScene() {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
-	bloom->combineProcess(bloomMergeShader);	
-	drawLensFlare();
+	bloom->combineProcess(bloomMergeShader);
+	if (stencilId == 0) {
+		drawLensFlare();
+	}
+
 }
 
 /////////////////////////////////////////////////////////////////////// WINDOW CALLBACKS
@@ -1117,11 +1120,11 @@ void get_keyboard_input(GLFWwindow* win) {
 
 	// Pause / Unpause animation with P :
 	if ((glfwGetKey(win, GLFW_KEY_P) == GLFW_PRESS) && (timeoutKeyP <= 0)) {
-		animationInProgress = !animationInProgress; 
+		animationInProgress = !animationInProgress;
 		timeoutKeyP = 10;
 	}
 	else {
-		timeoutKeyP = fmaxf(--timeoutKeyP, -0.1f);	
+		timeoutKeyP = fmaxf(--timeoutKeyP, -0.1f);
 	}
 
 	// Focus on the sun with Backspace: (Using the same timer as the pause to save time and resources and its no problem)
@@ -1149,7 +1152,7 @@ void mouse_callback(GLFWwindow* win, double xpos, double ypos) {
 	//
 
 	//Only register changes to camera angle if the mouse button is held down:
-	if (!mouseClicked) { 
+	if (!mouseClicked) {
 		firstMouseCall = true;
 		return;
 	}
@@ -1208,12 +1211,15 @@ void mouse_update(GLFWwindow* win) {
 	if (!isEmpty && justOnce) {
 		justOnce = false;
 		rotQtrn = load.rot * rotQtrn;
+		cameraTargetTranslation = load.Matrices["camTargetTrans"];
+		cameraTargetRotation = load.Matrices["camTargetRot"];
+		stencilId = load.stencilId;
 	}
 	cameraTranslation = MatrixFactory::createTranslationMat4(vec3(0, 0, cameraDistance));
 	cameraRotation = matrixFromQtrn(rotQtrn);
 
 	if (stencilId == 0) cameraTargetTranslation = cameraTargetRotation = mat4(1);//i.e. We are looking at the sun
-	
+
 	//Move the camera eye and center along with the planet that is being focused:
 	//cameraTargetTranslation and Roation are being calculated in the update animation function
 	cam.Eye = vec3(cameraTargetRotation * cameraTargetTranslation * cameraRotation * cameraTranslation * vec4(0, 0, 0, 1));
@@ -1276,7 +1282,7 @@ GLFWwindow* setupGLFW(int gl_major, int gl_minor,
 void setupGLEW()
 {
 	glewExperimental = GL_TRUE;
-	// Allow extension entry points to be loaded even if the extension isn't 
+	// Allow extension entry points to be loaded even if the extension isn't
 	// present in the driver's extensions string.
 	GLenum result = glewInit();
 	if (result != GLEW_OK)
@@ -1343,7 +1349,7 @@ GLFWwindow* setup(int major, int minor,
 	createShaders();
 	//Texture:
 	createTextures();
-	
+
 	//Scene Setup
 	createSceneGraph(cam);
 
@@ -1384,7 +1390,7 @@ void run(GLFWwindow* win)
 	}
 	std::cout << "Saving the scene...." << std::endl;
 	////Save the last state of the scene
-	load.updateState(scenegraph, cameraDistance, rotQtrn);
+	load.updateState(scenegraph, cameraDistance, rotQtrn, cameraTargetRotation,cameraTargetTranslation,stencilId);
 	//////////
 	glfwDestroyWindow(win);
 	glfwTerminate();

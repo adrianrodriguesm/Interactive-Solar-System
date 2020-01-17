@@ -10,8 +10,9 @@ struct Loader {
 	Loader();
 	float camDist;
 	qtrn rot;
+	mat4 camTargetRot; mat4 camTargetTrans; int stencilId;
 
-	void updateState(SceneGraph* scene, float camDistance, qtrn rot);
+	void updateState(SceneGraph* scene, float camDistance, qtrn rot, mat4 camTargetRot, mat4 camTargetTrans, int stencilId);
 	void readState();
 	bool is_empty();
 
