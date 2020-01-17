@@ -575,7 +575,7 @@ void loadScene() {
 	mat4 identity = MatrixFactory::createIdentityMat4();
 	base->setMatrix(load.Matrices["base"]);
 
-	skyBoxNode->setMatrix(load.Matrices["skyBoxNode"]);
+	skyBoxNode->setMatrix(load.Matrices["skyboxNode"]);
 	skyBoxNode->setScaleMatrix(identity);
 
 	sunNode->setMatrix(load.Matrices["sunNode"]);
