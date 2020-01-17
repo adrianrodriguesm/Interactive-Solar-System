@@ -10,7 +10,7 @@ Bloom::Bloom()
 	:hdrFBO(0), colorBuffers(), pingpongFBO(), pingpongColorbuffers(), horizontal(true),
 	first_iteration(true), bloom(false), quadVAO(0), quadVBO(0)
 {
-
+	
 }
 
 
@@ -122,12 +122,11 @@ void Bloom::combineProcess(Shader* shaderBloomFinal)
 	//this->bloom = true;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	shaderBloomFinal->Use();
-
 	glActiveTexture(GL_TEXTURE10);
 	glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
 	glActiveTexture(GL_TEXTURE11);
 	glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
-
+	exposure = -0.00999933f;
 	glUniform1i(shaderBloomFinal->Uniforms["scene"], 10);
 	glUniform1i(shaderBloomFinal->Uniforms["bloomBlur"], 11);
 	//glUniform1i(shaderBloomFinal->Uniforms["bloom"], bloom);

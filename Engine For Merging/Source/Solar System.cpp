@@ -933,7 +933,10 @@ void drawLensFlare() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	if (cameraDistance > 0) {
-		flareManager->render(&cam, vec4(0, 0, 0.9f, 1));
+		/*vec4 flare = scenegraph->getCamera()->ProjectionMatrix * scenegraph->getCamera()->ViewMatrix * vec4(0, 0, -0.9f, 1);
+		flare.w = 1.0f;
+		std::cout << flare << std::endl;*/
+		flareManager->render(&cam, vec4(0, 0, -0.9f, 1));
 
 		for (int i = 0; i < 6; i++)
 		{
@@ -1163,10 +1166,10 @@ void get_keyboard_input(GLFWwindow* win) {
 	}
 
 	/////BLOOM
-	if (glfwGetKey(win, GLFW_KEY_B) == GLFW_PRESS) { bloom->activateBloom(true); }
+	/*if (glfwGetKey(win, GLFW_KEY_B) == GLFW_PRESS) { bloom->activateBloom(true); }
 	if (glfwGetKey(win, GLFW_KEY_V) == GLFW_PRESS) { bloom->activateBloom(false); }
 	if (glfwGetKey(win, GLFW_KEY_N) == GLFW_PRESS) { bloom->increaseExpresure(); }
-	if (glfwGetKey(win, GLFW_KEY_M) == GLFW_PRESS) { bloom->decreaseExpresure(); }
+	if (glfwGetKey(win, GLFW_KEY_M) == GLFW_PRESS) { bloom->decreaseExpresure(); }*/
 
 	//Snapshot
 	if (glfwGetKey(win, GLFW_KEY_Z) == GLFW_PRESS) { snapshot.captureSnapshot(); }
