@@ -49,6 +49,24 @@ void SceneNode::draw(Camera* cam) {
 	}
 }
 
+void SceneNode::writeNodeInFile(fstream& file, std::map<std::string, mat4>& Matrixes)
+{
+	mat4 totalMatrix;
+
+	totalMatrix = this->modelMatrix * this->scaleMatrix;
+
+
+	file << this->name << endl;
+
+	file << totalMatrix << endl;
+
+	Matrixes.insert(std::pair< std::string, mat4>(name, totalMatrix));
+
+	for (SceneNode* child : children) {
+		child->writeNodeInFile(file, Matrixes);
+	}
+}
+
 void SceneNode::setMesh(Mesh* m) {
 	this->mesh = m;
 }

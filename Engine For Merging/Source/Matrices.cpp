@@ -631,10 +631,10 @@ const vec4 operator*(const mat4& m, const vec4& v) {
 }
 
 std::ostream& operator<<(std::ostream& os, const mat4 m) {
-	os << "|" << std::to_string(m.data[0]) << "  " << std::to_string(m.data[1]) << "  " << std::to_string(m.data[2]) << "  " << std::to_string(m.data[3]) << "|" << std::endl
-		<< "|" << std::to_string(m.data[4]) << "  " << std::to_string(m.data[5]) << "  " << std::to_string(m.data[6]) << "  " << std::to_string(m.data[7]) << "|" << std::endl
-		<< "|" << std::to_string(m.data[8]) << "  " << std::to_string(m.data[9]) << "  " << std::to_string(m.data[10]) << "  " << std::to_string(m.data[11]) << "|" << std::endl
-		<< "|" << std::to_string(m.data[12]) << "  " << std::to_string(m.data[13]) << "  " << std::to_string(m.data[14]) << "  " << std::to_string(m.data[15]) << "|" << std::endl;
+	os << std::to_string(m.data[0]) << " " << std::to_string(m.data[1]) << " " << std::to_string(m.data[2]) << " " << std::to_string(m.data[3]) << std::endl
+		<< std::to_string(m.data[4]) << " " << std::to_string(m.data[5]) << " " << std::to_string(m.data[6]) << " " << std::to_string(m.data[7]) << std::endl
+		<< std::to_string(m.data[8]) << " " << std::to_string(m.data[9]) << " " << std::to_string(m.data[10]) << " " << std::to_string(m.data[11]) << std::endl
+		<< std::to_string(m.data[12]) << " " << std::to_string(m.data[13]) << " " << std::to_string(m.data[14]) << " " << std::to_string(m.data[15]) << std::endl;
 	return os;
 }
 

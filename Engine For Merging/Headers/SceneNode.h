@@ -32,6 +32,7 @@ public:
 	vec4 worldPosition;
 
 	void draw(Camera* cam);
+	void writeNodeInFile(fstream& file, std::map<std::string, mat4>& Matrixes);
 
 	void setMesh(Mesh* m);
 	void setTexture(Texture* t);

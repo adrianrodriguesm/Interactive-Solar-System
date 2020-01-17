@@ -2,10 +2,23 @@
 #include "Scenegraph.h"
 
 struct Loader {
-	SceneGraph* scene;
-	Loader(SceneGraph* scene);
-	fstream file;
 
-	void updateState();
+
+	fstream file;
+	std::map<std::string, mat4> Matrices;
+
+	Loader();
+	float camDist;
+	qtrn rot;
+
+	void updateState(SceneGraph* scene, float camDistance, qtrn rot);
 	void readState();
+	bool is_empty();
+
+
+private:
+	float* insertMatrixValues(std::string text, float data[16], int& index);
+
+	void loadMatrices(std::string tex);
+
 };

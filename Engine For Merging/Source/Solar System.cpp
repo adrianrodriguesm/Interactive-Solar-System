@@ -101,6 +101,12 @@ Bloom* bloom;
 //Snapshot 
 Snapshot snapshot;
 
+///Loader
+Loader load;
+bool isEmpty = false;
+bool justOnce = true;
+void rebootAnin();
+
 ///Stencil buffer id's
 unsigned int stencilId = 0;
 
@@ -233,7 +239,7 @@ void createLensTextures() {
 	flare6->tex = LensTex3;
 	flareTex[5] = flare6;
 
-	flareManager = new FlareManager(flareTex, 0.2f);
+	flareManager = new FlareManager(flareTex, 0.0000000001f);
 }
 void createTextures() {
 
@@ -563,18 +569,71 @@ void createPlanetNode(SceneNode* node, Mesh* mesh, Shader* shader, Texture* tex,
 	node->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(scaleValue)));
 }
 
+////////////////////////////////////////////////LOADER
+void loadScene() {
+	load.readState();
+	mat4 identity = MatrixFactory::createIdentityMat4();
+	base->setMatrix(load.Matrices["base"]);
+
+	skyBoxNode->setMatrix(load.Matrices["skyBoxNode"]);
+	skyBoxNode->setScaleMatrix(identity);
+
+	sunNode->setMatrix(load.Matrices["sunNode"]);
+	sunNode->setScaleMatrix(identity);
+
+	earthNode->setMatrix(load.Matrices["earthNode"]);
+	earthNode->setScaleMatrix(identity);
+
+	mercuryNode->setMatrix(load.Matrices["mercuryNode"]);
+	mercuryNode->setScaleMatrix(identity);
+
+	venusNode->setMatrix(load.Matrices["venusNode"]);
+	venusNode->setScaleMatrix(identity);
+
+	marsNode->setMatrix(load.Matrices["marsNode"]);
+	marsNode->setScaleMatrix(identity);
+
+	jupiterNode->setMatrix(load.Matrices["jupiterNode"]);
+	jupiterNode->setScaleMatrix(identity);
+
+	saturnNode->setMatrix(load.Matrices["saturnNode"]);
+	saturnNode->setScaleMatrix(identity);
+
+	saturnRingNode->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(0.1f, 0.005f, 0.1f)));
+
+	uranusNode->setMatrix(load.Matrices["uranusNode"]);
+	uranusNode->setScaleMatrix(identity);
+
+	neptuneNode->setMatrix(load.Matrices["neptuneNode"]);
+	neptuneNode->setScaleMatrix(identity);
+
+	lensFlare->setMatrix(load.Matrices["lensFlare"]);
+	lensFlare->setScaleMatrix(identity);
+
+	scenegraph->getCamera()->ViewMatrix = load.Matrices["View"];
+	scenegraph->getCamera()->ProjectionMatrix = load.Matrices["Projection"];
+	cameraDistance = load.camDist;	
+
+	qtrn rotQtrn = qtrn(load.rot.t, load.rot.x, load.rot.y, load.rot.z);
+
+	
+}
+/////////////////////////////////////////////////////////////////
+
 void createScene(SceneGraph* scenegraph) {
 	
 	lightingSetUp(jupiterShader);
 	lightingSetUp(earthShaderV2);
 	lightingSetUp(blinnPhongShader);
 	base = scenegraph->createNode();
+	base->setName("base");
 	
 	skyBoxNode = base->createNode();
 	skyBoxNode->setMesh(skyBoxMesh);
 	skyBoxNode->setShader(skyBoxShader);
 	skyBoxNode->setTexture(skyBoxTex);
 	skyBoxNode->setScaleMatrix(skyBoxScale);
+	skyBoxNode->setName("skyboxNode");
 
 	sunNode = base->createNode();
 	sunNode->setMesh(sphereMesh);
@@ -582,6 +641,7 @@ void createScene(SceneGraph* scenegraph) {
 	sunNode->setShader(bloomShader);
 	sunNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(0, 0, 0)));
 	sunNode->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(5)));
+	sunNode->setName("sunNode");
 
 	earthNode = base->createNode();
 	earthNode->setMesh(sphereMesh);
@@ -589,37 +649,54 @@ void createScene(SceneGraph* scenegraph) {
 	earthNode->setShader(earthShaderV2);
 	earthNode->setTexture(EarthColorMapLowResu);
 	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(20, 0, 0)));
+	earthNode->setName("earthNode");
 
 	mercuryNode = base->createNode();
 	createPlanetNode(mercuryNode, sphereMesh, blinnPhongShader, MercuryTex, vec3(10, 0, 0), 0.5f);
+	mercuryNode->setName("mercuryNode");
 
 	venusNode = base->createNode();
 	createPlanetNode(venusNode, sphereMesh, blinnPhongShader, VenusTex, vec3(15, 0, 0), 0.8f);
+	venusNode->setName("venusNode");
 
 	marsNode = base->createNode();
 	createPlanetNode(marsNode, sphereMesh, blinnPhongShader, MarsTex, vec3(25, 0, 0), 0.6f);
+	marsNode->setName("marsNode");
 
 	jupiterNode = base->createNode();
 	createPlanetNode(jupiterNode, sphereMesh, jupiterShader, JupiterTex, vec3(30, 0, 0), 2.5f);
+	jupiterNode->setName("jupiterNode");
 
 	saturnNode = base->createNode();
 	createPlanetNode(saturnNode, sphereMesh, blinnPhongShader, SaturnTex, vec3(35, 0, 0), 2.0f);
+	saturnNode->setName("saturnNode");
 
 	saturnRingNode = saturnNode->createNode();
 	createPlanetNode(saturnRingNode, torusMesh, blinnPhongShader, SaturnRingTex, vec3(0, 0, 0), 1.0f);
 	saturnRingNode->setScaleMatrix(MatrixFactory::createScaleMat4(vec3(0.2f, 0.01f, 0.2f)));
+	saturnRingNode->setName("saturnRingNode");
 
 	uranusNode = base->createNode();
 	createPlanetNode(uranusNode, sphereMesh, blinnPhongShader, UranusTex, vec3(40, 0, 0), 1.5f);
+	uranusNode->setName("uranusNode");
 
 	neptuneNode = base->createNode();
 	createPlanetNode(neptuneNode, sphereMesh, blinnPhongShader, NeptuneTex, vec3(45, 0, 0), 1.5f);
+	neptuneNode->setName("neptuneNode");
 
 	lensFlare = base->createNode();
 	lensFlare->setMesh(quadMesh);
 	lensFlare->setShader(lensFlareShader);
+	lensFlare->setName("lensFlare");
+
+	if (!isEmpty) {
+		loadScene();
+	}
 
 	createAnimationObjects();
+	if (!isEmpty) {
+		rebootAnin();
+	}
 }
 
 void createSceneGraph(Camera& cam) {
@@ -637,6 +714,16 @@ void createSceneGraph(Camera& cam) {
 	createScene(scenegraph);
 }
 
+//////////////////////////////////////////////////////////////////////// LOADER
+void checkInformation() {
+	isEmpty = load.is_empty();
+	if (isEmpty) {
+		std::cout << "You don't any information saved. Loading scene...." << std::endl;
+	}
+	else {
+		std::cout << "Loading scene..." << std::endl;
+	}
+}
 
 /////////////////////////////////////////////////////////////////////// ANIMATION
 bool animationInProgress = true;
@@ -797,6 +884,19 @@ void updateAnimation() {
 			cameraTargetRotation = orbitRot;
 		}
 		//
+
+		//Update the actual animation object with the copy:
+		animationObjects[i] = obj;
+		i++;
+	}
+}
+
+//////LOADER
+void rebootAnin() {
+	int i = 0;
+	for (animationObject obj : animationObjects) {
+
+		obj.sunDistance = obj.node->getMatrix();
 
 		//Update the actual animation object with the copy:
 		animationObjects[i] = obj;
@@ -1283,6 +1383,10 @@ GLFWwindow* setup(int major, int minor,
 	//Snapshot:
 	snapshot = Snapshot();
 
+	///SceneLoader:
+	load = Loader();
+	checkInformation();
+
 	///Init Bloom frameBuffers:
 	initBloom();
 	//Meshes:
@@ -1294,9 +1398,6 @@ GLFWwindow* setup(int major, int minor,
 	
 	//Scene Setup
 	createSceneGraph(cam);
-
-	Loader* load = new Loader(scenegraph);
-	//load->updateState();
 
 	return win;
 }
@@ -1334,6 +1435,10 @@ void run(GLFWwindow* win)
 		glfwSwapBuffers(win);
 		glfwPollEvents();
 	}
+	std::cout << "Saving the scene...." << std::endl;
+	////Save the last state of the scene
+	load.updateState(scenegraph, cameraDistance, rotQtrn);
+	//////////
 	glfwDestroyWindow(win);
 	glfwTerminate();
 }
