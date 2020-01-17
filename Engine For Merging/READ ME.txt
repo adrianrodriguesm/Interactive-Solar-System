@@ -5,10 +5,11 @@ Camera movement:
 -Scroll to zoom.
 -Double click on a planet to focus on it.
 
-Snapshot: z
+Snapshot: 
+-z to take picture
 
 Animation:
-P = animate between figure and square 
+P to play/stop animation
 
 Exit:
 ESC - closes app
