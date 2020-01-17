@@ -28,6 +28,9 @@ public:
 
 	SceneNode();
 	SceneNode* createNode();
+
+	vec4 worldPosition;
+
 	void draw(Camera* cam);
 
 	void setMesh(Mesh* m);

@@ -175,6 +175,8 @@
     <ClCompile Include="..\..\Source\Vectors.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Shaders\blinnPhongF.glsl" />
+    <None Include="..\..\Shaders\blinnPhongV.glsl" />
     <None Include="..\..\Shaders\bloomF.glsl" />
     <None Include="..\..\Shaders\bloomFinalF.glsl" />
     <None Include="..\..\Shaders\bloomFinalV.glsl" />
@@ -188,6 +190,8 @@
     <None Include="..\..\Shaders\flareF.glsl" />
     <None Include="..\..\Shaders\flareV.glsl" />
     <None Include="..\..\Shaders\fShader_basic.glsl" />
+    <None Include="..\..\Shaders\jupiterF.glsl" />
+    <None Include="..\..\Shaders\jupiterV.glsl" />
     <None Include="..\..\Shaders\Skybox_frag.glsl" />
     <None Include="..\..\Shaders\Skybox_vert.glsl" />
     <None Include="..\..\Shaders\vShader_basic.glsl" />

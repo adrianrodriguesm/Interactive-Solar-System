@@ -15,10 +15,10 @@ Camera::Camera(vec3 eye, vec3 center, vec3 up) {
 }
 
 void Camera::update() {
-	ViewMatrix = MatrixFactory::createViewMatrix(Eye, Center, Up);
 	View = normalize(Center - Eye);
 	Right = normalize(Cross(View, Up));
 	Up = normalize(Cross(Right, View));
+	ViewMatrix = MatrixFactory::createViewMatrix(Eye, Center, Up);
 }
 
 void Camera::update(vec3 eye, vec3 center, vec3 up) {

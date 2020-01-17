@@ -27,8 +27,8 @@
 
 //General
 const float earthTilt = 23.5;
-int screenWidth = 1920;
-int screenHeight = 1080;
+int screenWidth = 1920/2;
+int screenHeight = 1080/2;
 float aspect = (float)screenWidth / screenHeight;
 vec4 xAxis = vec4(1, 0, 0, 1);
 vec4 yAxis = vec4(0, 1, 0, 1);
@@ -40,16 +40,21 @@ const int cameraMaxDistance = 1000;
 bool mouseChange = true; //Boolean for mouse input
 bool scrollChange = true; //Boolean for scroll input
 Camera cam = Camera(vec3(0,0,1), vec3(0,0,0), vec3(0,1,0)); //Initial camera center and up vector
-float cameraDistance = 20;									//Initial camera distance from center defined in the line above
+float cameraDistance = 50;									//Initial camera distance from center defined in the line above
 mat4 cameraRotation;
 mat4 cameraTranslation;
+mat4 cameraTargetRotation = MatrixFactory::createRoationMat4(0, yAxis);
+mat4 cameraTargetTranslation = MatrixFactory::createTranslationMat4(vec3(0));
 
 //Declaration of Textures:
 Texture* EarthColorMapLowResu;
 Texture* EarthColorMapHighResu;
-Texture* EarthHeightMapLowResu;
-Texture* EarthHeightMapHighResu;
+Texture* EarthHeightMap;
 Texture* EarthSpecularMap;
+Texture* EarthClouds;
+Texture* EarthCloudTransparacy;
+Texture* EarthNightHighResu;
+Texture* EarthNightLowResu;
 Texture* SunTex;
 Texture* skyBoxTex;
 Texture* JupiterTex;
@@ -95,6 +100,19 @@ Bloom* bloom;
 
 //Snapshot 
 Snapshot snapshot;
+
+///Stencil buffer id's
+unsigned int stencilId = 0;
+
+#define MERCURY 1
+#define VENUS 2
+#define EARTH 3
+#define MARS 4
+#define JUPITER 5
+#define SATURN 6
+#define URANUS 7
+#define NEPTUN 8
+
 ////////////////////////////////////////////////// ERROR CALLBACK (OpenGL 4.3+)
 
 static const std::string errorSource(GLenum source)
@@ -228,15 +246,15 @@ void createTextures() {
 
 	//Earth
 	EarthColorMapLowResu = new Texture("../../Textures/Earth/earthmap1k.jpg");
-	EarthHeightMapLowResu = new Texture("../../Textures/Earth/earthbump1k.jpg");
-	//EarthColorMapHighResu = new Texture("../../Textures/Earth/earthmap2k.jpg");
-	EarthHeightMapHighResu = new Texture("../../Textures/Earth/earthbump2k.jpg");
+	EarthColorMapHighResu = new Texture("../../Textures/Earth/earthmap4k.jpg");
+	EarthNightHighResu = new Texture("../../Textures/Earth/earthlights4k.jpg");
+	EarthNightLowResu = new Texture("../../Textures/Earth/earthlights1k.jpg");
 
-	//test
-	EarthColorMapHighResu = new Texture("../../Textures/yellow.jpg");
-	//
-
+	EarthHeightMap = new Texture("../../Textures/Earth/earthbump1k.jpg");
 	EarthSpecularMap = new Texture("../../Textures/Earth/earthspec1k.jpg");
+	EarthClouds = new Texture("../../Textures/Earth/earthcloudmap.jpg");
+	EarthCloudTransparacy = new Texture("../../Textures/Earth/earthcloudmaptrans.jpg");
+
 
 	earthShader->Use();
 	glUniform1i(earthShader->Uniforms["ColorMap"], 0);
@@ -246,6 +264,11 @@ void createTextures() {
 	glUniform1i(earthShaderV2->Uniforms["ColorMap"], 0);
 	glUniform1i(earthShaderV2->Uniforms["HeightMap"], 1);
 	glUniform1i(earthShaderV2->Uniforms["SpecularMap"], 2);
+	glUniform1i(earthShaderV2->Uniforms["Clouds"], 3);
+	glUniform1i(earthShaderV2->Uniforms["CloudTransparancy"], 4);
+	glUniform1i(earthShaderV2->Uniforms["NightMap"], 5);
+
+
 	glUseProgram(0);
 	///
 
@@ -347,6 +370,9 @@ void createEarthShader() {
 	earthShaderV2->AddUniform("HeightMap");
 	earthShaderV2->AddUniform("ColorMap");
 	earthShaderV2->AddUniform("SpecularMap");
+	earthShaderV2->AddUniform("Clouds");
+	earthShaderV2->AddUniform("CloudTransparancy");
+	earthShaderV2->AddUniform("NightMap");
 
 	earthShaderV2->AddUniform("lightPosition");
 	earthShaderV2->AddUniform("cameraValue");
@@ -486,8 +512,8 @@ void lightingSetUp(Shader *shader)
 	glUniform4f(shader->Uniforms["lightPosition"], 0.0f, 0.0f, 0.0f, 1.0f);
 	glUniform4f(shader->Uniforms["lightColor"], 1.0f,1.0f,1.0f,1.0f);
 	glUniform1f(shader->Uniforms["att.constant"], 1.0f);
-	glUniform1f(shader->Uniforms["att.linear"], 0.014f);
-	glUniform1f(shader->Uniforms["att.quadratic"], 0.0007f);
+	glUniform1f(shader->Uniforms["att.linear"], 0.0014f);
+	glUniform1f(shader->Uniforms["att.quadratic"], 0.00007f);
 	glUseProgram(0);
 }
 
@@ -624,6 +650,7 @@ typedef struct {
 	qtrn currentOrbitRotation;
 	qtrn tilt; 
 	mat4 sunDistance;
+	unsigned int stencilId;
 } animationObject;
 ////////////////////////
 
@@ -643,7 +670,8 @@ void createAnimationObjects() {
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, zAxis),
-		MatrixFactory::createTranslationMat4(vec3(10 + 10,0,0))
+		MatrixFactory::createTranslationMat4(vec3(10 + 10,0,0)),
+		MERCURY
 	};
 	animationObjects.push_back(mercuryAnimObj);
 
@@ -655,19 +683,21 @@ void createAnimationObjects() {
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, zAxis),
-		MatrixFactory::createTranslationMat4(vec3(10 + 15,0,0))
+		MatrixFactory::createTranslationMat4(vec3(10 + 15,0,0)),
+		VENUS
 	};
 	animationObjects.push_back(venusAnimObj);
 
 	//Earth
 	animationObject earthAnimObj = animationObject{
 		earthNode,
-		20,
+		100,
 		11,
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(earthTilt, zAxis),
-		MatrixFactory::createTranslationMat4(vec3(10 + 20,0,0))
+		MatrixFactory::createTranslationMat4(vec3(10 + 20,0,0)),
+		EARTH
 	};
 	animationObjects.push_back(earthAnimObj);
 
@@ -679,7 +709,8 @@ void createAnimationObjects() {
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, zAxis),
-	MatrixFactory::createTranslationMat4(vec3(10 + 25,0,0))
+	MatrixFactory::createTranslationMat4(vec3(10 + 25,0,0)),
+	MARS
 	};
 	animationObjects.push_back(marsAnimObj);
 
@@ -691,7 +722,8 @@ void createAnimationObjects() {
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, zAxis),
-	MatrixFactory::createTranslationMat4(vec3(10 + 30,0,0))
+	MatrixFactory::createTranslationMat4(vec3(10 + 30,0,0)),
+	JUPITER
 	};
 
 	animationObjects.push_back(jupiterAnimObj);
@@ -704,7 +736,8 @@ void createAnimationObjects() {
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, zAxis),
-	MatrixFactory::createTranslationMat4(vec3(10 + 35,0,0))
+	MatrixFactory::createTranslationMat4(vec3(10 + 35,0,0)),
+	SATURN
 	};
 	animationObjects.push_back(saturnAnimObj);
 
@@ -716,7 +749,8 @@ void createAnimationObjects() {
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, zAxis),
-		MatrixFactory::createTranslationMat4(vec3(10 + 40,0,0))
+		MatrixFactory::createTranslationMat4(vec3(10 + 40,0,0)),
+		URANUS
 	};
 	animationObjects.push_back(uranusAnimObj);
 
@@ -728,7 +762,8 @@ void createAnimationObjects() {
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, zAxis),
-	MatrixFactory::createTranslationMat4(vec3(10 + 45,0,0))
+	MatrixFactory::createTranslationMat4(vec3(10 + 45,0,0)),
+	NEPTUN
 	};
 	animationObjects.push_back(neptuAnimObj);
 }
@@ -756,6 +791,13 @@ void updateAnimation() {
 		//Set the transformation matrix (This will overwrite anything else in the transformation):
 		obj.node->setMatrix(orbitRot * obj.sunDistance * compensatedTilt * selfRot);
 
+		//Update the camera position and center
+		if (obj.stencilId == stencilId) {
+			cameraTargetTranslation = obj.sunDistance;
+			cameraTargetRotation = orbitRot;
+		}
+		//
+
 		//Update the actual animation object with the copy:
 		animationObjects[i] = obj;
 		i++;
@@ -780,7 +822,7 @@ void drawSkyBox() {
 	Camera camCopy = cam;
 	camCopy.ViewMatrix = MatrixFactory::createMat4FromMat3(MatrixFactory::createMat3FromMat4(camCopy.ViewMatrix));
 
-	skyBoxNode->draw(&cam);
+	skyBoxNode->draw(&camCopy);
 
 	//glDepthFunc(GL_LESS);
 	glFrontFace(GL_CCW);
@@ -813,23 +855,81 @@ void drawLensFlare() {
 	
 }
 
+void drawStencilBuffer() {
+	glEnable(GL_STENCIL_TEST);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	//
+
+	glStencilFunc(GL_ALWAYS, EARTH, -1);
+	updateCameraInShader(earthShaderV2);
+	earthNode->draw(&cam);
+
+	glStencilFunc(GL_ALWAYS, JUPITER, -1);
+	updateCameraInShader(jupiterShader);
+	JupiterTex->Bind(JupiterTex->GetId());
+	jupiterNode->draw(&cam);
+
+	updateCameraInShader(blinnPhongShader);
+
+	glStencilFunc(GL_ALWAYS, MERCURY, -1);
+	bindTextureToShader(MercuryTex, blinnPhongShader);
+	mercuryNode->draw(&cam);
+
+	glStencilFunc(GL_ALWAYS, VENUS, -1);
+	bindTextureToShader(VenusTex, blinnPhongShader);
+	venusNode->draw(&cam);
+
+	glStencilFunc(GL_ALWAYS, MARS, -1);
+	bindTextureToShader(MarsTex, blinnPhongShader);
+	marsNode->draw(&cam);
+
+	glStencilFunc(GL_ALWAYS, SATURN, -1);
+	bindTextureToShader(SaturnTex, blinnPhongShader);
+	saturnNode->draw(&cam);
+
+	bindTextureToShader(SaturnRingTex, blinnPhongShader);
+	saturnRingNode->draw(&cam);
+
+	glStencilFunc(GL_ALWAYS, URANUS, -1);
+	bindTextureToShader(UranusTex, blinnPhongShader);
+	uranusNode->draw(&cam);
+
+	glStencilFunc(GL_ALWAYS, NEPTUN, -1);
+	bindTextureToShader(NeptuneTex, blinnPhongShader);
+	neptuneNode->draw(&cam);
+
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);//This will prevent the following objects to overwrite the stencil ID's
+	glDisable(GL_STENCIL_TEST);
+}
+
 void drawScene() {
 	if (animationInProgress) updateAnimation();
+
+	drawStencilBuffer();
+
 	bloom->bindHDRBuffer();
 	
 	//We have to draw everything but the bloom in here (skybox last for performance reasons):
+
+	//Earth
+	EarthHeightMap->Bind(1);
 	EarthSpecularMap->Bind(2);
+	EarthClouds->Bind(3);
+	EarthCloudTransparacy->Bind(4);
+
 	checkResolution();
 	if (highResu) {
 		EarthColorMapHighResu->Bind();
-		EarthHeightMapHighResu->Bind(1);
+		EarthNightHighResu->Bind(5);
 	}
 	else {
 		EarthColorMapLowResu->Bind();
-		EarthHeightMapLowResu->Bind(1);
-	}	
+		EarthNightLowResu->Bind(5);
+	}
+
 	updateCameraInShader(earthShaderV2);
 	earthNode->draw(&cam);
+	///
 
 	updateCameraInShader(jupiterShader);
 	JupiterTex->Bind(JupiterTex->GetId());
@@ -864,7 +964,6 @@ void drawScene() {
 	SunTex->Bind(10);
 	sunNode->draw(&cam);
 
-	scenegraph->draw();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
 	bloom->combineProcess(bloomMergeShader);	
@@ -873,7 +972,7 @@ void drawScene() {
 
 /////////////////////////////////////////////////////////////////////// WINDOW CALLBACKS
 
-//Here we add all the destroy/Delete functions. Maybe we should add one for textures.
+//Here we add all the destroy/Delete functions.
 void window_close_callback(GLFWwindow* win)
 {
 	deleteShaders();
@@ -907,6 +1006,8 @@ double lastX = screenWidth / 2; // Set to center of screen
 double lastY = screenHeight / 2;
 bool firstMouseCall = true;
 bool mouseClicked;
+bool doubleClicked;
+float doubleClickTimer = 0.0f;
 qtrn rotQtrn = qtrn(1, 0, 0, 0);
 
 //Scrolling (zooming)
@@ -986,10 +1087,20 @@ void process_keyboard_input(GLFWwindow* win) {
 	);
 	/////////////////////////
 
-	if (keyP) animationInProgress = !animationInProgress; //Change resolution
+	if (keyP) animationInProgress = !animationInProgress; // Pause / Unpause animation
 }
 
 void mouse_callback(GLFWwindow* win, double xpos, double ypos) {
+
+	//Stencil buffer:
+	if (doubleClicked) {
+		glReadPixels(xpos, screenHeight - 1 - ypos, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &stencilId);
+		cout << stencilId << endl;
+		cam.Up = vec3(0, 1, 0);
+		doubleClicked = false;
+		return;
+	}
+	//
 
 	if (!mouseClicked) {
 		firstMouseCall = true;
@@ -1002,7 +1113,7 @@ void mouse_callback(GLFWwindow* win, double xpos, double ypos) {
 		firstMouseCall = false;
 	}
 
-	float xoffset = xpos- lastX;
+	float xoffset = xpos - lastX;
 	float yoffset = ypos - lastY;
 	lastX = xpos;
 	lastY = ypos;
@@ -1014,12 +1125,30 @@ void mouse_callback(GLFWwindow* win, double xpos, double ypos) {
 	qtrn q2 = qtrn::qFromAngleAxis(xoffset, yAxis);
 	rotQtrn = q1 * q2 * rotQtrn;
 
+
 	mouseChange = true;
+
+
 }
 
 void mouse_button_callback(GLFWwindow* win, int button, int action, int mods) {
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) mouseClicked = true;
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) mouseClicked = false;
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		if (doubleClickTimer <= 0) {
+			mouseClicked = true;
+			doubleClicked = false;
+			doubleClickTimer = 30;
+		}
+		else {
+			mouseClicked = false;
+			doubleClicked = true;
+			doubleClickTimer = 0;
+		}
+
+	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+		mouseClicked = false;
+	}
 }
 
 void scroll_callback(GLFWwindow* win, double xOffset, double yOffset) {
@@ -1033,11 +1162,15 @@ void mouse_initialize(GLFWwindow* win) {
 }
 
 void mouse_update(GLFWwindow* win) {
-	cameraTranslation = MatrixFactory::createTranslationMat4(vec3(0, 0, -cameraDistance));
+	//cam.ViewMatrix = cameraTranslation * cameraRotation;
+	cameraTranslation = MatrixFactory::createTranslationMat4(vec3(0, 0, cameraDistance));
 	cameraRotation = matrixFromQtrn(rotQtrn);
-	cam.ViewMatrix = cameraTranslation * cameraRotation;
-	mat4 inv = inverse(cam.ViewMatrix);
-	cam.Eye = vec3(inv.data[11], inv.data[12], inv.data[13]);
+
+	if (stencilId == 0) cameraTargetTranslation = cameraTargetRotation = mat4(1);//i.e. We are looking at the sun
+			
+	cam.Eye = vec3(cameraTargetRotation * cameraTargetTranslation * cameraRotation * cameraTranslation * vec4(0, 0, 0, 1));
+	cam.Center = vec3(cameraTargetRotation * cameraTargetTranslation * vec4(0, 0, 0, 1));
+	cam.update();
 }
 
 ///////////////////////////////////////////////////////////////////////// SETUP
@@ -1184,7 +1317,10 @@ void run(GLFWwindow* win)
 		double elapsed_time = time - last_time;
 		last_time = time;
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearStencil(0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		doubleClickTimer--;
 
 		//INPUT:
 		get_keyboard_input(win);

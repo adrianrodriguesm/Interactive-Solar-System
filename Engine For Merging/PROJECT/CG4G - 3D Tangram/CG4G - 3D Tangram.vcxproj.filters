@@ -175,5 +175,17 @@
     <None Include="..\..\Shaders\flareV.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="..\..\Shaders\blinnPhongV.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\jupiterF.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\jupiterV.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\Shaders\blinnPhongF.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@ SceneNode::SceneNode() {
 	children = std::vector<SceneNode*>();
 	modelMatrix= mat4(1);
 	scaleMatrix = mat4(1);
+	worldPosition = vec4(0);
 }
 
 SceneNode* SceneNode::createNode() {
@@ -32,6 +33,7 @@ void SceneNode::draw(Camera* cam) {
 		//if (this->texture != nullptr) this->texture->Bind();
 
 		mat4 totalMatrix = parent->modelMatrix * this->modelMatrix * this->scaleMatrix;
+		this->worldPosition = totalMatrix * vec4(0,0,0,1);
 		glUniformMatrix4fv(shader->Uniforms["ModelMatrix"], 1, GL_TRUE, totalMatrix.data);
 		glUniformMatrix4fv(shader->Uniforms["ViewMatrix"], 1, GL_TRUE, cam->ViewMatrix.data);
 		glUniformMatrix4fv(shader->Uniforms["ProjectionMatrix"], 1, GL_TRUE, cam->ProjectionMatrix.data);

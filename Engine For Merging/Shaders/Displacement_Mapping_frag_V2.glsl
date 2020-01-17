@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 struct Attenuation 
 {
@@ -23,6 +23,10 @@ out vec4 FragColor;
 uniform sampler2D ColorMap;
 uniform sampler2D HeightMap;
 uniform sampler2D SpecularMap;
+uniform sampler2D Clouds;
+uniform sampler2D CloudTransparancy;
+uniform sampler2D NightMap;
+
 uniform vec4 lightColor;
 uniform Attenuation att;
 
@@ -32,6 +36,8 @@ int max_iter = 1000;
 
 void main()
 {	
+
+	//Displacement Mapping:
 	vec2 UV_temp = exTexcoord;
 	vec2 texCoord = exTexcoord;
 	float th;
@@ -67,7 +73,7 @@ void main()
     att.quadratic * (distance * distance)); 
                 
     //AMBIENT LIGHT
-    float ambientStrength = 0.2f;
+    float ambientStrength = 0.25f;
     vec4 ambientLight = lightColor * ambientStrength * attenuationValue;          
     //DIFFUSE LIGHT
     float diff = max(dot(vec4(normal,1.0f),lightDirection), 0.0f);
@@ -80,6 +86,11 @@ void main()
     float spec =  pow(max(dot(normal, halfwayVector), 0.0), shininess);
     vec4 specularLight = lightColor * specularStrength * spec * attenuationValue;
     
-                
-	FragColor = texture(ColorMap, texCoord) * (ambientLight + diffuseLight +  specularLight);
+	//Earth bonus trix:
+	vec4 nightDayColor = mix(texture(NightMap,texCoord), texture(ColorMap,texCoord), diff);//Fade to nightmap
+	float cloudTrans = 1.1 * texture(CloudTransparancy, exTexcoord).x;//Get cloud transparancy
+    vec4 tempColor = mix(texture(Clouds,exTexcoord), nightDayColor, cloudTrans);//Put clouds with transparancy
+	//
+
+	FragColor = tempColor * (ambientLight + diffuseLight +  specularLight);
 }
