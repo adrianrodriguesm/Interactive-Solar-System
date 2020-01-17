@@ -519,7 +519,7 @@ void lightingSetUp(Shader *shader)
 	glUniform4f(shader->Uniforms["lightColor"], 1.0f,1.0f,1.0f,1.0f);
 	glUniform1f(shader->Uniforms["att.constant"], 1.0f);
 	glUniform1f(shader->Uniforms["att.linear"], 0.0014f);
-	glUniform1f(shader->Uniforms["att.quadratic"], 0.00007f);
+	glUniform1f(shader->Uniforms["att.quadratic"], 0.000007f);
 	glUseProgram(0);
 }
 
