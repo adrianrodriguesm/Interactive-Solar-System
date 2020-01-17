@@ -51,7 +51,7 @@ void main(void)
     mat2 rot = rotate2d(radians(90.0));
     
     //AMBIENT LIGHT
-    float ambientStrength = 0.1f;
+    float ambientStrength = 0.2f;
     vec4 ambientLight = lightColor * ambientStrength * attenuationValue;
     
     //DIFFUSE LIGHT
@@ -59,7 +59,7 @@ void main(void)
     vec4 diffuseLight = lightColor * diff * attenuationValue;
     
     //SPECULAR LIGHT
-    float specularStrength = 0.2;
+    float specularStrength = 0.3;
     vec3 halfwayVector = normalize(lightDirection + viewDir).xyz;
     
     float spec =  pow(max(dot(normal, halfwayVector), 0.0), shininess);
