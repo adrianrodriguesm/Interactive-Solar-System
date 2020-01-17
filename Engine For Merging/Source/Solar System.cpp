@@ -20,9 +20,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-
-
-
 ////////////////////////////////////////////////// VARIABLES
 
 //General
@@ -43,6 +40,7 @@ mat4 cameraRotation;
 mat4 cameraTranslation;
 mat4 cameraTargetRotation = MatrixFactory::createRoationMat4(0, yAxis);
 mat4 cameraTargetTranslation = MatrixFactory::createTranslationMat4(vec3(0));
+bool highResu = false; // Bool for resolution change
 
 //Declaration of Textures:
 Texture* EarthColorMapLowResu;
@@ -72,8 +70,6 @@ FlareTexture* flare6;
 FlareTexture* flareTex[6];
 FlareManager* flareManager;
 
-bool highResu = false; // Bool for resolution change
-
 //Declaration of meshes:
 Mesh* sphereMesh;
 Mesh* skyBoxMesh;
@@ -82,7 +78,7 @@ Mesh* torusMesh;
 /////////////////
 
 //Declaration of Shaders:
-Shader* earthShaderV2 = new Shader();
+Shader* earthShader = new Shader();
 Shader* bloomShader = new Shader();
 Shader* blurrShader = new Shader();
 Shader* bloomMergeShader = new Shader();
@@ -104,8 +100,8 @@ bool isEmpty = false;
 bool justOnce = true;
 void rebootAnin();
 
-///Stencil buffer id's
-unsigned int stencilId = 0;
+///Stencil buffer ids:
+unsigned int stencilId = 0; //0 is the default id, this will be used to look at the sun
 
 #define MERCURY 1
 #define VENUS 2
@@ -259,13 +255,13 @@ void createTextures() {
 	EarthClouds = new Texture("../../Textures/Earth/earthcloudmap.jpg");
 	EarthCloudTransparacy = new Texture("../../Textures/Earth/earthcloudmaptrans.jpg");
 
-	earthShaderV2->Use();
-	glUniform1i(earthShaderV2->Uniforms["ColorMap"], 0);
-	glUniform1i(earthShaderV2->Uniforms["HeightMap"], 1);
-	glUniform1i(earthShaderV2->Uniforms["SpecularMap"], 2);
-	glUniform1i(earthShaderV2->Uniforms["Clouds"], 3);
-	glUniform1i(earthShaderV2->Uniforms["CloudTransparancy"], 4);
-	glUniform1i(earthShaderV2->Uniforms["NightMap"], 5);
+	earthShader->Use();
+	glUniform1i(earthShader->Uniforms["ColorMap"], 0);
+	glUniform1i(earthShader->Uniforms["HeightMap"], 1);
+	glUniform1i(earthShader->Uniforms["SpecularMap"], 2);
+	glUniform1i(earthShader->Uniforms["Clouds"], 3);
+	glUniform1i(earthShader->Uniforms["CloudTransparancy"], 4);
+	glUniform1i(earthShader->Uniforms["NightMap"], 5);
 
 	glUseProgram(0);
 	///
@@ -346,40 +342,28 @@ void destroyMeshes() {
 //Make a "createYOURShader" function for each of your shaders like this:
 
 void createEarthShader() {
-	earthShader->Load("Displacement_Mapping_vert.glsl", "Displacement_Mapping_frag.glsl"); //  SHADER FILES MUST BE IN SHADER FOLDER !!
+	earthShader->Load("Displacement_Mapping_vert_V2.glsl", "Displacement_Mapping_frag_V2.glsl"); //  SHADER FILES MUST BE IN SHADER FOLDER !!
 	earthShader->AddAttribute(0, "inPosition");
 	earthShader->AddAttribute(1, "inTexcoord");
 	earthShader->AddAttribute(2, "inNormal");
+	earthShader->AddUniform("SunPosition");
 	earthShader->AddUniform("ModelMatrix");
 	earthShader->AddUniform("ProjectionMatrix");
 	earthShader->AddUniform("ViewMatrix");
 	earthShader->AddUniform("HeightMap");
 	earthShader->AddUniform("ColorMap");
+	earthShader->AddUniform("SpecularMap");
+	earthShader->AddUniform("Clouds");
+	earthShader->AddUniform("CloudTransparancy");
+	earthShader->AddUniform("NightMap");
+
+	earthShader->AddUniform("lightPosition");
+	earthShader->AddUniform("cameraValue");
+	earthShader->AddUniform("lightColor");
+	earthShader->AddUniform("att.constant");
+	earthShader->AddUniform("att.linear");
+	earthShader->AddUniform("att.quadratic");
 	earthShader->Create();
-
-	//Temporary V2 to test specular shading (Victor do your thing! :P )
-	earthShaderV2->Load("Displacement_Mapping_vert_V2.glsl", "Displacement_Mapping_frag_V2.glsl"); //  SHADER FILES MUST BE IN SHADER FOLDER !!
-	earthShaderV2->AddAttribute(0, "inPosition");
-	earthShaderV2->AddAttribute(1, "inTexcoord");
-	earthShaderV2->AddAttribute(2, "inNormal");
-	earthShaderV2->AddUniform("SunPosition");
-	earthShaderV2->AddUniform("ModelMatrix");
-	earthShaderV2->AddUniform("ProjectionMatrix");
-	earthShaderV2->AddUniform("ViewMatrix");
-	earthShaderV2->AddUniform("HeightMap");
-	earthShaderV2->AddUniform("ColorMap");
-	earthShaderV2->AddUniform("SpecularMap");
-	earthShaderV2->AddUniform("Clouds");
-	earthShaderV2->AddUniform("CloudTransparancy");
-	earthShaderV2->AddUniform("NightMap");
-
-	earthShaderV2->AddUniform("lightPosition");
-	earthShaderV2->AddUniform("cameraValue");
-	earthShaderV2->AddUniform("lightColor");
-	earthShaderV2->AddUniform("att.constant");
-	earthShaderV2->AddUniform("att.linear");
-	earthShaderV2->AddUniform("att.quadratic");
-	earthShaderV2->Create();
 }
 
 void createskyBoxShader() {
@@ -547,7 +531,7 @@ SceneNode* neptuneNode;
 SceneNode* lensFlare;
 
 ///////////////////
-void createAnimationObjects();
+void createAnimationObjects();//Pre-declaration
 
 ///SKYBOX
 float skyBoxSize = 200;
@@ -617,7 +601,7 @@ void loadScene() {
 void createScene(SceneGraph* scenegraph) {
 	
 	lightingSetUp(jupiterShader);
-	lightingSetUp(earthShaderV2);
+	lightingSetUp(earthShader);
 	lightingSetUp(blinnPhongShader);
 	base = scenegraph->createNode();
 	base->setName("base");
@@ -642,8 +626,7 @@ void createScene(SceneGraph* scenegraph) {
 	//Earth
 	earthNode = base->createNode();
 	earthNode->setMesh(sphereMesh);
-	//earthNode->setShader(earthShader);
-	earthNode->setShader(earthShaderV2);
+	earthNode->setShader(earthShader);
 	earthNode->setTexture(EarthColorMapLowResu);
 	earthNode->setMatrix(MatrixFactory::createTranslationMat4(vec3(20, 0, 0)));
 	earthNode->setName("earthNode");
@@ -739,13 +722,13 @@ bool animationInProgress = true;
 //In the "animationObject" struct we have to fill in all information that is relative to the animation.
 typedef struct {
 	SceneNode* node;
-	float selfRotateSpeed; //The speed at which the planet rotates around itself
-	float orbitSpeed; //The speed of the orbit around the sun
+	float selfRotateSpeed;		//The speed at which the planet rotates around itself
+	float orbitSpeed;			//The speed of its orbit around the sun
 	qtrn currentSelfRoation;
 	qtrn currentOrbitRotation;
 	qtrn tilt; 
-	mat4 sunDistance; //Position relative to the Sun
-	unsigned int stencilId;
+	mat4 sunDistance;			//Distance relative to the Sun
+	unsigned int stencilId;		//Stencil ID for identification
 } animationObject;
 ////////////////////////
 
@@ -760,7 +743,7 @@ void createAnimationObjects() {
 	//Mercury
 	animationObject mercuryAnimObj = animationObject{
 		mercuryNode,
-		30,
+		100,
 		17,
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, yAxis),
@@ -773,7 +756,7 @@ void createAnimationObjects() {
 	//Venus
 	animationObject venusAnimObj = animationObject{
 		venusNode,
-		25,
+		90,
 		15,
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, yAxis),
@@ -786,7 +769,7 @@ void createAnimationObjects() {
 	//Earth
 	animationObject earthAnimObj = animationObject{
 		earthNode,
-		100,
+		80,
 		11,
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, yAxis),
@@ -799,7 +782,7 @@ void createAnimationObjects() {
 	//Mars
 	animationObject marsAnimObj = animationObject{
 	marsNode,
-	22,
+	90,
 	13,
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, yAxis),
@@ -812,7 +795,7 @@ void createAnimationObjects() {
 	//Jupiter:
 	animationObject jupiterAnimObj = animationObject{
 	jupiterNode,
-	17,
+	50,
 	9,
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, yAxis),
@@ -826,7 +809,7 @@ void createAnimationObjects() {
 	//Saturn:
 	animationObject saturnAnimObj = animationObject{
 	saturnNode,
-	14,
+	60,
 	7,
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, yAxis),
@@ -839,7 +822,7 @@ void createAnimationObjects() {
 	//Uranus
 	animationObject uranusAnimObj = animationObject{
 		uranusNode,
-		11,
+		60,
 		5,
 		qtrn::qFromAngleAxis(0, yAxis),
 		qtrn::qFromAngleAxis(0, yAxis),
@@ -852,7 +835,7 @@ void createAnimationObjects() {
 	//Neptune
 	animationObject neptuAnimObj = animationObject{
 	neptuneNode,
-	8,
+	60,
 	3,
 	qtrn::qFromAngleAxis(0, yAxis),
 	qtrn::qFromAngleAxis(0, yAxis),
@@ -914,7 +897,7 @@ void rebootAnin() {
 
 /////////////////////////////////////////////////////////////////////// DRAW SCENE
 void checkResolution() {
-	vec3 earthPos = vec3(earthNode->getMatrix() * vec4(0, 0, 0, 1));
+	vec3 earthPos = vec3(earthNode->getMatrix() * vec4(0, 0, 0, 1));//Calculating the earth's position supposing it spawned at 0,0,0.
 	highResu = fabs((earthPos - cam.Eye).MagnitudeSqrd()) < 100? true : false;
 }
 
@@ -932,7 +915,6 @@ void drawSkyBox() {
 
 	skyBoxNode->draw(&camCopy);
 
-	//glDepthFunc(GL_LESS);
 	glFrontFace(GL_CCW);
 }
 
@@ -966,13 +948,15 @@ void drawLensFlare() {
 	
 }
 
+//We are drawing the 'real' scene to the HDR buffer so we need to an extra draw to the main framebuffer in which we store the stencil buffer results
+//This is not computationally efficient but it was the best thing we could think of within the time frame we had.
 void drawStencilBuffer() {
 	glEnable(GL_STENCIL_TEST);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	//
 
 	glStencilFunc(GL_ALWAYS, EARTH, -1);
-	updateCameraInShader(earthShaderV2);
+	updateCameraInShader(earthShader);
 	earthNode->draw(&cam);
 
 	glStencilFunc(GL_ALWAYS, JUPITER, -1);
@@ -1023,12 +1007,13 @@ void drawScene() {
 	//We have to draw everything but the bloom in here (skybox last for performance reasons):
 
 	//Earth
-	EarthHeightMap->Bind(1);
-	EarthSpecularMap->Bind(2);
-	EarthClouds->Bind(3);
-	EarthCloudTransparacy->Bind(4);
+	EarthHeightMap->Bind(1);		//Height map for displacement mapping
+	EarthSpecularMap->Bind(2);		//Specular map for reflecting light on the ocean of earth
+	EarthClouds->Bind(3);			//Clouds
+	EarthCloudTransparacy->Bind(4);	//Transpary map for the clouds
 
 	checkResolution();
+	//Bind higher resolution textures if we are close to earth:
 	if (highResu) {
 		EarthColorMapHighResu->Bind();
 		EarthNightHighResu->Bind(5);
@@ -1038,7 +1023,7 @@ void drawScene() {
 		EarthNightLowResu->Bind(5);
 	}
 
-	updateCameraInShader(earthShaderV2);
+	updateCameraInShader(earthShader);
 	earthNode->draw(&cam);
 	
 	//Jupiter
@@ -1100,18 +1085,14 @@ void window_size_callback(GLFWwindow* win, int winx, int winy)
 	aspect = (float)winx / (float)winy;
 	screenHeight = winy;
 	screenWidth = winx;
-	cout << "aspect: " << aspect << " | width : " << winx << " | height : " << winy << std::endl;
 	scenegraph->getCamera()->ProjectionMatrix = MatrixFactory::createPerspectiveProjectionMatrix(45, aspect, 1, cameraMaxDistance);
 }
 
 ////////////////////////////////////////////////////////////////////////// INPUT
 
 //Keyboard variables:
-bool keyW, keyD, keyS, keyA, keyR, keyP, keyG, keyESC, keyE, keyQ;
-float movStep = 0.1f;
-float angStep = 1;
+bool keyESC;
 float timeoutKeyP = 0.0f;
-float timeoutKeyG = 0.0f;
 
 //Mouse Variables:
 float sensitivity = 0.5;
@@ -1126,96 +1107,49 @@ qtrn rotQtrn = qtrn(1, 0, 0, 0);
 //Scrolling (zooming)
 float scrollSensitivity = 0.5;
 
-//Shape movement
-float shapeMovementX = 0, shapeMovementY = 0;
-float shapeRotation = 0;
-
 void initialize_inputs() {
-	keyW = false;
-	keyD = false;
-	keyS = false;
-	keyA = false;
-	keyR = false;
-	keyP = false;
-	keyG = false;
-	keyE = false;
-	keyQ = false;
 	keyESC = false;
 }
 
 void get_keyboard_input(GLFWwindow* win) {
-	//if (glfwGetKey(win, GLFW_KEY_W) == GLFW_PRESS) { keyW = true; }
-	//else if (glfwGetKey(win, GLFW_KEY_W) == GLFW_RELEASE) { keyW = false; }
-
-	//if (glfwGetKey(win, GLFW_KEY_S) == GLFW_PRESS) { keyS = true; }
-	//else if (glfwGetKey(win, GLFW_KEY_S) == GLFW_RELEASE) { keyS = false; }
-
-	//if (glfwGetKey(win, GLFW_KEY_A) == GLFW_PRESS) { keyA = true; }
-	//else if (glfwGetKey(win, GLFW_KEY_A) == GLFW_RELEASE) { keyA = false; }
-
-	//if (glfwGetKey(win, GLFW_KEY_D) == GLFW_PRESS) { keyD = true; }
-	//else if (glfwGetKey(win, GLFW_KEY_D) == GLFW_RELEASE) { keyD = false; }
-
 	if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_PRESS) { keyESC = true; }
 	else if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_RELEASE) { keyESC = false; }
 
-	if (glfwGetKey(win, GLFW_KEY_Q) == GLFW_PRESS) { keyQ = true; }
-	else if (glfwGetKey(win, GLFW_KEY_Q) == GLFW_RELEASE) { keyQ = false; }
-
-	if (glfwGetKey(win, GLFW_KEY_E) == GLFW_PRESS) { keyE = true; }
-	else if (glfwGetKey(win, GLFW_KEY_E) == GLFW_RELEASE) { keyE = false; }
-
-	//This is a toggle key, it has a timer so that it doesn't "spam" itself when you press it:
+	// Pause / Unpause animation with P :
 	if ((glfwGetKey(win, GLFW_KEY_P) == GLFW_PRESS) && (timeoutKeyP <= 0)) {
-		keyP = true;
+		animationInProgress = !animationInProgress; 
 		timeoutKeyP = 10;
 	}
 	else {
-		keyP = false;
-		timeoutKeyP = fmaxf(--timeoutKeyP, -0.1f);
+		timeoutKeyP = fmaxf(--timeoutKeyP, -0.1f);	
 	}
 
-	/////BLOOM
-	/*if (glfwGetKey(win, GLFW_KEY_B) == GLFW_PRESS) { bloom->activateBloom(true); }
-	if (glfwGetKey(win, GLFW_KEY_V) == GLFW_PRESS) { bloom->activateBloom(false); }
-	if (glfwGetKey(win, GLFW_KEY_N) == GLFW_PRESS) { bloom->increaseExpresure(); }
-	if (glfwGetKey(win, GLFW_KEY_M) == GLFW_PRESS) { bloom->decreaseExpresure(); }*/
+	// Focus on the sun with Backspace: (Using the same timer as the pause to save time and resources and its no problem)
+	if ((glfwGetKey(win, GLFW_KEY_BACKSPACE) == GLFW_PRESS) && (timeoutKeyP <= 0)) {
+		stencilId = 0;
+		timeoutKeyP = 10;
+	}
+	else {
+		timeoutKeyP = fmaxf(--timeoutKeyP, -0.1f);
+	}
 
 	//Snapshot. Press Z to create one
 	if (glfwGetKey(win, GLFW_KEY_Z) == GLFW_PRESS) { snapshot->captureSnapshot(); }
 }
 
-void process_keyboard_input(GLFWwindow* win) {
-	if (keyA) shapeMovementX -= movStep;
-	if (keyD) shapeMovementX += movStep;
-	if (keyS) shapeMovementY -= movStep;
-	if (keyW) shapeMovementY += movStep;
-	if (keyQ) shapeRotation -= angStep;
-	if (keyE) shapeRotation += angStep;
-
-	// THIS WILL MOVE THE ENTIRE SOLAR SYSTEM
-	base->setMatrix(
-		MatrixFactory::createRoationMat4(shapeRotation, zAxis) * 
-		MatrixFactory::createTranslationMat4(vec3(shapeMovementX, shapeMovementY, 0))
-	);
-	/////////////////////////
-
-	if (keyP) animationInProgress = !animationInProgress; // Pause / Unpause animation
-}
-
 void mouse_callback(GLFWwindow* win, double xpos, double ypos) {
 
-	//Stencil buffer:
+	//Stencil buffer for planet identification:
 	if (doubleClicked) {
 		glReadPixels(xpos, screenHeight - 1 - ypos, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &stencilId);
 		cout << stencilId << endl;
-		cam.Up = vec3(0, 1, 0);
 		doubleClicked = false;
 		return;
 	}
 	//
 
-	if (!mouseClicked) {
+	//Only register changes to camera angle if the mouse button is held down:
+	if (!mouseClicked) { 
 		firstMouseCall = true;
 		return;
 	}
@@ -1237,16 +1171,12 @@ void mouse_callback(GLFWwindow* win, double xpos, double ypos) {
 	qtrn q1 = qtrn::qFromAngleAxis(yoffset, xAxis);
 	qtrn q2 = qtrn::qFromAngleAxis(xoffset, yAxis);
 	rotQtrn = q1 * q2 * rotQtrn;
-
-
-	mouseChange = true;
-
-
 }
 
 void mouse_button_callback(GLFWwindow* win, int button, int action, int mods) {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
+		//Double click for planet selection and single click for rotating camera:
 		if (doubleClickTimer <= 0) {
 			mouseClicked = true;
 			doubleClicked = false;
@@ -1265,8 +1195,8 @@ void mouse_button_callback(GLFWwindow* win, int button, int action, int mods) {
 }
 
 void scroll_callback(GLFWwindow* win, double xOffset, double yOffset) {
+	//Zoom in or out:
 	cameraDistance -= yOffset * scrollSensitivity;
-	scrollChange = true;
 }
 
 
@@ -1275,7 +1205,6 @@ void mouse_initialize(GLFWwindow* win) {
 }
 
 void mouse_update(GLFWwindow* win) {
-	//cam.ViewMatrix = cameraTranslation * cameraRotation;
 	if (!isEmpty && justOnce) {
 		justOnce = false;
 		rotQtrn = load.rot * rotQtrn;
@@ -1284,7 +1213,9 @@ void mouse_update(GLFWwindow* win) {
 	cameraRotation = matrixFromQtrn(rotQtrn);
 
 	if (stencilId == 0) cameraTargetTranslation = cameraTargetRotation = mat4(1);//i.e. We are looking at the sun
-			
+	
+	//Move the camera eye and center along with the planet that is being focused:
+	//cameraTargetTranslation and Roation are being calculated in the update animation function
 	cam.Eye = vec3(cameraTargetRotation * cameraTargetTranslation * cameraRotation * cameraTranslation * vec4(0, 0, 0, 1));
 	cam.Center = vec3(cameraTargetRotation * cameraTargetTranslation * vec4(0, 0, 0, 1));
 	cam.update();
@@ -1442,7 +1373,6 @@ void run(GLFWwindow* win)
 
 		//INPUT:
 		get_keyboard_input(win);
-		process_keyboard_input(win);
 		//Pressing escape exits the window:
 		if (keyESC) break;
 		//
