@@ -1,16 +1,11 @@
 //////// CONTROLS: ////////
 
 Camera movement:
-Click and hold LMB while moving mouse to rotate camera.
-Scroll to zoom.
+-Click and hold LMB while moving mouse to rotate camera.
+-Scroll to zoom.
+-Double click on a planet to focus on it.
 
-Moving figure:
-w = move up (y+)
-s = move down (y-)
-d = move right (x+)
-a = move left (x-)
-e = rotate right
-q = rotate left
+Snapshot: z
 
 Animation:
 P = animate between figure and square 
