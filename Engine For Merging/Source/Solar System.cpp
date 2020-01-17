@@ -1079,8 +1079,11 @@ void drawScene() {
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	bloom->renderWithBlurr(blurrShader);
-	bloom->combineProcess(bloomMergeShader);	
-	drawLensFlare();
+	bloom->combineProcess(bloomMergeShader);
+	if (stencilId == 0) {
+		drawLensFlare();
+	}
+	
 }
 
 /////////////////////////////////////////////////////////////////////// WINDOW CALLBACKS
@@ -1279,6 +1282,9 @@ void mouse_update(GLFWwindow* win) {
 	if (!isEmpty && justOnce) {
 		justOnce = false;
 		rotQtrn = load.rot * rotQtrn;
+		cameraTargetTranslation = load.Matrices["camTargetTrans"];
+		cameraTargetRotation = load.Matrices["camTargetRot"];
+		stencilId = load.stencilId;
 	}
 	cameraTranslation = MatrixFactory::createTranslationMat4(vec3(0, 0, cameraDistance));
 	cameraRotation = matrixFromQtrn(rotQtrn);
@@ -1454,7 +1460,7 @@ void run(GLFWwindow* win)
 	}
 	std::cout << "Saving the scene...." << std::endl;
 	////Save the last state of the scene
-	load.updateState(scenegraph, cameraDistance, rotQtrn);
+	load.updateState(scenegraph, cameraDistance, rotQtrn, cameraTargetRotation,cameraTargetTranslation,stencilId);
 	//////////
 	glfwDestroyWindow(win);
 	glfwTerminate();

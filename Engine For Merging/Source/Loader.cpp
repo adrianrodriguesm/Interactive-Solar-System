@@ -9,7 +9,7 @@ Loader::Loader()
 
 
 
-void Loader::updateState(SceneGraph* scene, float camDistance, qtrn rot)
+void Loader::updateState(SceneGraph* scene, float camDistance, qtrn rot, mat4 camTargetRot, mat4 camTargetTrans, int stencilId)
 {
 
 	file.open(".\\..\\..\\FILE\\State.txt", ios::out);
@@ -35,6 +35,15 @@ void Loader::updateState(SceneGraph* scene, float camDistance, qtrn rot)
 	file << rot.x << endl;
 	file << rot.y << endl;
 	file << rot.z << endl;
+
+	file << "camTargetRot" << endl;
+	file << camTargetRot << endl;
+
+	file << "camTargetTrans" << endl;
+	file << camTargetTrans << endl;
+
+	file << "stencilId" << endl;
+	file << stencilId << endl;
 
 
 	//closing the file
@@ -111,6 +120,16 @@ void Loader::readState()
 			std::getline(file, text);
 			camDist = strtof((text).c_str(), 0);
 
+		}
+		else if (text == ("camTargetRot")) {
+			loadMatrices(text);
+		}
+		else if (text == ("camTargetTrans")) {
+			loadMatrices(text);
+		}
+		else if (text == ("stencilId")) {
+			std::getline(file, text);
+			stencilId = strtof((text).c_str(), 0);
 		}
 
 
