@@ -10,7 +10,7 @@ uniform float brightness;
 void main(void){
 
     out_colour = texture(u_Texture, pass_textureCoords);
-    out_colour.a *= brightness;
+    out_colour.rgb *= brightness;
 
 
 }

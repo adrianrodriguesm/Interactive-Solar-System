@@ -24,8 +24,8 @@
 
 //General
 const float earthTilt = 23.5;
-int screenWidth = 1920/2;
-int screenHeight = 1080/2;
+int screenWidth = 1920;
+int screenHeight = 1080;
 float aspect = (float)screenWidth / screenHeight;
 vec4 xAxis = vec4(1, 0, 0, 1);
 vec4 yAxis = vec4(0, 1, 0, 1);
