@@ -1,7 +1,7 @@
 # Interactive-Solar-System
 
 An exploration of graphical techniques involving bloom for the sun,
-displacement mapping of earth and creating a custom texture for Jupiter from perlin noise.
+displacement mapping of earth and creating a custom texture for Jupiter from perlin noise.  
 Created in a self-made Game Engine using openGL, GLFW and GLSL during Computer Graphics for Games course @ IST 2019.
 
 ## RUN
